@@ -18,10 +18,13 @@ export class Block extends GameObject {
         return  <Vector3D>chunkDivider(BLOCK_SIZE)(this.position).map(a => Math.floor(a));
     }
 
+    transparent = false;
+
     constructor(
         readonly type: BlockType,
         public position: Vector3D
     ) {
         super(position);
+        this.transparent = this.type === BlockType.AIR;
     }
 }

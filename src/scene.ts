@@ -21,17 +21,12 @@ export class Scene {
 
     addBlock(index: Vector3D, type: BlockType) {
         const blockPosition = <Vector3D>multiply(BLOCK_SIZE, index);
-
         const chunkIndex = <Vector3D>chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition);
-
         const chunk = (
             this.hasChunk(chunkIndex) ?
                 this.getChunk(chunkIndex) :
                 this.createChunk(chunkIndex)
         );
-
-        console.log('Adding block to chunk', chunk.chunkPosition, chunkIndex);
-
         return chunk.createBlock(blockPosition, type);
     }
 
@@ -49,6 +44,8 @@ export class Scene {
 
         const container = createContainer(position);
         container.name = positionId(index);
+        container.width = CHUNK_SIZE * BLOCK_SIZE;
+        container.height = CHUNK_SIZE * 2 * BLOCK_SIZE;
 
         const chunk = new Chunk(
             container,
@@ -66,7 +63,8 @@ export class Scene {
         return chunk;
     }
 
-    update() {
+    update(delta: number) {
+        // console.log(delta);
         if (this.updated) {
             this.activeChunks.sort(((idA, idB) => {
                 return sortZYX(this.chunks.get(idA).position, this.chunks.get(idB).position);

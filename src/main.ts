@@ -8,30 +8,47 @@ import {addPos} from './utils/position';
 
 let app = new PIXI.Application({width: 256, height: 256});
 document.body.appendChild(app.view);
+app.renderer.backgroundColor = 0xf00000;
 
 const stage = new PIXI.Container();
-
 app.loader.load(setup);
+
+// setup ticker
+var ticker = new PIXI.Ticker();
+ticker.add((delta: number) => {
+    scene.update(delta);
+    app.renderer.render(stage);
+}, PIXI.UPDATE_PRIORITY.LOW);
+
+ticker.start();
+
+
 
 let scene: Scene = new Scene(stage);
 
 //
 // createTower(scene, BlockType.ROCK, [4, 8, 1]);
-// createTower(scene, BlockType.ROCK, [5, 8, 1]);
-// createTower(scene, BlockType.ROCK, [4, 7, 1]);
-// createTower(scene, BlockType.ROCK, [2, 0, 0]);
+// createTower(scene, BlockType.ROCK, [6, 0, 0]);
+// // createTower(scene, BlockType.ROCK, [4, 7, 1]);
+// // createTower(scene, BlockType.ROCK, [2, 0, 0]);
+// //
+createArch(scene,  BlockType.ROCK, [4, 3, 0]);
+// //
+// // scene.addBlock([CHUNK_SIZE - 1, 0, 0], BlockType.ROCK);
+// // scene.addBlock([CHUNK_SIZE, 0, 0], BlockType.ROCK);
 //
-createArch(scene,  BlockType.ROCK, [2, 2, 0]);
-//
-// scene.addBlock([CHUNK_SIZE - 1, 0, 0], BlockType.ROCK);
-// scene.addBlock([CHUNK_SIZE, 0, 0], BlockType.ROCK);
-
 createGround(scene,  BlockType.GRASS, [0, 0, -1]);
+createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
+// // createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
+//
+scene.addBlock([0, 0, 0], BlockType.ROCK);
+scene.addBlock([1, 0, 0], BlockType.ROCK);
+scene.addBlock([2, 0, 0], BlockType.ROCK);
+scene.addBlock([3, 0, 0], BlockType.ROCK);
+scene.addBlock([2, 0, 1], BlockType.ROCK);
 
-scene.addBlock([0, 0, -1], BlockType.ROCK);
-scene.addBlock([1, 0, -1], BlockType.ROCK);
-scene.addBlock([2, 0, -1], BlockType.ROCK);
-scene.addBlock([3, 0, -1], BlockType.ROCK);
+scene.addBlock([5, 5, 0], BlockType.ROCK);
+
 
 function createArch(scene: Scene, type: BlockType, start: Vector3D) {
     scene.addBlock(addPos(start, [0, 0, 0]), type);
@@ -50,7 +67,6 @@ function createArch(scene: Scene, type: BlockType, start: Vector3D) {
     scene.addBlock(addPos(start, [6, 0, 0]), type);
     scene.addBlock(addPos(start, [6, 0, 1]), type);
     scene.addBlock(addPos(start, [6, 0, 2]), type);
-    scene.addBlock(addPos(start, [6, 0, 3]), type);
     scene.addBlock(addPos(start, [6, 0, 3]), type);
 }
 
@@ -75,14 +91,9 @@ function createGround(scene: Scene, type: BlockType, start: Vector3D) {
 }
 
 function setup() {
-    requestAnimationFrame(draw);
+    console.log('Setup');
 }
 
-function draw() {
-    scene.update();
-    app.renderer.render(stage);
-    requestAnimationFrame(draw);
-}
 
 
 // Debug

@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js';
 
 import {BLOCK_SIZE, CHUNK_SIZE} from './config';
-import {divideBy, multiply} from './utils/calc';
+import {divideBy} from './utils/calc';
 import {chunkSelector, Vector3D} from './types';
 import {Block, BlockType} from './block';
-import {addPos, getPointsBetween, getZ, isWithin, minusPos, positionId} from './utils/position';
+import {addPos, getPointsBetween, isWithin, minusPos, positionId} from './utils/position';
 import {GameObject} from './game-object';
 import {sortZYX} from './utils/sort';
 import {LightenDarkenColor} from './utils/color';
@@ -39,6 +39,7 @@ export class Chunk extends GameObject {
             return;
         }
 
+
         this.calculateVisibleBlocks();
 
         // Sort
@@ -62,6 +63,16 @@ export class Chunk extends GameObject {
             const drawX = block.x - this.stage.x;
             const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.stage.y;
 
+            const neighbors = {
+                left:           !this.isEmpty(addPos(block.worldPosition, [-1, 0, 0])),
+                right:          !this.isEmpty(addPos(block.worldPosition, [1, 0, 0])),
+                front:          !this.isEmpty(addPos(block.worldPosition, [0, 1, 0])),
+                top:            !this.isEmpty(addPos(block.worldPosition, [0, 0, 1])),
+                back:           !this.isEmpty(addPos(block.worldPosition, [0, -1, 0])),
+                frontBottom:    !this.isEmpty(addPos(block.worldPosition, [0, 1, -1])),
+                bottom:         !this.isEmpty(addPos(block.worldPosition, [0, 0, -1])),
+            };
+
             let topColor = null;
             // Top
             switch (block.type) {
@@ -78,29 +89,83 @@ export class Chunk extends GameObject {
             this.chunkGraphics.beginFill(LightenDarkenColor(topColor, lighten));
             this.chunkGraphics.drawRect(drawX, drawY - BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 
-            let bottomColor = null;
-            // Bottom
-            switch (block.type) {
-                case BlockType.ROCK:
-                    bottomColor = 0x5A5A5A;
-                    break;
-                case BlockType.GRASS:
-                    bottomColor = 0x795128;
-                    break;
-                default:
-                    bottomColor = 0x9E34A1;
-                    break;
+            if (!neighbors.front) {
+                let frontColor = null;
+                // Front
+                switch (block.type) {
+                    case BlockType.ROCK:
+                        frontColor = 0x5A5A5A;
+                        break;
+                    case BlockType.GRASS:
+                        frontColor = 0x795128;
+                        break;
+                    default:
+                        frontColor = 0x9E34A1;
+                        break;
+                }
+                this.chunkGraphics.beginFill(LightenDarkenColor(frontColor, lighten));
+                this.chunkGraphics.drawRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
             }
-            this.chunkGraphics.beginFill(LightenDarkenColor(bottomColor, lighten));
-            this.chunkGraphics.drawRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
+
+            const lineColor = 0x000000;
+
+            if (!neighbors.top) {
+                if (!neighbors.left) {
+                    this.drawLine(drawX, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor);
+                }
+
+                if (!neighbors.right) {
+                    this.drawLine(drawX + BLOCK_SIZE, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor);
+                }
+
+                if (!neighbors.back) {
+                    this.drawLine(drawX, drawY - BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor);
+                }
+            }
+
+            if (!neighbors.front) {
+                if (!neighbors.left) {
+                    this.drawLine(drawX, drawY, 0, 0, 0, BLOCK_SIZE, lineColor);
+                }
+
+                if (!neighbors.right) {
+                    this.drawLine(drawX + BLOCK_SIZE, drawY, 0, 0, 0, BLOCK_SIZE, lineColor);
+                }
+
+                if (neighbors.frontBottom || !neighbors.bottom) {
+                    this.drawLine(drawX, drawY + BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor);
+                }
+            }
         });
 
         this.hasChanged = false;
     }
 
+    isEmpty(position: Vector3D): boolean {
+        const block = this.getBlock(position);
+        return block ? block.transparent : true;
+    }
+
+    drawLine(x: number, y: number, xA: number, yA: number, xB: number, yB: number, color: number) {
+
+        const line = new PIXI.Graphics();
+
+        line.lineStyle(1, color, 1);
+
+        // Define line position - this aligns the top left corner of our canvas
+        line.position.x = x;
+        line.position.y = y;
+
+        // Draw line
+        line.moveTo(xA, yA);
+        line.lineTo(xB, yB);
+
+        this.chunkGraphics.addChild(line);
+    }
+
     getBlock(worldPosition: Vector3D): Block | null {
         if (isPositionWithinChunk(worldPosition, this)) {
-            return this.blocks.has(positionId(worldPosition)) ? this.blocks.get(positionId(worldPosition)) : null;
+            return this.blocks.has(positionId(worldPosition)) ? this.blocks.get(positionId(worldPosition)) : new Block(BlockType.AIR, worldPosition);
         }
         const otherChunk = this.chunkSelector(<Vector3D>chunkDivider(CHUNK_SIZE)(worldPosition));
         return otherChunk ? otherChunk.getBlock(worldPosition) : null;
@@ -132,8 +197,6 @@ export class Chunk extends GameObject {
 
             if (this.isPosVisible(addPos(b.worldPosition, [0, 1, 1]))) {
                 this.blocksToRender.push(positionId(b.worldPosition));
-            } else {
-                console.log(':D')
             }
 
         });
@@ -142,7 +205,8 @@ export class Chunk extends GameObject {
 
     isPosVisible(pos: Vector3D) {
         if (isPositionWithinChunk(pos, this)) {
-            if (this.getBlock(pos)) {
+            const block = this.getBlock(pos);
+            if (block && !block.transparent) {
                 return false;
             }
             return this.isPosVisible(addPos(pos, [0, 1, 1]));
