@@ -27,6 +27,7 @@ export class Scene {
                 this.getChunk(chunkIndex) :
                 this.createChunk(chunkIndex)
         );
+        this.updated = true;
         return chunk.createBlock(blockPosition, type);
     }
 
@@ -42,18 +43,18 @@ export class Scene {
         this.updated = true;
         const position = <Vector3D>multiply(CHUNK_SIZE * BLOCK_SIZE, index);
 
-        const container = createContainer(position);
-        container.name = positionId(index);
-        container.width = CHUNK_SIZE * BLOCK_SIZE;
-        container.height = CHUNK_SIZE * 2 * BLOCK_SIZE;
+        // const container = createContainer(position);
+        // container.name = positionId(index);
+        // container.width = CHUNK_SIZE * BLOCK_SIZE;
+        // container.height = CHUNK_SIZE * 2 * BLOCK_SIZE;
 
         const chunk = new Chunk(
-            container,
+            this.stage,
             createChunkSelector(this),
             position
         );
 
-        attachContainer(this.stage)(container);
+        // attachContainer(this.stage)(container);
 
         this.chunks.set(positionId(chunk.chunkPosition), chunk);
         this.activeChunks.push(positionId(chunk.chunkPosition));
@@ -64,19 +65,38 @@ export class Scene {
     }
 
     update(delta: number) {
-        // console.log(delta);
-        if (this.updated) {
-            this.activeChunks.sort(((idA, idB) => {
-                return sortZYX(this.chunks.get(idA).position, this.chunks.get(idB).position);
-            }));
-
-            this.stage.children.sort((a, b) => this.activeChunks.indexOf(a.name) - this.activeChunks.indexOf(b.name));
-            this.updated = false;
-        }
 
         this.activeChunks
             .map(id => this.chunks.get(id))
             .forEach((chunk: Chunk) => void chunk.update());
+
+        // console.log(delta);
+        if (this.updated) {
+            // this.activeChunks.sort(((idA, idB) => {
+            //     return sortZYX(this.chunks.get(idA).position, this.chunks.get(idB).position);
+            // }));
+            //
+            // this.stage.children.sort((a, b) => this.activeChunks.indexOf(a.name) - this.activeChunks.indexOf(b.name));
+
+            this.stage.children.sort((a, b) => {
+
+                const aZ = (<any>a).zIndex;
+                const bZ = (<any>b).zIndex;
+
+                console.log(aZ, bZ);
+
+                if (aZ < bZ) {
+                    return -1;
+                }
+                if (aZ > bZ) {
+                    return 1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+
+            this.updated = false;
+        }
     }
 }
 

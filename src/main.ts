@@ -8,6 +8,10 @@ import {addPos} from './utils/position';
 
 let app = new PIXI.Application({width: 256, height: 256});
 document.body.appendChild(app.view);
+
+app.view.style.margin = "0 auto";
+app.view.style.display = "inherit";
+
 app.renderer.backgroundColor = 0xf00000;
 
 const stage = new PIXI.Container();
@@ -23,7 +27,6 @@ ticker.add((delta: number) => {
 ticker.start();
 
 
-
 let scene: Scene = new Scene(stage);
 
 //
@@ -32,14 +35,16 @@ let scene: Scene = new Scene(stage);
 // // createTower(scene, BlockType.ROCK, [4, 7, 1]);
 // // createTower(scene, BlockType.ROCK, [2, 0, 0]);
 // //
-createArch(scene,  BlockType.ROCK, [4, 3, 0]);
+createArch(scene,  BlockType.ROCK, [6, 1, 0]);
+createArch(scene,  BlockType.ROCK, [6, 2, 0]);
+createArch(scene,  BlockType.ROCK, [6, 3, 0]);
 // //
 // // scene.addBlock([CHUNK_SIZE - 1, 0, 0], BlockType.ROCK);
 // // scene.addBlock([CHUNK_SIZE, 0, 0], BlockType.ROCK);
 //
 createGround(scene,  BlockType.GRASS, [0, 0, -1]);
 createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
-// // createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
+// createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
 //
 scene.addBlock([0, 0, 0], BlockType.ROCK);
 scene.addBlock([1, 0, 0], BlockType.ROCK);
@@ -109,6 +114,9 @@ function addCameraBtn(text: string, x, y) {
     var t = document.createTextNode(text);        // Create a text node
     btn.appendChild(t);                                  // Append the text to <button>
     document.body.appendChild(btn);                      // Append <button> to <body>
+
+    btn.style.margin = "0 auto";
+    btn.style.display = "inherit";
 
     btn.addEventListener("click", () => {
 

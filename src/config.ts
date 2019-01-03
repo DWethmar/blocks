@@ -1,2 +1,2 @@
-export const CHUNK_SIZE = 20;
+export const CHUNK_SIZE = 10;
 export const BLOCK_SIZE = 10;
