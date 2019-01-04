@@ -2,12 +2,15 @@ import * as PIXI from 'pixi.js';
 
 import {Scene} from './scene';
 import {BlockType} from './block';
-import {CHUNK_SIZE} from './config';
+import {BLOCK_SIZE, CHUNK_SIZE} from './config';
 import {Vector3D} from './types';
 import {addPos} from './utils/position';
+import {divideBy} from "./utils/calc";
 import Ticker = PIXI.ticker.Ticker;
 
-let app = new PIXI.Application({width: 256, height: 256});
+const viewPort = {width: 400, height: 400};
+
+let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
 
 app.view.style.margin = "0 auto";
@@ -17,17 +20,14 @@ app.renderer.backgroundColor = 0xf00000;
 
 app.loader.load(setup);
 
-let scene: Scene = new Scene(app.stage, app.renderer);
+let scene: Scene = new Scene(app.stage, app.renderer, viewPort);
 
 // setup ticker
 var ticker = new Ticker();
 ticker.add((delta: number) => {
 
-    // scene.addBlock([
-    //     Math.floor(Math.random() * 10),
-    //     Math.floor(Math.random() * 10),
-    //     Math.floor(Math.random() * 10)
-    // ], BlockType.VOID);
+    document.title = `SODA - ${ scene.camera.xView } ${ scene.camera.yView  }`;
+
 
     scene.update(0);
     scene.render(0);
@@ -36,25 +36,19 @@ ticker.add((delta: number) => {
 ticker.speed = .5;
 ticker.start();
 
-createTower(scene, BlockType.ROCK, [4, 0, 0]);
+createArch(scene,  BlockType.ROCK, [6, 1,1]);
 
-createArch(scene,  BlockType.ROCK, [6, 1, 0]);
-createArch(scene,  BlockType.ROCK, [6, 2, 0]);
-createArch(scene,  BlockType.ROCK, [6, 3, 0]);
+createCheckers(scene,  BlockType.GRASS,  BlockType.VOID, [0, 0, 0]);
 
-createArch(scene,  BlockType.ROCK, [12, 1, 0]);
-createArch(scene,  BlockType.ROCK, [12, 2, 0]);
-createArch(scene,  BlockType.ROCK, [12, 3, 0]);
-
-createGround(scene,  BlockType.GRASS, [0, 0, -1]);
-createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
-
-
-scene.addBlock([0, 0, 0], BlockType.ROCK);
-scene.addBlock([1, 0, 0], BlockType.ROCK);
-scene.addBlock([2, 0, 0], BlockType.ROCK);
-scene.addBlock([3, 0, 0], BlockType.ROCK);
+scene.addBlock([0, 0, 1], BlockType.ROCK);
+scene.addBlock([1, 0, 1], BlockType.ROCK);
 scene.addBlock([2, 0, 1], BlockType.ROCK);
+scene.addBlock([3, 0, 1], BlockType.ROCK);
+scene.addBlock([2, 0, 1], BlockType.ROCK);
+
+
+scene.addBlock([8, 0, 1], BlockType.GRASS);
+scene.addBlock([11, 0, 1], BlockType.GRASS);
 
 const block = scene.addBlock([5, 5, 0], BlockType.ROCK);
 
@@ -100,24 +94,73 @@ function createGround(scene: Scene, type: BlockType, start: Vector3D) {
     }
 }
 
+function createCheckers(scene: Scene, type: BlockType, type2: BlockType, start: Vector3D) {
+    for (let x = 0; x < CHUNK_SIZE; x++) {
+        for (let y = 0; y < CHUNK_SIZE; y++) {
+            scene.addBlock(addPos(start, [x, y, 0]), (x+y) % 2 == 0 ? type : type2);
+        }
+    }
+}
+
 function setup() {
     console.log('Setup');
 }
 
-var drag = false;
+// Dragging
+var dragging = false;
+let mousedown = null;
+
 scene.stage.interactive = true;
-scene.stage.on("mousedown", function(e){
-    drag = true;
+scene.stage.on("mousedown", function(event: any) {
+    mousedown = {x: event.data.originalEvent.screenX, y: event.data.originalEvent.screenY};
 });
-scene.stage.on("mouseup", function(e){
-    drag = false;
+
+scene.stage.on("mouseup", function(event: any){
+    dragging = false;
+    mousedown = null;
 });
-scene.stage.on("mousemove", function(e: any){
-    if(drag){
-        scene.camera.x += e.data.originalEvent.movementX;
-        scene.camera.y += e.data.originalEvent.movementY;
+
+scene.stage.on("mousemove", function(event: any){
+    const ev_data = event.data.originalEvent;
+    if (!dragging && mousedown) {
+        if (Math.abs(mousedown.x - ev_data.screenX) > 2 || Math.abs(mousedown.y - ev_data.screenY) > 2) {
+            dragging = true;
+        }
+    }
+
+    if (dragging){
+        scene.camera.xView += event.data.originalEvent.movementX;
+        scene.camera.yView += event.data.originalEvent.movementY;
     }
 });
+
+
+// Clicking
+scene.stage.interactive = true;
+scene.stage.on("click", function(event: any){
+
+    const click = {x: event.data.global.x, y: event.data.global.y};
+
+    if (!dragging) {
+        console.log(':D', click);
+
+
+
+        const blockX = click.x - scene.camera.xView;
+        const blockY = scene.camera.yView;
+        const blockZ = 0;
+
+        const position = <Vector3D>divideBy(BLOCK_SIZE, [
+            blockX,
+            blockY,
+            blockZ,
+        ]).map(i => Math.floor(i));
+
+        scene.addBlock(position, BlockType.VOID);
+
+    }
+});
+
 
 
 // Debug
@@ -139,8 +182,8 @@ function addCameraBtn(text: string, x, y) {
 
     btn.addEventListener("click", () => {
 
-        scene.camera.x += x;
-        scene.camera.y += y;
+        scene.camera.xView += x;
+        scene.camera.yView += y;
 
     }, false);
 

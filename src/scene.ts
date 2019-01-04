@@ -2,35 +2,33 @@ import * as PIXI from 'pixi.js';
 
 import {Chunk, chunkDivider} from './chunk';
 import {BLOCK_SIZE, CHUNK_SIZE} from './config';
-import {Vector3D} from './types';
+import {Vector3D, viewPort} from './types';
 import {BlockType} from './block';
 import {positionId} from './utils/position';
 import {multiply} from './utils/calc';
-
-import InteractionEvent = PIXI.interaction.InteractionEvent;
 import {sortZYX} from "./utils/sort";
-import {GameObject} from "./game-object";
+import {Camera} from "./camera";
 
 export class Scene {
 
     public readonly chunks: Map<string, Chunk> = new Map<string, Chunk>();
     public activeChunks: string[] = [];
     public updated = false;
-    public camera = new GameObject([0, 0, 0]);
+    public camera: Camera;
 
     readonly stage = new PIXI.Container();
 
     constructor(
         readonly root:          PIXI.Container,
-        readonly renderer:      PIXI.WebGLRenderer | PIXI.CanvasRenderer
+        readonly renderer:      PIXI.WebGLRenderer | PIXI.CanvasRenderer,
+        readonly viewPort:      viewPort
     ) {
-        this.stage.interactive = true;
-        this.stage.on('click', (event: InteractionEvent) => {
-            //handle event
-            console.log(':D');
-        });
+        // root.addChild(this.stage);
 
-        root.addChild(this.stage);
+        this.camera = new Camera(this.stage.width / 2, this.stage.height / 2, viewPort, {
+            width:  this.stage.width,
+            height: this.stage.height
+        });
     }
 
     addBlock(index: Vector3D, type: BlockType) {
@@ -78,21 +76,12 @@ export class Scene {
 
     update(delta: number) {
 
-        this.stage.position.x = this.camera.x;
-        this.stage.position.y = this.camera.y - this.camera.z;
-
         this.activeChunks
             .map(id => this.chunks.get(id))
             .forEach((chunk: Chunk) => void chunk.update());
 
         // console.log(delta);
         if (this.updated) {
-            // this.activeChunks.sort(((idA, idB) => {
-            //     return sortZYX(this.chunks.get(idA).position, this.chunks.get(idB).position);
-            // }));
-            //
-            // this.stage.children.sort((a, b) => this.activeChunks.indexOf(a.name) - this.activeChunks.indexOf(b.name));
-
             this.stage.children.sort((a, b) => {
                 const aZ = (<any>a).zIndex;
                 const bZ = (<any>b).zIndex;
@@ -110,6 +99,17 @@ export class Scene {
 
             this.updated = false;
         }
+
+        this.camera.update(
+            new PIXI.Rectangle(0, 0, this.stage.width, this.stage.height)
+        );
+
+        if (this.camera.xView > 0) {
+            console.log('LD');
+        }
+
+        this.stage.position.x = -this.camera.xView;
+        this.stage.position.y = -this.camera.yView;
     }
 }
 

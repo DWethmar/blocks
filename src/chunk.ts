@@ -34,6 +34,20 @@ export class Chunk extends GameObject {
         readonly position: Vector3D
     ) {
         super(position);
+
+        // Debug
+        // const graphics = new PIXI.Graphics();
+        // graphics.beginFill(0x9E34A1);
+        // graphics.drawRect(this.x, this.y, BLOCK_SIZE * CHUNK_SIZE, BLOCK_SIZE * CHUNK_SIZE * 2);
+        //
+        // this.stage.addChild(graphics);
+
+        const pixiCircle = new PIXI.Graphics();
+        pixiCircle.lineStyle(2, 0xFF00FF);  //(thickness, color)
+        pixiCircle.drawCircle(this.x, this.y, 10);   //(x,y,radius)
+        pixiCircle.endFill();
+        (<any>pixiCircle).zIndex = getY(this.worldPosition);
+        stage.addChild(pixiCircle);
     }
 
     update() {
@@ -66,8 +80,8 @@ export class Chunk extends GameObject {
                 layer.name = positionId(this.chunkPosition) + '-' + layerIndex;
                 layer.zIndex = getZ(this.worldPosition) - getY(this.worldPosition) + layerIndex;
 
-                layer.position.x = this.x ^ this.y;
-                layer.position.y = this.y;
+                // layer.position.x = this.x ^ this.y;
+                // layer.position.y = this.y;
 
                 layer.width = CHUNK_SIZE * BLOCK_SIZE;
                 layer.height =  CHUNK_SIZE * 2 * BLOCK_SIZE;
