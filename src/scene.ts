@@ -3,34 +3,34 @@ import * as PIXI from 'pixi.js';
 import {Chunk, chunkDivider} from './chunk';
 import {BLOCK_SIZE, CHUNK_SIZE} from './config';
 import {Vector3D} from './types';
-import {BlockType} from "./block";
+import {BlockType} from './block';
 import {positionId} from './utils/position';
-import {attachContainer, createContainer} from './utils/container';
-import {sortZYX} from './utils/sort';
-import {multiply} from "./utils/calc";
+import {multiply} from './utils/calc';
+
+import InteractionEvent = PIXI.interaction.InteractionEvent;
+import {sortZYX} from "./utils/sort";
+import {GameObject} from "./game-object";
 
 export class Scene {
 
     public readonly chunks: Map<string, Chunk> = new Map<string, Chunk>();
     public activeChunks: string[] = [];
     public updated = false;
+    public camera = new GameObject([0, 0, 0]);
 
-    public stage = new PIXI.Container();
+    readonly stage = new PIXI.Container();
 
     constructor(
-        readonly renderer: PIXI.WebGLRenderer | PIXI.CanvasRenderer
+        readonly root:          PIXI.Container,
+        readonly renderer:      PIXI.WebGLRenderer | PIXI.CanvasRenderer
     ) {
-        //TEST
-        // const bunny = PIXI.Sprite.fromImage('https://pixijs.io/examples/required/assets/basics/bunny.png');
-        // // center the sprite's anchor point
-        // bunny.anchor.set(0.5);
-        //
-        // // move the sprite to the center of the screen
-        // bunny.x = 10;
-        // bunny.y = 10;
-        // (<any>bunny).zIndex = 10;
-        //
-        // stage.addChild(bunny);
+        this.stage.interactive = true;
+        this.stage.on('click', (event: InteractionEvent) => {
+            //handle event
+            console.log(':D');
+        });
+
+        root.addChild(this.stage);
     }
 
     addBlock(index: Vector3D, type: BlockType) {
@@ -78,6 +78,9 @@ export class Scene {
 
     update(delta: number) {
 
+        this.stage.position.x = this.camera.x;
+        this.stage.position.y = this.camera.y - this.camera.z;
+
         this.activeChunks
             .map(id => this.chunks.get(id))
             .forEach((chunk: Chunk) => void chunk.update());
@@ -91,18 +94,18 @@ export class Scene {
             // this.stage.children.sort((a, b) => this.activeChunks.indexOf(a.name) - this.activeChunks.indexOf(b.name));
 
             this.stage.children.sort((a, b) => {
-
                 const aZ = (<any>a).zIndex;
                 const bZ = (<any>b).zIndex;
-
-                if (aZ < bZ) {
-                    return -1;
-                }
-                if (aZ > bZ) {
-                    return 1;
-                }
                 // a must be equal to b
-                return 0;
+                return sortZYX([
+                    a.position.x,
+                    a.position.y,
+                    aZ
+                ],[
+                    b.position.x,
+                    b.position.y,
+                    bZ
+                ]);
             });
 
             this.updated = false;

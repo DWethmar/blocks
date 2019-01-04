@@ -66,6 +66,12 @@ export class Chunk extends GameObject {
                 layer.name = positionId(this.chunkPosition) + '-' + layerIndex;
                 layer.zIndex = getZ(this.worldPosition) - getY(this.worldPosition) + layerIndex;
 
+                layer.position.x = this.x ^ this.y;
+                layer.position.y = this.y;
+
+                layer.width = CHUNK_SIZE * BLOCK_SIZE;
+                layer.height =  CHUNK_SIZE * 2 * BLOCK_SIZE;
+
                 preLayers[layerIndex] = layer;
             }
             this.renderBlock(block, layer);
@@ -85,14 +91,7 @@ export class Chunk extends GameObject {
                 this.layers[i] = layer;
                 this.stage.addChild(layer);
             }
-
-            // var texture = this.renderer.generateTexture(preLayer);
-            // var sprite = new PIXI.Sprite(texture);
-            // sprite.position.set(0, 0);
-
             layer.addChild(preLayer);
-
-            // texture.destroy();
         });
 
         this.hasChanged = false;
@@ -102,8 +101,8 @@ export class Chunk extends GameObject {
         const graphics = new PIXI.Graphics();
         let lighten = 0;
 
-        const drawX = block.x - this.stage.x;
-        const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.stage.y;
+        const drawX = block.x - this.x;
+        const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.y;
 
         const neighbors = {
             front: !this.isEmpty(addPos(block.worldPosition, [0, 1, 0])),
@@ -154,8 +153,8 @@ export class Chunk extends GameObject {
 
     private renderLines(block: Block, container: PIXI.Container) {
 
-        const drawX = block.x - this.stage.x;
-        const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.stage.y;
+        const drawX = block.x - this.x;
+        const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.y;
 
         const neighbors = {
             left:           !this.isEmpty(addPos(block.worldPosition, [-1, 0, 0])),

@@ -15,17 +15,20 @@ app.view.style.display = "inherit";
 
 app.renderer.backgroundColor = 0xf00000;
 
-const root = new PIXI.Container();
-
-app.stage.addChild(root);
-
 app.loader.load(setup);
 
-let scene: Scene = new Scene(app.renderer);
+let scene: Scene = new Scene(app.stage, app.renderer);
 
 // setup ticker
 var ticker = new Ticker();
 ticker.add((delta: number) => {
+
+    // scene.addBlock([
+    //     Math.floor(Math.random() * 10),
+    //     Math.floor(Math.random() * 10),
+    //     Math.floor(Math.random() * 10)
+    // ], BlockType.VOID);
+
     scene.update(0);
     scene.render(0);
 });
@@ -53,7 +56,9 @@ scene.addBlock([2, 0, 0], BlockType.ROCK);
 scene.addBlock([3, 0, 0], BlockType.ROCK);
 scene.addBlock([2, 0, 1], BlockType.ROCK);
 
-scene.addBlock([5, 5, 0], BlockType.ROCK);
+const block = scene.addBlock([5, 5, 0], BlockType.ROCK);
+
+// block.x = 100;
 
 function createArch(scene: Scene, type: BlockType, start: Vector3D) {
     scene.addBlock(addPos(start, [0, 0, 0]), type);
@@ -99,8 +104,21 @@ function setup() {
     console.log('Setup');
 }
 
+var drag = false;
+scene.stage.interactive = true;
+scene.stage.on("mousedown", function(e){
+    drag = true;
+});
+scene.stage.on("mouseup", function(e){
+    drag = false;
+});
+scene.stage.on("mousemove", function(e: any){
+    if(drag){
+        scene.camera.x += e.data.originalEvent.movementX;
+        scene.camera.y += e.data.originalEvent.movementY;
+    }
+});
 
-// app.render();
 
 // Debug
 addCameraBtn('<', -10, 0);
@@ -121,8 +139,8 @@ function addCameraBtn(text: string, x, y) {
 
     btn.addEventListener("click", () => {
 
-        scene.stage.position.x += x;
-        scene.stage.position.y += y;
+        scene.camera.x += x;
+        scene.camera.y += y;
 
     }, false);
 
