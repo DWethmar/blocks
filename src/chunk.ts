@@ -29,6 +29,7 @@ export class Chunk extends GameObject {
 
     constructor(
         readonly stage: PIXI.Container,
+        readonly renderer: PIXI.WebGLRenderer | PIXI.CanvasRenderer,
         readonly chunkSelector: chunkSelector,
         readonly position: Vector3D
     ) {
@@ -47,63 +48,66 @@ export class Chunk extends GameObject {
             return sortZYX(this.blocks.get(idA).position, this.blocks.get(idB).position);
         }));
 
+        const preLayers: PIXI.Container[] = [];
+
         this.blocksToRender.forEach(id => {
             const block = this.blocks.get(id);
 
-            const layerIndex = getZ(block.worldPosition) - getZ(this.worldPosition);
+            const layerIndex = getY(block.worldPosition);
 
             let layer = null;
 
-            if (this.layers[layer]) {
-                layer = this.layers[layer];
-                layer.clear();
+            if (preLayers[layerIndex]) {
+                layer = preLayers[layerIndex];
             } else {
-                layer = new PIXI.Graphics();
+                layer = new PIXI.Container();
+                layer.cacheAsBitmap = true;
+
                 layer.name = positionId(this.chunkPosition) + '-' + layerIndex;
                 layer.zIndex = getZ(this.worldPosition) - getY(this.worldPosition) + layerIndex;
-                this.stage.addChild(layer);
-                this.layers[layer] = layer;
+
+                preLayers[layerIndex] = layer;
             }
             this.renderBlock(block, layer);
+            this.renderLines(block, layer);
+        });
+
+        // Clear that shit.
+        this.layers.forEach(l => l.removeChildren());
+
+        preLayers.forEach((preLayer, i) => {
+            let layer = null;
+            if (this.layers[i]) {
+                layer = this.layers[i];
+            } else {
+                layer = new PIXI.Container();
+                layer.zIndex = (<any>preLayer).zIndex;
+                this.layers[i] = layer;
+                this.stage.addChild(layer);
+            }
+
+            // var texture = this.renderer.generateTexture(preLayer);
+            // var sprite = new PIXI.Sprite(texture);
+            // sprite.position.set(0, 0);
+
+            layer.addChild(preLayer);
+
+            // texture.destroy();
         });
 
         this.hasChanged = false;
     }
 
     private renderBlock(block: Block, container: PIXI.Container) {
-
+        const graphics = new PIXI.Graphics();
         let lighten = 0;
 
         const drawX = block.x - this.stage.x;
         const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.stage.y;
 
         const neighbors = {
-            left:           !this.isEmpty(addPos(block.worldPosition, [-1, 0, 0])),
-            right:          !this.isEmpty(addPos(block.worldPosition, [1, 0, 0])),
-            front:          !this.isEmpty(addPos(block.worldPosition, [0, 1, 0])),
-            top:            !this.isEmpty(addPos(block.worldPosition, [0, 0, 1])),
-            back:           !this.isEmpty(addPos(block.worldPosition, [0, -1, 0])),
-            frontBottom:    !this.isEmpty(addPos(block.worldPosition, [0, 1, -1])),
-            bottom:         !this.isEmpty(addPos(block.worldPosition, [0, 0, -1])),
+            front: !this.isEmpty(addPos(block.worldPosition, [0, 1, 0])),
         };
-
-        const graphics = new PIXI.Graphics();
-
-        let topColor = null;
-        // Top
-        switch (block.type) {
-            case BlockType.ROCK:
-                topColor = 0xA5A5A5;
-                break;
-            case BlockType.GRASS:
-                topColor = 0x008000;
-                break;
-            default:
-                topColor = 0xFF00D1;
-                break;
-        }
-        graphics.beginFill(LightenDarkenColor(topColor, lighten));
-        graphics.drawRect(drawX, drawY - BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 
         if (!neighbors.front) {
             let frontColor = null;
@@ -122,6 +126,46 @@ export class Chunk extends GameObject {
             graphics.beginFill(LightenDarkenColor(frontColor, lighten));
             graphics.drawRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
         }
+
+        let topColor = null;
+        // Top
+        switch (block.type) {
+            case BlockType.ROCK:
+                topColor = 0xA5A5A5;
+                break;
+            case BlockType.GRASS:
+                topColor = 0x008000;
+                break;
+            default:
+                topColor = 0xFF00D1;
+                break;
+        }
+        graphics.beginFill(LightenDarkenColor(topColor, lighten));
+        graphics.drawRect(drawX, drawY - BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+
+
+        container.addChild(graphics);
+    }
+
+    isEmpty(position: Vector3D): boolean {
+        const block = this.getBlock(position);
+        return block ? block.transparent : true;
+    }
+
+    private renderLines(block: Block, container: PIXI.Container) {
+
+        const drawX = block.x - this.stage.x;
+        const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.stage.y;
+
+        const neighbors = {
+            left:           !this.isEmpty(addPos(block.worldPosition, [-1, 0, 0])),
+            right:          !this.isEmpty(addPos(block.worldPosition, [1, 0, 0])),
+            front:          !this.isEmpty(addPos(block.worldPosition, [0, 1, 0])),
+            top:            !this.isEmpty(addPos(block.worldPosition, [0, 0, 1])),
+            back:           !this.isEmpty(addPos(block.worldPosition, [0, -1, 0])),
+            frontBottom:    !this.isEmpty(addPos(block.worldPosition, [0, 1, -1])),
+            bottom:         !this.isEmpty(addPos(block.worldPosition, [0, 0, -1])),
+        };
 
         const lineColor = 0x000000;
         const lines = [];
@@ -152,19 +196,13 @@ export class Chunk extends GameObject {
                 lines.push(this.drawLine(drawX, drawY + BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
             }
         }
-        lines.forEach(l => container.addChild(l));
-        container.addChild(graphics);
+        const linesContainer= new PIXI.Container();
+        lines.forEach(l => linesContainer.addChild(l));
+        container.addChild(linesContainer);
     }
 
-    isEmpty(position: Vector3D): boolean {
-        const block = this.getBlock(position);
-        return block ? block.transparent : true;
-    }
-
-    drawLine(x: number, y: number, xA: number, yA: number, xB: number, yB: number, color: number): PIXI.Graphics {
-
+    drawLine(x: number, y: number, xA: number, yA: number, xB: number, yB: number, color: number) {
         const line = new PIXI.Graphics();
-
         line.lineStyle(2, color, 1);
 
         // Define line position - this aligns the top left corner of our canvas

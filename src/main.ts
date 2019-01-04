@@ -5,6 +5,7 @@ import {BlockType} from './block';
 import {CHUNK_SIZE} from './config';
 import {Vector3D} from './types';
 import {addPos} from './utils/position';
+import Ticker = PIXI.ticker.Ticker;
 
 let app = new PIXI.Application({width: 256, height: 256});
 document.body.appendChild(app.view);
@@ -14,38 +15,38 @@ app.view.style.display = "inherit";
 
 app.renderer.backgroundColor = 0xf00000;
 
-const stage = new PIXI.Container();
+const root = new PIXI.Container();
+
+app.stage.addChild(root);
+
 app.loader.load(setup);
 
-// setup ticker
-var ticker = new PIXI.Ticker();
-ticker.add((delta: number) => {
-    scene.update(delta);
-    app.renderer.render(stage);
-}, PIXI.UPDATE_PRIORITY.LOW);
+let scene: Scene = new Scene(app.renderer);
 
+// setup ticker
+var ticker = new Ticker();
+ticker.add((delta: number) => {
+    scene.update(0);
+    scene.render(0);
+});
+
+ticker.speed = .5;
 ticker.start();
 
+createTower(scene, BlockType.ROCK, [4, 0, 0]);
 
-let scene: Scene = new Scene(stage);
-
-//
-// createTower(scene, BlockType.ROCK, [4, 8, 1]);
-// createTower(scene, BlockType.ROCK, [6, 0, 0]);
-// // createTower(scene, BlockType.ROCK, [4, 7, 1]);
-// // createTower(scene, BlockType.ROCK, [2, 0, 0]);
-// //
 createArch(scene,  BlockType.ROCK, [6, 1, 0]);
 createArch(scene,  BlockType.ROCK, [6, 2, 0]);
 createArch(scene,  BlockType.ROCK, [6, 3, 0]);
-// //
-// // scene.addBlock([CHUNK_SIZE - 1, 0, 0], BlockType.ROCK);
-// // scene.addBlock([CHUNK_SIZE, 0, 0], BlockType.ROCK);
-//
+
+createArch(scene,  BlockType.ROCK, [12, 1, 0]);
+createArch(scene,  BlockType.ROCK, [12, 2, 0]);
+createArch(scene,  BlockType.ROCK, [12, 3, 0]);
+
 createGround(scene,  BlockType.GRASS, [0, 0, -1]);
 createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
-// createGround(scene,  BlockType.GRASS, [CHUNK_SIZE, 0, -1]);
-//
+
+
 scene.addBlock([0, 0, 0], BlockType.ROCK);
 scene.addBlock([1, 0, 0], BlockType.ROCK);
 scene.addBlock([2, 0, 0], BlockType.ROCK);
@@ -53,7 +54,6 @@ scene.addBlock([3, 0, 0], BlockType.ROCK);
 scene.addBlock([2, 0, 1], BlockType.ROCK);
 
 scene.addBlock([5, 5, 0], BlockType.ROCK);
-
 
 function createArch(scene: Scene, type: BlockType, start: Vector3D) {
     scene.addBlock(addPos(start, [0, 0, 0]), type);
@@ -100,6 +100,7 @@ function setup() {
 }
 
 
+// app.render();
 
 // Debug
 addCameraBtn('<', -10, 0);

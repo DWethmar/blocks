@@ -15,9 +15,23 @@ export class Scene {
     public activeChunks: string[] = [];
     public updated = false;
 
+    public stage = new PIXI.Container();
+
     constructor(
-        readonly stage: PIXI.Container
-    ) { }
+        readonly renderer: PIXI.WebGLRenderer | PIXI.CanvasRenderer
+    ) {
+        //TEST
+        // const bunny = PIXI.Sprite.fromImage('https://pixijs.io/examples/required/assets/basics/bunny.png');
+        // // center the sprite's anchor point
+        // bunny.anchor.set(0.5);
+        //
+        // // move the sprite to the center of the screen
+        // bunny.x = 10;
+        // bunny.y = 10;
+        // (<any>bunny).zIndex = 10;
+        //
+        // stage.addChild(bunny);
+    }
 
     addBlock(index: Vector3D, type: BlockType) {
         const blockPosition = <Vector3D>multiply(BLOCK_SIZE, index);
@@ -43,18 +57,12 @@ export class Scene {
         this.updated = true;
         const position = <Vector3D>multiply(CHUNK_SIZE * BLOCK_SIZE, index);
 
-        // const container = createContainer(position);
-        // container.name = positionId(index);
-        // container.width = CHUNK_SIZE * BLOCK_SIZE;
-        // container.height = CHUNK_SIZE * 2 * BLOCK_SIZE;
-
         const chunk = new Chunk(
             this.stage,
+            this.renderer,
             createChunkSelector(this),
             position
         );
-
-        // attachContainer(this.stage)(container);
 
         this.chunks.set(positionId(chunk.chunkPosition), chunk);
         this.activeChunks.push(positionId(chunk.chunkPosition));
@@ -62,6 +70,10 @@ export class Scene {
         console.log(`Created Chunk: ${ positionId(chunk.chunkPosition) } `, chunk.chunkPosition);
 
         return chunk;
+    }
+
+    render(delta: number) {
+        this.renderer.render(this.stage)
     }
 
     update(delta: number) {
@@ -82,8 +94,6 @@ export class Scene {
 
                 const aZ = (<any>a).zIndex;
                 const bZ = (<any>b).zIndex;
-
-                console.log(aZ, bZ);
 
                 if (aZ < bZ) {
                     return -1;
