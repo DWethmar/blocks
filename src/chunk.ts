@@ -4,11 +4,10 @@ import {BLOCK_SIZE, CHUNK_SIZE} from './config';
 import {divideBy} from './utils/calc';
 import {chunkSelector, Vector3D} from './types';
 import {Block, BlockType} from './block';
-import {addPos, getPointsBetween, getY, getZ, isWithin, minusPos, positionId} from './utils/position';
+import {addPos, getY, isWithin, minusPos, positionId} from './utils/position';
 import {GameObject} from './game-object';
 import {sortZYX} from './utils/sort';
 import {LightenDarkenColor} from './utils/color';
-import Container = PIXI.Container;
 
 export class Chunk extends GameObject {
 
@@ -35,19 +34,57 @@ export class Chunk extends GameObject {
     ) {
         super(position);
 
-        // Debug
-        // const graphics = new PIXI.Graphics();
-        // graphics.beginFill(0x9E34A1);
-        // graphics.drawRect(this.x, this.y, BLOCK_SIZE * CHUNK_SIZE, BLOCK_SIZE * CHUNK_SIZE * 2);
-        //
-        // this.stage.addChild(graphics);
+        var rect = new PIXI.Graphics();
+        rect.lineStyle(1, 0x000);
 
-        const pixiCircle = new PIXI.Graphics();
-        pixiCircle.lineStyle(2, 0xFF00FF);  //(thickness, color)
-        pixiCircle.drawCircle(this.x, this.y, 10);   //(x,y,radius)
-        pixiCircle.endFill();
-        (<any>pixiCircle).zIndex = getY(this.worldPosition);
-        stage.addChild(pixiCircle);
+        rect.interactive = true;
+        rect.hitArea = new PIXI.Rectangle(this.x,this.y, CHUNK_SIZE * BLOCK_SIZE, CHUNK_SIZE * BLOCK_SIZE * 2);
+        rect.drawRect(this.x,this.y, CHUNK_SIZE * BLOCK_SIZE, CHUNK_SIZE * BLOCK_SIZE * 2);
+
+
+        rect.on('click', (ev: any) => {
+
+
+            const p = ev.data.getLocalPosition(rect);
+
+            const x = p.x;
+            let y = 0;
+            let z = 0;
+
+            if (p.y > (CHUNK_SIZE * BLOCK_SIZE)) {          // click on front
+                z = (CHUNK_SIZE * BLOCK_SIZE * 2) - p.y;
+                y = CHUNK_SIZE * BLOCK_SIZE;
+            } else {
+                z = (CHUNK_SIZE * BLOCK_SIZE * 2) - p.y;  // click on ceil
+                y = CHUNK_SIZE * BLOCK_SIZE;
+            }
+
+            const worldPos = <Vector3D>divideBy(BLOCK_SIZE, [x, y, z]).map(i => Math.floor(i));
+
+
+            const dir = <Vector3D>[0, -1, -1];
+            const hit = this.raycast(addPos(worldPos, dir), dir);
+
+            if (hit) {
+
+                const blockPos = <Vector3D>hit.position
+                    .map(i => Math.round(i / BLOCK_SIZE))
+                    .map(i => i * BLOCK_SIZE);
+
+                const nb = this.createBlock(
+                    addPos(
+                        blockPos, [0, 0, BLOCK_SIZE]
+                    ),
+                    BlockType.VOID
+                );
+                console.log(nb);
+            }
+
+
+
+        });
+
+        stage.addChild(rect);
     }
 
     update() {
@@ -78,14 +115,6 @@ export class Chunk extends GameObject {
                 layer.cacheAsBitmap = true;
 
                 layer.name = positionId(this.chunkPosition) + '-' + layerIndex;
-                layer.zIndex = getZ(this.worldPosition) - getY(this.worldPosition) + layerIndex;
-
-                // layer.position.x = this.x ^ this.y;
-                // layer.position.y = this.y;
-
-                layer.width = CHUNK_SIZE * BLOCK_SIZE;
-                layer.height =  CHUNK_SIZE * 2 * BLOCK_SIZE;
-
                 preLayers[layerIndex] = layer;
             }
             this.renderBlock(block, layer);
@@ -110,6 +139,7 @@ export class Chunk extends GameObject {
 
         this.hasChanged = false;
     }
+
 
     private renderBlock(block: Block, container: PIXI.Container) {
         const graphics = new PIXI.Graphics();
@@ -205,9 +235,9 @@ export class Chunk extends GameObject {
                 lines.push(this.drawLine(drawX + BLOCK_SIZE, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
             }
 
-            if (neighbors.frontBottom || !neighbors.bottom) {
-                lines.push(this.drawLine(drawX, drawY + BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
-            }
+            // if (neighbors.frontBottom || !neighbors.bottom) {
+            //     lines.push(this.drawLine(drawX, drawY + BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
+            // }
         }
         const linesContainer= new PIXI.Container();
         lines.forEach(l => linesContainer.addChild(l));
@@ -244,17 +274,19 @@ export class Chunk extends GameObject {
         return block;
     }
 
-    raycast(start: Vector3D, end: Vector3D): Vector3D {
-        if (this.getBlock(start)) {
-            return start;
-        }
-        const p = getPointsBetween(start, end);
-        const next = p.next();
-        if (next.done) {
-            return start;
+    raycast(start: Vector3D, direction: Vector3D): Block | null {
+        const block = this.getBlock(start);
+
+        if (block) {
+            if (block.type !== BlockType.AIR) {
+                return block;
+            }
         } else {
-            return this.raycast(next.value, end);
+            return null;
         }
+
+        return this.raycast(addPos(start, direction), direction);
+
     }
 
     calculateVisibleBlocks() {

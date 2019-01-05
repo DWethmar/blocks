@@ -14,21 +14,14 @@ export class Scene {
     public readonly chunks: Map<string, Chunk> = new Map<string, Chunk>();
     public activeChunks: string[] = [];
     public updated = false;
-    public camera: Camera;
 
     readonly stage = new PIXI.Container();
 
     constructor(
         readonly root:          PIXI.Container,
         readonly renderer:      PIXI.WebGLRenderer | PIXI.CanvasRenderer,
-        readonly viewPort:      viewPort
     ) {
-        // root.addChild(this.stage);
-
-        this.camera = new Camera(this.stage.width / 2, this.stage.height / 2, viewPort, {
-            width:  this.stage.width,
-            height: this.stage.height
-        });
+        this.stage = root
     }
 
     addBlock(index: Vector3D, type: BlockType) {
@@ -71,7 +64,7 @@ export class Scene {
     }
 
     render(delta: number) {
-        this.renderer.render(this.stage)
+        // this.renderer.render(this.stage)
     }
 
     update(delta: number) {
@@ -99,17 +92,6 @@ export class Scene {
 
             this.updated = false;
         }
-
-        this.camera.update(
-            new PIXI.Rectangle(0, 0, this.stage.width, this.stage.height)
-        );
-
-        if (this.camera.xView > 0) {
-            console.log('LD');
-        }
-
-        this.stage.position.x = -this.camera.xView;
-        this.stage.position.y = -this.camera.yView;
     }
 }
 

@@ -6,6 +6,7 @@ import {BLOCK_SIZE, CHUNK_SIZE} from './config';
 import {Vector3D} from './types';
 import {addPos} from './utils/position';
 import {divideBy} from "./utils/calc";
+import * as Viewport from "pixi-viewport";
 import Ticker = PIXI.ticker.Ticker;
 
 const viewPort = {width: 400, height: 400};
@@ -20,15 +21,31 @@ app.renderer.backgroundColor = 0xf00000;
 
 app.loader.load(setup);
 
-let scene: Scene = new Scene(app.stage, app.renderer, viewPort);
+// create viewport
+var viewport = new Viewport({
+    screenWidth:    viewPort.width,
+    screenHeight:   viewPort.height,
+    worldWidth:     1000,
+    worldHeight:    1000,
+
+    interaction: (<any>app).renderer.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
+});
+
+// add the viewport to the stage
+app.stage.addChild(viewport);
+
+// activate plugins
+viewport
+    .drag()
+    .pinch()
+    .wheel()
+    .decelerate();
+
+let scene: Scene = new Scene(viewport, app.renderer);
 
 // setup ticker
 var ticker = new Ticker();
 ticker.add((delta: number) => {
-
-    document.title = `SODA - ${ scene.camera.xView } ${ scene.camera.yView  }`;
-
-
     scene.update(0);
     scene.render(0);
 });
@@ -49,6 +66,8 @@ scene.addBlock([2, 0, 1], BlockType.ROCK);
 
 scene.addBlock([8, 0, 1], BlockType.GRASS);
 scene.addBlock([11, 0, 1], BlockType.GRASS);
+
+scene.addBlock([CHUNK_SIZE, 0, 9], BlockType.ROCK);
 
 const block = scene.addBlock([5, 5, 0], BlockType.ROCK);
 
@@ -105,86 +124,18 @@ function createCheckers(scene: Scene, type: BlockType, type2: BlockType, start: 
 function setup() {
     console.log('Setup');
 }
-
-// Dragging
-var dragging = false;
-let mousedown = null;
-
-scene.stage.interactive = true;
-scene.stage.on("mousedown", function(event: any) {
-    mousedown = {x: event.data.originalEvent.screenX, y: event.data.originalEvent.screenY};
-});
-
-scene.stage.on("mouseup", function(event: any){
-    dragging = false;
-    mousedown = null;
-});
-
-scene.stage.on("mousemove", function(event: any){
-    const ev_data = event.data.originalEvent;
-    if (!dragging && mousedown) {
-        if (Math.abs(mousedown.x - ev_data.screenX) > 2 || Math.abs(mousedown.y - ev_data.screenY) > 2) {
-            dragging = true;
-        }
-    }
-
-    if (dragging){
-        scene.camera.xView += event.data.originalEvent.movementX;
-        scene.camera.yView += event.data.originalEvent.movementY;
-    }
-});
-
-
-// Clicking
-scene.stage.interactive = true;
-scene.stage.on("click", function(event: any){
-
-    const click = {x: event.data.global.x, y: event.data.global.y};
-
-    if (!dragging) {
-        console.log(':D', click);
-
-
-
-        const blockX = click.x - scene.camera.xView;
-        const blockY = scene.camera.yView;
-        const blockZ = 0;
-
-        const position = <Vector3D>divideBy(BLOCK_SIZE, [
-            blockX,
-            blockY,
-            blockZ,
-        ]).map(i => Math.floor(i));
-
-        scene.addBlock(position, BlockType.VOID);
-
-    }
-});
-
-
-
-// Debug
-addCameraBtn('<', -10, 0);
-addCameraBtn('>', 10, 0);
-addCameraBtn('^', 0, -10);
-addCameraBtn('V', 0, 10);
-
-
-function addCameraBtn(text: string, x, y) {
-    // create a new div element
-    var btn = document.createElement('BUTTON');  // Create a <button> element
-    var t = document.createTextNode(text);        // Create a text node
-    btn.appendChild(t);                                  // Append the text to <button>
-    document.body.appendChild(btn);                      // Append <button> to <body>
-
-    btn.style.margin = "0 auto";
-    btn.style.display = "inherit";
-
-    btn.addEventListener("click", () => {
-
-        scene.camera.xView += x;
-        scene.camera.yView += y;
-
-    }, false);
-
-}
+//
+// function click(e) {
+//
+//
+//     const global = e.data.global;
+//
+//
+//     const position = <Vector3D>divideBy(BLOCK_SIZE, [
+//         global.x,
+//         0,
+//         global.y
+//     ]).map(i => Math.floor(i));
+//
+//     scene.addBlock(position, BlockType.ROCK);
+// }
