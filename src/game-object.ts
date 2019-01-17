@@ -1,7 +1,7 @@
 import {Vector3D} from './types';
 import {getX, getY, getZ} from './utils/position';
 
-export class GameObject {
+export abstract class GameObject {
 
     // Position
     get x() { return getX(this.position); }
@@ -28,4 +28,6 @@ export class GameObject {
         public position: Vector3D,
         public direction: Vector3D = [0, 0, 0]
     ) { }
+
+    abstract update(delta): void;
 }

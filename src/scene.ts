@@ -8,6 +8,7 @@ import {positionId} from './utils/position';
 import {multiply} from './utils/calc';
 import {sortZYX} from "./utils/sort";
 import {Camera} from "./camera";
+import {Player} from "./player";
 
 export class Scene {
 
@@ -17,11 +18,14 @@ export class Scene {
 
     readonly stage = new PIXI.Container();
 
+    private player: Player;
+
     constructor(
-        readonly root:          PIXI.Container,
-        readonly renderer:      PIXI.WebGLRenderer | PIXI.CanvasRenderer,
+        readonly root: PIXI.Container,
     ) {
-        this.stage = root
+        this.stage = root;
+
+        this.player = new Player(this.stage, [18 * BLOCK_SIZE, 14 * BLOCK_SIZE, BLOCK_SIZE * 3]);
     }
 
     addBlock(index: Vector3D, type: BlockType) {
@@ -50,7 +54,6 @@ export class Scene {
 
         const chunk = new Chunk(
             this.stage,
-            this.renderer,
             createChunkSelector(this),
             position
         );
@@ -71,27 +74,30 @@ export class Scene {
 
         this.activeChunks
             .map(id => this.chunks.get(id))
-            .forEach((chunk: Chunk) => void chunk.update());
+            .forEach((chunk: Chunk) => void chunk.update(delta));
 
-        // console.log(delta);
-        if (this.updated) {
-            this.stage.children.sort((a, b) => {
-                const aZ = (<any>a).zIndex;
-                const bZ = (<any>b).zIndex;
-                // a must be equal to b
-                return sortZYX([
-                    a.position.x,
-                    a.position.y,
-                    aZ
-                ],[
-                    b.position.x,
-                    b.position.y,
-                    bZ
-                ]);
-            });
+        this.player.update(delta);
 
-            this.updated = false;
-        }
+        // if (this.updated) {
+        //
+        //
+        //     this.updated = false;
+        // }
+
+        this.stage.children.sort((a, b) => {
+            const aZ = (<any>a).zIndex || 0;
+            const bZ = (<any>b).zIndex || 0;
+            // a must be equal to b
+            return sortZYX([
+                a.position.x,
+                a.position.y,
+                aZ
+            ],[
+                b.position.x,
+                b.position.y,
+                bZ
+            ]);
+        });
     }
 }
 

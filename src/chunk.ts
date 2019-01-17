@@ -8,6 +8,7 @@ import {addPos, getY, isWithin, minusPos, positionId} from './utils/position';
 import {GameObject} from './game-object';
 import {sortZYX} from './utils/sort';
 import {LightenDarkenColor} from './utils/color';
+import {createLineGraphic} from './utils/graphics';
 
 export class Chunk extends GameObject {
 
@@ -24,11 +25,13 @@ export class Chunk extends GameObject {
         return  <Vector3D>chunkDivider(BLOCK_SIZE)(this.position).map(a => Math.floor(a));
     }
 
+    /**
+     * layers are the crossection of an chunk on the Y axis (back to front).
+     */
     private layers: PIXI.Container[] = [];
 
     constructor(
         readonly stage: PIXI.Container,
-        readonly renderer: PIXI.WebGLRenderer | PIXI.CanvasRenderer,
         readonly chunkSelector: chunkSelector,
         readonly position: Vector3D
     ) {
@@ -39,11 +42,8 @@ export class Chunk extends GameObject {
 
         rect.interactive = true;
         rect.hitArea = new PIXI.Rectangle(this.x,this.y, CHUNK_SIZE * BLOCK_SIZE, CHUNK_SIZE * BLOCK_SIZE * 2);
-        rect.drawRect(this.x,this.y, CHUNK_SIZE * BLOCK_SIZE, CHUNK_SIZE * BLOCK_SIZE * 2);
-
 
         rect.on('click', (ev: any) => {
-
 
             const p = ev.data.getLocalPosition(rect);
 
@@ -61,12 +61,10 @@ export class Chunk extends GameObject {
 
             const worldPos = <Vector3D>divideBy(BLOCK_SIZE, [x, y, z]).map(i => Math.floor(i));
 
-
             const dir = <Vector3D>[0, -1, -1];
             const hit = this.raycast(addPos(worldPos, dir), dir);
 
             if (hit) {
-
                 const blockPos = <Vector3D>hit.position
                     .map(i => Math.round(i / BLOCK_SIZE))
                     .map(i => i * BLOCK_SIZE);
@@ -79,15 +77,12 @@ export class Chunk extends GameObject {
                 );
                 console.log(nb);
             }
-
-
-
         });
 
         stage.addChild(rect);
     }
 
-    update() {
+    update(delta: number) {
         if (!this.hasChanged) {
             return;
         }
@@ -104,7 +99,7 @@ export class Chunk extends GameObject {
         this.blocksToRender.forEach(id => {
             const block = this.blocks.get(id);
 
-            const layerIndex = getY(block.worldPosition);
+            const layerIndex = block.y;
 
             let layer = null;
 
@@ -113,7 +108,7 @@ export class Chunk extends GameObject {
             } else {
                 layer = new PIXI.Container();
                 layer.cacheAsBitmap = true;
-
+                layer.zIndex = Math.floor(layerIndex);
                 layer.name = positionId(this.chunkPosition) + '-' + layerIndex;
                 preLayers[layerIndex] = layer;
             }
@@ -214,49 +209,30 @@ export class Chunk extends GameObject {
         const lines = [];
         if (!neighbors.top) {
             if (!neighbors.left) {
-                lines.push(this.drawLine(drawX, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor))
+                lines.push(createLineGraphic(drawX, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor))
             }
 
             if (!neighbors.right) {
-                lines.push(this.drawLine(drawX + BLOCK_SIZE, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor));
+                lines.push(createLineGraphic(drawX + BLOCK_SIZE, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor));
             }
 
             if (!neighbors.back) {
-                lines.push(this.drawLine(drawX, drawY - BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
+                lines.push(createLineGraphic(drawX, drawY - BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
             }
         }
 
         if (!neighbors.front) {
             if (!neighbors.left) {
-                lines.push(this.drawLine(drawX, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
+                lines.push(createLineGraphic(drawX, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
             }
 
             if (!neighbors.right) {
-                lines.push(this.drawLine(drawX + BLOCK_SIZE, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
+                lines.push(createLineGraphic(drawX + BLOCK_SIZE, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
             }
-
-            // if (neighbors.frontBottom || !neighbors.bottom) {
-            //     lines.push(this.drawLine(drawX, drawY + BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
-            // }
         }
         const linesContainer= new PIXI.Container();
         lines.forEach(l => linesContainer.addChild(l));
         container.addChild(linesContainer);
-    }
-
-    drawLine(x: number, y: number, xA: number, yA: number, xB: number, yB: number, color: number) {
-        const line = new PIXI.Graphics();
-        line.lineStyle(2, color, 1);
-
-        // Define line position - this aligns the top left corner of our canvas
-        line.position.x = x;
-        line.position.y = y;
-
-        // Draw line
-        line.moveTo(xA, yA);
-        line.lineTo(xB, yB);
-
-        return line;
     }
 
     getBlock(worldPosition: Vector3D): Block | null {

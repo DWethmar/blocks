@@ -27,4 +27,6 @@ export class Block extends GameObject {
         super(position);
         this.transparent = this.type === BlockType.AIR;
     }
+
+    update(delta: number) {  }
 }

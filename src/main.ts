@@ -9,7 +9,7 @@ import {divideBy} from "./utils/calc";
 import * as Viewport from "pixi-viewport";
 import Ticker = PIXI.ticker.Ticker;
 
-const viewPort = {width: 400, height: 400};
+const viewPort = {width: 400 * 2, height: 400};
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
@@ -41,19 +41,21 @@ viewport
     .wheel()
     .decelerate();
 
-let scene: Scene = new Scene(viewport, app.renderer);
+let scene: Scene = new Scene(viewport);
 
 // setup ticker
 var ticker = new Ticker();
 ticker.add((delta: number) => {
-    scene.update(0);
-    scene.render(0);
+    scene.update(delta);
+    scene.render(delta);
 });
 
 ticker.speed = .5;
 ticker.start();
 
-createArch(scene,  BlockType.ROCK, [6, 1,1]);
+createTower(scene,  BlockType.ROCK, [17, 15, 1]);
+
+createArch(scene,  BlockType.ROCK, [6, 1, 1]);
 
 createCheckers(scene,  BlockType.GRASS,  BlockType.VOID, [0, 0, 0]);
 
