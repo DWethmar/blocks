@@ -4,15 +4,17 @@ import {Chunk, chunkDivider} from './chunk';
 import {BLOCK_SIZE, CHUNK_SIZE} from './config';
 import {Vector3D, viewPort} from './types';
 import {BlockType} from './block';
-import {positionId} from './utils/position';
 import {multiply} from './utils/calc';
 import {sortZYX} from "./utils/sort";
 import {Camera} from "./camera";
 import {Player} from "./player";
+import {GameObject} from "./game-object";
+import {getChunkId} from "./utils/id";
 
 export class Scene {
 
-    public readonly chunks: Map<string, Chunk> = new Map<string, Chunk>();
+    public readonly chunks: Map<string, GameObject> = new Map<string, GameObject>();
+
     public activeChunks: string[] = [];
     public updated = false;
 
@@ -41,11 +43,11 @@ export class Scene {
     }
 
     hasChunk(chunkPosition: Vector3D): boolean {
-        return this.chunks.has(positionId(chunkPosition));
+        return this.chunks.has(getChunkId(chunkPosition));
     }
 
-    getChunk(index: Vector3D): Chunk | null {
-        return this.hasChunk(index) ? this.chunks.get(positionId(index)) : null;
+    getChunk(chunkPosition: Vector3D): Chunk | null {
+        return this.hasChunk(chunkPosition) ? <Chunk>this.chunks.get(getChunkId(chunkPosition)) : null;
     }
 
     createChunk(index: Vector3D): Chunk {
@@ -58,10 +60,10 @@ export class Scene {
             position
         );
 
-        this.chunks.set(positionId(chunk.chunkPosition), chunk);
-        this.activeChunks.push(positionId(chunk.chunkPosition));
+        this.chunks.set(getChunkId(chunk.chunkPosition), chunk);
+        this.activeChunks.push(getChunkId(chunk.chunkPosition));
 
-        console.log(`Created Chunk: ${ positionId(chunk.chunkPosition) } `, chunk.chunkPosition);
+        console.log(`Created Chunk: ${ getChunkId(chunk.chunkPosition) } `, chunk.chunkPosition);
 
         return chunk;
     }

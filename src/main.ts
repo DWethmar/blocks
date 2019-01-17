@@ -9,7 +9,7 @@ import {divideBy} from "./utils/calc";
 import * as Viewport from "pixi-viewport";
 import Ticker = PIXI.ticker.Ticker;
 
-const viewPort = {width: 400 * 2, height: 400};
+const viewPort = {width: 500, height: 500};
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
@@ -54,6 +54,7 @@ ticker.speed = .5;
 ticker.start();
 
 createTower(scene,  BlockType.ROCK, [17, 15, 1]);
+createTower(scene,  BlockType.ROCK, [20, 18, 1]);
 
 createArch(scene,  BlockType.ROCK, [6, 1, 1]);
 
@@ -68,8 +69,6 @@ scene.addBlock([2, 0, 1], BlockType.ROCK);
 
 scene.addBlock([8, 0, 1], BlockType.GRASS);
 scene.addBlock([11, 0, 1], BlockType.GRASS);
-
-scene.addBlock([CHUNK_SIZE, 0, 9], BlockType.ROCK);
 
 const block = scene.addBlock([5, 5, 0], BlockType.ROCK);
 
@@ -122,6 +121,9 @@ function createCheckers(scene: Scene, type: BlockType, type2: BlockType, start: 
         }
     }
 }
+
+
+viewport.center = scene.getChunk([0, 0, 0]).getCenter();
 
 function setup() {
     console.log('Setup');
