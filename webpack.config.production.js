@@ -1,9 +1,8 @@
 'use strict';
 
 var webpack = require('webpack');
-var webpackFailPlugin = require('webpack-fail-plugin');
 var webpackConfig = require('./webpack.config.base.js');
-
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = function() {
     var myProdConfig = webpackConfig;
     myProdConfig.output.filename = '[name].[hash].js';
@@ -16,7 +15,6 @@ module.exports = function() {
                 'NODE_ENV': JSON.stringify('production')
             }
         }),
-        webpackFailPlugin
     ];
 
     myProdConfig.optimization = {
@@ -30,6 +28,12 @@ module.exports = function() {
             }
         }
     };
+
+    myProdConfig.plugins.push(
+        new HtmlWebpackPlugin({
+            title: 'soda',
+        })
+    );
 
     return myProdConfig;
 };
