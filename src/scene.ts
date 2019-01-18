@@ -63,7 +63,7 @@ export class Scene {
         this.chunks.set(getChunkId(chunk.chunkPosition), chunk);
         this.activeChunks.push(getChunkId(chunk.chunkPosition));
 
-        console.log(`Created Chunk: ${ getChunkId(chunk.chunkPosition) } `, chunk.chunkPosition);
+        console.log(`Created Chunk with id: ${ getChunkId(chunk.chunkPosition) } for position: ${ chunk.chunkPosition }`);
 
         return chunk;
     }
@@ -79,12 +79,6 @@ export class Scene {
             .forEach((chunk: Chunk) => void chunk.update(delta));
 
         this.player.update(delta);
-
-        // if (this.updated) {
-        //
-        //
-        //     this.updated = false;
-        // }
 
         this.stage.children.sort((a, b) => {
             const aZ = (<any>a).zIndex || 0;

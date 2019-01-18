@@ -2,14 +2,21 @@ import * as PIXI from 'pixi.js';
 
 import {Scene} from './scene';
 import {BlockType} from './block';
-import {BLOCK_SIZE, CHUNK_SIZE} from './config';
+import {CHUNK_SIZE} from './config';
 import {Vector3D} from './types';
 import {addPos} from './utils/position';
-import {divideBy} from "./utils/calc";
 import * as Viewport from "pixi-viewport";
+
+import './vendor/noisejs/perlin.js';
 import Ticker = PIXI.ticker.Ticker;
 
-const viewPort = {width: 500, height: 500};
+// src/vendor/noisejs/perlin.js
+declare var noise;
+
+noise.seed(Math.random());
+console.log('->', noise.simplex2(10, 10));
+
+const viewPort = { width: 500, height: 500 };
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
@@ -55,10 +62,10 @@ ticker.start();
 
 createTower(scene,  BlockType.ROCK, [17, 15, 1]);
 createTower(scene,  BlockType.ROCK, [20, 18, 1]);
-
 createArch(scene,  BlockType.ROCK, [6, 1, 1]);
-
 createCheckers(scene,  BlockType.GRASS,  BlockType.VOID, [0, 0, 0]);
+
+createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, [CHUNK_SIZE, 0, -1]);
 
 scene.addBlock([0, 0, 1], BlockType.ROCK);
 scene.addBlock([1, 0, 1], BlockType.ROCK);
@@ -66,13 +73,29 @@ scene.addBlock([2, 0, 1], BlockType.ROCK);
 scene.addBlock([3, 0, 1], BlockType.ROCK);
 scene.addBlock([2, 0, 1], BlockType.ROCK);
 
-
 scene.addBlock([8, 0, 1], BlockType.GRASS);
 scene.addBlock([11, 0, 1], BlockType.GRASS);
 
-const block = scene.addBlock([5, 5, 0], BlockType.ROCK);
+scene.addBlock([CHUNK_SIZE, 0, 1], BlockType.VOID);
 
-// block.x = 100;
+
+function createTerrainNoise(scene: Scene, type1: BlockType, type2: BlockType, start: Vector3D) {
+    // NOISE
+    noise.seed(Math.random());
+    for (var x = 0; x < CHUNK_SIZE; x++) {
+        for (var y = 0; y < CHUNK_SIZE; y++) {
+
+            let value = Math.abs(noise.perlin2(x / 10, y / 10));
+            value *= 256 / 24;
+            const z =  Math.ceil(value);
+
+            scene.addBlock(addPos(start, [x, y, z]), type1);
+            for (let zz = z - 1; zz > 0; zz--) {
+                scene.addBlock(addPos(start, [x, y, zz]), type2);
+            }
+        }
+    }
+}
 
 function createArch(scene: Scene, type: BlockType, start: Vector3D) {
     scene.addBlock(addPos(start, [0, 0, 0]), type);
@@ -121,7 +144,6 @@ function createCheckers(scene: Scene, type: BlockType, type2: BlockType, start: 
         }
     }
 }
-
 
 viewport.center = scene.getChunk([0, 0, 0]).getCenter();
 

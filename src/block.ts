@@ -18,6 +18,9 @@ export class Block extends GameObject {
         return  <Vector3D>chunkDivider(BLOCK_SIZE)(this.position).map(a => Math.floor(a));
     }
 
+    get drawX(): number { return this.x; }
+    get drawY(): number { return (this.y - this.z) + (BLOCK_SIZE * CHUNK_SIZE); }
+
     transparent = false;
 
     constructor(

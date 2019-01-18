@@ -44,43 +44,42 @@ export class Chunk extends GameObject {
         rect.interactive = true;
         rect.hitArea = new PIXI.Rectangle(this.x,this.y, CHUNK_SIZE * BLOCK_SIZE, CHUNK_SIZE * BLOCK_SIZE * 2);
 
-        rect.on('click', (ev: any) => {
-
-            const p = ev.data.getLocalPosition(rect);
-
-            const x = p.x;
-            let y = 0;
-            let z = 0;
-
-            if (p.y > (CHUNK_SIZE * BLOCK_SIZE)) {          // click on front
-                z = (CHUNK_SIZE * BLOCK_SIZE * 2) - p.y;
-                y = CHUNK_SIZE * BLOCK_SIZE;
-            } else {
-                z = (CHUNK_SIZE * BLOCK_SIZE * 2) - p.y;  // click on ceil
-                y = CHUNK_SIZE * BLOCK_SIZE;
-            }
-
-            const worldPos = <Vector3D>divideBy(BLOCK_SIZE, [x, y, z]).map(i => Math.floor(i));
-
-            const dir = <Vector3D>[0, -1, -1];
-            const hit = this.raycast(addPos(worldPos, dir), dir);
-
-            if (hit) {
-                const blockPos = <Vector3D>hit.position
-                    .map(i => Math.round(i / BLOCK_SIZE))
-                    .map(i => i * BLOCK_SIZE);
-
-                const nb = this.createBlock(
-                    addPos(
-                        blockPos, [0, 0, BLOCK_SIZE]
-                    ),
-                    BlockType.VOID
-                );
-                console.log(nb);
-            }
-        });
+        rect.on('click', (event: any) => this.click(event.data.getLocalPosition(rect)));
 
         stage.addChild(rect);
+    }
+
+    private click(p: PIXI.Point) {
+        const x = p.x;
+        let y = 0;
+        let z = 0;
+
+        if (p.y > (CHUNK_SIZE * BLOCK_SIZE)) {          // click on front
+            z = (CHUNK_SIZE * BLOCK_SIZE * 2) - p.y;
+            y = CHUNK_SIZE * BLOCK_SIZE;
+        } else {
+            z = (CHUNK_SIZE * BLOCK_SIZE * 2) - p.y;  // click on ceil
+            y = CHUNK_SIZE * BLOCK_SIZE;
+        }
+
+        const worldPos = <Vector3D>divideBy(BLOCK_SIZE, [x, y, z]).map(i => Math.floor(i));
+
+        const dir = <Vector3D>[0, -1, -1];
+        const hit = this.raycast(addPos(worldPos, dir), dir);
+
+        if (hit) {
+            const blockPos = <Vector3D>hit.position
+                .map(i => Math.round(i / BLOCK_SIZE))
+                .map(i => i * BLOCK_SIZE);
+
+            const nb = this.createBlock(
+                addPos(
+                    blockPos, [0, 0, BLOCK_SIZE]
+                ),
+                BlockType.VOID
+            );
+            console.log(nb);
+        }
     }
 
     update(delta: number) {
@@ -141,8 +140,8 @@ export class Chunk extends GameObject {
         const graphics = new PIXI.Graphics();
         let lighten = 0;
 
-        const drawX = block.x - this.x;
-        const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.y;
+        const drawX = block.drawX;
+        const drawY = block.drawY;
 
         const neighbors = {
             front: !this.isEmpty(addPos(block.worldPosition, [0, 1, 0])),
@@ -193,8 +192,8 @@ export class Chunk extends GameObject {
 
     private renderLines(block: Block, container: PIXI.Container) {
 
-        const drawX = block.x - this.x;
-        const drawY = (block.y - block.z) + (BLOCK_SIZE * CHUNK_SIZE) - this.y;
+        const drawX = block.drawX;
+        const drawY = block.drawY;
 
         const neighbors = {
             left:           !this.isEmpty(addPos(block.worldPosition, [-1, 0, 0])),
