@@ -16,7 +16,7 @@ declare var noise;
 noise.seed(Math.random());
 console.log('->', noise.simplex2(10, 10));
 
-const viewPort = { width: 500, height: 500 };
+const viewPort = { width: 400, height: 400 };
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
@@ -82,11 +82,11 @@ scene.addBlock([CHUNK_SIZE, 0, 1], BlockType.VOID);
 function createTerrainNoise(scene: Scene, type1: BlockType, type2: BlockType, start: Vector3D) {
     // NOISE
     noise.seed(Math.random());
-    for (var x = 0; x < CHUNK_SIZE; x++) {
+    for (var x = 0; x < CHUNK_SIZE * 3; x++) {
         for (var y = 0; y < CHUNK_SIZE; y++) {
 
             let value = Math.abs(noise.perlin2(x / 10, y / 10));
-            value *= 256 / 24;
+            value *= 256 / 19;
             const z =  Math.ceil(value);
 
             scene.addBlock(addPos(start, [x, y, z]), type1);
