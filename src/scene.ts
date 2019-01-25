@@ -6,7 +6,6 @@ import {Vector3D, viewPort} from './types';
 import {BlockType} from './block';
 import {multiply} from './utils/calc';
 import {sortZYX} from "./utils/sort";
-import {Camera} from "./camera";
 import {Player} from "./player";
 import {GameObject} from "./game-object";
 import {getChunkId} from "./utils/id";
@@ -26,7 +25,6 @@ export class Scene {
         readonly root: PIXI.Container,
     ) {
         this.stage = root;
-
         this.player = new Player(this.stage, [18 * BLOCK_SIZE, 14 * BLOCK_SIZE, BLOCK_SIZE * 3]);
     }
 

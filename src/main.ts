@@ -13,9 +13,6 @@ import Ticker = PIXI.ticker.Ticker;
 // src/vendor/noisejs/perlin.js
 declare var noise;
 
-noise.seed(Math.random());
-console.log('->', noise.simplex2(10, 10));
-
 const viewPort = { width: 400, height: 400 };
 
 let app = new PIXI.Application(viewPort);
@@ -150,18 +147,3 @@ viewport.center = scene.getChunk([0, 0, 0]).getCenter();
 function setup() {
     console.log('Setup');
 }
-//
-// function click(e) {
-//
-//
-//     const global = e.data.global;
-//
-//
-//     const position = <Vector3D>divideBy(BLOCK_SIZE, [
-//         global.x,
-//         0,
-//         global.y
-//     ]).map(i => Math.floor(i));
-//
-//     scene.addBlock(position, BlockType.ROCK);
-// }

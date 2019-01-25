@@ -10,6 +10,7 @@ import {sortZYX} from './utils/sort';
 import {LightenDarkenColor} from './utils/color';
 import {createLineGraphic} from './utils/graphics';
 import {getBlockId, getChunkId} from "./utils/id";
+import {getVisibleBlocks, isPositionWithinChunk} from "./utils/chunk";
 
 export class Chunk extends GameObject {
 
@@ -27,7 +28,7 @@ export class Chunk extends GameObject {
     }
 
     /**
-     * layers are the crossection of an chunk on the Y axis (back to front).
+     * layers are the cross-section of a chunk on the Y axis (back to front).
      */
     private layers: PIXI.Container[] = [];
 
@@ -87,7 +88,7 @@ export class Chunk extends GameObject {
             return;
         }
 
-        this.calculateVisibleBlocks();
+        this.blocksToRender = getVisibleBlocks(this);
 
         // Sort
         this.blocksToRender.sort(((idA, idB) => {
@@ -135,7 +136,6 @@ export class Chunk extends GameObject {
         this.hasChanged = false;
     }
 
-
     private renderBlock(block: Block, container: PIXI.Container) {
         const graphics = new PIXI.Graphics();
         let lighten = 0;
@@ -180,7 +180,6 @@ export class Chunk extends GameObject {
         }
         graphics.beginFill(LightenDarkenColor(topColor, lighten));
         graphics.drawRect(drawX, drawY - BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-
 
         container.addChild(graphics);
     }
@@ -291,18 +290,6 @@ export class Chunk extends GameObject {
         return new PIXI.Point(this.x + (CHUNK_SIZE * BLOCK_SIZE) / 2, (this.y - this.z) + (CHUNK_SIZE * BLOCK_SIZE) / 2);
     }
 }
-
-export const isPositionWithinChunk = (target: Vector3D, chunk: Chunk) => {
-    return isWithin(
-        target,
-        minusPos(
-            chunk.worldPosition, [1, 1, 1]
-        ),
-        addPos(
-            chunk.worldPosition, [CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE]
-        )
-    );
-};
 
 export const createBlockSelector = (chunkSelector) => (selector: Vector3D) => {
     const chunk = chunkSelector(<Vector3D>chunkDivider(CHUNK_SIZE)(selector));
