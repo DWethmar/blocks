@@ -5,4 +5,4 @@
 - npm start
 
 ## Prettier
-Setup prettier: https://prettier.io/docs/en/webstorm.html
+Setup prettier: https://www.jetbrains.com/help/idea/prettier.html

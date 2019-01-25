@@ -12,12 +12,12 @@ export const getVisibleBlocks = (chunk: Chunk): string[] => {
 };
 
 export const isPosVisible = (pos: Vector3D, chunk: Chunk) => {
-  if (isPositionWithinChunk(pos, this)) {
+  if (isPositionWithinChunk(pos, chunk)) {
     const block = chunk.getBlock(pos);
     if (block && !block.transparent) {
       return false;
     }
-    return this.isPosVisible(addPos(pos, [0, 1, 1]));
+    return isPosVisible(addPos(pos, [0, 1, 1]), chunk);
   }
   return true;
 };
