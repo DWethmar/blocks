@@ -1,100 +1,77 @@
 import * as PIXI from "pixi.js";
 
-import {Chunk, chunkDivider} from "./chunk";
-import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
+import {Chunk} from "./chunk";
+import {BLOCK_SIZE} from "./config";
 import {Vector3D} from "./types";
 import {BlockType} from "./block";
-import {multiply} from "./utils/calc";
-import {sortZYX} from "./utils/sort";
+import {sortYZXAsc, sortZYXAsc} from "./utils/sort";
 import {Player} from "./player";
-import {GameObject} from "./game-object";
-import {getChunkId} from "./utils/id";
+import {Terrain} from "./terrain";
 
 export class Scene {
-  public readonly chunks: Map<string, GameObject> = new Map<
-    string,
-    GameObject
-  >();
 
-  public activeChunks: string[] = [];
-  public updated = false;
+    readonly stage = new PIXI.Container();
 
-  readonly stage = new PIXI.Container();
+    private terrain: Terrain;
+    private player: Player;
 
-  private player: Player;
+    constructor(readonly root: PIXI.Container) {
+        this.stage = root;
 
-  constructor(readonly root: PIXI.Container) {
-    this.stage = root;
-    this.player = new Player(this.stage, [
-      18 * BLOCK_SIZE,
-      14 * BLOCK_SIZE,
-      BLOCK_SIZE * 3
-    ]);
-  }
+        this.terrain = new Terrain(this.stage);
 
-  addBlock(index: Vector3D, type: BlockType) {
-    const blockPosition = <Vector3D>multiply(BLOCK_SIZE, index);
-    const chunkIndex = <Vector3D>(
-      chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
-    );
-    const chunk = this.hasChunk(chunkIndex)
-      ? this.getChunk(chunkIndex)
-      : this.createChunk(chunkIndex);
-    this.updated = true;
-    return chunk.createBlock(blockPosition, type);
-  }
+        this.player = new Player(this.stage, [
+            18 * BLOCK_SIZE,
+            14 * BLOCK_SIZE,
+            BLOCK_SIZE * 3
+        ]);
+    }
 
-  hasChunk(chunkPosition: Vector3D): boolean {
-    return this.chunks.has(getChunkId(chunkPosition));
-  }
+    addBlock(index: Vector3D, type: BlockType) {
+        return this.terrain.addBlock(index, type);
+    }
 
-  getChunk(chunkPosition: Vector3D): Chunk | null {
-    return this.hasChunk(chunkPosition)
-      ? <Chunk>this.chunks.get(getChunkId(chunkPosition))
-      : null;
-  }
+    deleteBlock(index: Vector3D) {
+        return this.terrain.deleteBlock(index);
+    }
 
-  createChunk(index: Vector3D): Chunk {
-    this.updated = true;
-    const position = <Vector3D>multiply(CHUNK_SIZE * BLOCK_SIZE, index);
+    deleteBlocks(startIndex: Vector3D, endIndex: Vector3D) {
+        return this.terrain.deleteBlocks(startIndex, endIndex);
+    }
 
-    const chunk = new Chunk(this.stage, createChunkSelector(this), position);
+    hasChunk(chunkPosition: Vector3D): boolean {
+        return this.terrain.hasChunk(chunkPosition);
+    }
 
-    this.chunks.set(getChunkId(chunk.chunkPosition), chunk);
-    this.activeChunks.push(getChunkId(chunk.chunkPosition));
+    getChunk(chunkPosition: Vector3D): Chunk | null {
+        return this.terrain.getChunk(chunkPosition);
+    }
 
-    console.log(
-      `Created Chunk with id: ${getChunkId(
-        chunk.chunkPosition
-      )} for position: ${chunk.chunkPosition}`
-    );
+    update(delta: number) {
+        this.terrain.activeChunkIds
+            .map(id => this.terrain.chunks.get(id))
+            .forEach((chunk: Chunk) => void chunk.update(delta));
 
-    return chunk;
-  }
+        this.player.update(delta);
 
-  render(delta: number) {
-    // this.renderer.render(this.stage)
-  }
+        this.stage.children.sort((a, b) => {
+            const aZ = (<any>a).zIndex || 0;
+            const bZ = (<any>b).zIndex || 0;
+            return sortYZXAsc(
+                [a.position.x, a.position.y, aZ],
+                [b.position.x, b.position.y, bZ]
+            );
+        });
 
-  update(delta: number) {
-    this.activeChunks
-      .map(id => this.chunks.get(id))
-      .forEach((chunk: Chunk) => void chunk.update(delta));
+        // Debug
+        if (!(<any>this).kaas) {
+            const x = this.stage.children.reduce((som, c) => {
+                som.push(`P ${c.x} ${c.y} ${(<any>c).zIndex}`);
+                return som;
+            }, []);
 
-    this.player.update(delta);
-
-    this.stage.children.sort((a, b) => {
-      const aZ = (<any>a).zIndex || 0;
-      const bZ = (<any>b).zIndex || 0;
-      // a must be equal to b
-      return sortZYX(
-        [a.position.x, a.position.y, aZ],
-        [b.position.x, b.position.y, bZ]
-      );
-    });
-  }
+            console.log(x);
+            (<any>this).kaas = true
+        }
+    }
 }
-
-export const createChunkSelector = (scene: Scene) => (
-  chunkPosition: Vector3D
-) => (scene.hasChunk(chunkPosition) ? scene.getChunk(chunkPosition) : null);

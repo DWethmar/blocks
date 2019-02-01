@@ -1,16 +1,17 @@
 import * as PIXI from "pixi.js";
 
-import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
-import {divideBy} from "./utils/calc";
-import {chunkSelector, Vector3D} from "./types";
-import {Block, BlockType} from "./block";
-import {addPos} from "./utils/position";
-import {GameObject} from "./game-object";
-import {sortZYX} from "./utils/sort";
-import {LightenDarkenColor} from "./utils/color";
-import {createLineGraphic} from "./utils/graphics";
-import {getBlockId, getChunkId} from "./utils/id";
-import {getVisibleBlocks, isPositionWithinChunk} from "./utils/chunk";
+import { BLOCK_SIZE, CHUNK_SIZE } from "./config";
+import { divideBy } from "./utils/calc";
+import { chunkSelector, Vector3D } from "./types";
+import { Block, BlockType } from "./block";
+import { addPos } from "./utils/position";
+import { GameObject } from "./game-object";
+import { sortZYXAsc } from "./utils/sort";
+import { LightenDarkenColor } from "./utils/color";
+import { createLineGraphic } from "./utils/graphics";
+import { getBlockId, getChunkId } from "./utils/id";
+import { getVisibleBlocks, isPositionWithinChunk } from "./utils/chunk";
+import {Terrain} from "./terrain";
 
 export class Chunk extends GameObject {
   readonly blocks: Map<string, Block> = new Map<string, Block>();
@@ -39,7 +40,7 @@ export class Chunk extends GameObject {
 
   constructor(
     readonly stage: PIXI.Container,
-    readonly chunkSelector: chunkSelector,
+    readonly terrain: Terrain,
     readonly position: Vector3D
   ) {
     super(position);
@@ -54,6 +55,7 @@ export class Chunk extends GameObject {
       CHUNK_SIZE * BLOCK_SIZE,
       CHUNK_SIZE * BLOCK_SIZE * 2
     );
+    rect.renderable = false;
 
     rect.on("click", (event: any) =>
       this.click(event.data.getLocalPosition(rect))
@@ -107,7 +109,7 @@ export class Chunk extends GameObject {
 
     // Sort
     this.blocksToRender.sort((idA, idB) => {
-      return sortZYX(
+      return sortZYXAsc(
         this.blocks.get(idA).position,
         this.blocks.get(idB).position
       );
@@ -118,7 +120,7 @@ export class Chunk extends GameObject {
     this.blocksToRender.forEach(id => {
       const block = this.blocks.get(id);
 
-      const layerIndex = block.y;
+      const layerIndex = block.y + BLOCK_SIZE;
 
       let layer = null;
 
@@ -126,6 +128,7 @@ export class Chunk extends GameObject {
         layer = preLayers[layerIndex];
       } else {
         layer = new PIXI.Container();
+
         layer.cacheAsBitmap = true;
         layer.zIndex = Math.floor(layerIndex);
         layer.name = getChunkId(this.chunkPosition) + "-" + layerIndex;
@@ -144,7 +147,10 @@ export class Chunk extends GameObject {
         layer = this.layers[i];
       } else {
         layer = new PIXI.Container();
+
         layer.zIndex = (<any>preLayer).zIndex;
+        layer.position.set(this.x, this.y);
+
         this.layers[i] = layer;
         this.stage.addChild(layer);
       }
@@ -158,8 +164,8 @@ export class Chunk extends GameObject {
     const graphics = new PIXI.Graphics();
     let lighten = 0;
 
-    const drawX = block.drawX;
-    const drawY = block.drawY;
+    const drawX = block.drawX - this.x;
+    const drawY = block.drawY - this.y;
 
     const neighbors = {
       front: !this.isEmpty(addPos(block.worldPosition, [0, 1, 0]))
@@ -202,14 +208,9 @@ export class Chunk extends GameObject {
     container.addChild(graphics);
   }
 
-  isEmpty(position: Vector3D): boolean {
-    const block = this.getBlock(position);
-    return block ? block.transparent : true;
-  }
-
   private renderLines(block: Block, container: PIXI.Container) {
-    const drawX = block.drawX;
-    const drawY = block.drawY;
+    const drawX = block.drawX - this.x;
+    const drawY = block.drawY - this.y;
 
     const neighbors = {
       left: !this.isEmpty(addPos(block.worldPosition, [-1, 0, 0])),
@@ -270,7 +271,15 @@ export class Chunk extends GameObject {
     if (!neighbors.front) {
       if (!neighbors.left) {
         lines.push(
-          createLineGraphic(drawX, drawY, 0, 0, 0, BLOCK_SIZE, lineColor)
+          createLineGraphic(
+              drawX,
+              drawY,
+              0,
+              0,
+              0,
+              BLOCK_SIZE,
+              lineColor
+          )
         );
       }
 
@@ -293,21 +302,36 @@ export class Chunk extends GameObject {
     container.addChild(linesContainer);
   }
 
+  isEmpty(position: Vector3D): boolean {
+    const block = this.getBlock(position);
+    return block ? block.transparent : true;
+  }
+
   getBlock(worldPosition: Vector3D): Block | null {
     if (isPositionWithinChunk(worldPosition, this)) {
       return this.blocks.has(getBlockId(worldPosition))
         ? this.blocks.get(getBlockId(worldPosition))
         : new Block(BlockType.AIR, worldPosition);
     }
-    const otherChunk = this.chunkSelector(<Vector3D>(
-      chunkDivider(CHUNK_SIZE)(worldPosition)
-    ));
+    const otherChunk = this.terrain.getChunk(<Vector3D>chunkDivider(CHUNK_SIZE)(worldPosition));
     return otherChunk ? otherChunk.getBlock(worldPosition) : null;
   }
 
   createBlock(position: Vector3D, type: BlockType): Block {
     const block = new Block(type, position);
-    attachBlock(this)(block);
+    this.blocks.set(getBlockId(block.worldPosition), block);
+    this.hasChanged = true;
+
+    this.terrain.triggerSurroundingChunk(this.chunkPosition);
+
+    return block;
+  }
+
+  deleteBlock(position: Vector3D): Block {
+    const block = this.getBlock(position);
+    if (block) {
+      this.blocks.delete(getBlockId(position));
+    }
     this.hasChanged = true;
     return block;
   }
@@ -326,31 +350,6 @@ export class Chunk extends GameObject {
     return this.raycast(addPos(start, direction), direction);
   }
 
-  calculateVisibleBlocks() {
-    this.blocksToRender = [];
-    this.blocks.forEach((b: Block) => {
-      if (this.isPosVisible(addPos(b.worldPosition, [0, 1, 1]))) {
-        this.blocksToRender.push(getBlockId(b.worldPosition));
-      }
-    });
-    console.log(
-      `Amount of visible blocks: ${
-        this.blocksToRender.length
-      }, for chunk ${getChunkId(this.worldPosition)}`
-    );
-  }
-
-  isPosVisible(pos: Vector3D) {
-    if (isPositionWithinChunk(pos, this)) {
-      const block = this.getBlock(pos);
-      if (block && !block.transparent) {
-        return false;
-      }
-      return this.isPosVisible(addPos(pos, [0, 1, 1]));
-    }
-    return true;
-  }
-
   getCenter(): PIXI.Point {
     return new PIXI.Point(
       this.x + (CHUNK_SIZE * BLOCK_SIZE) / 2,
@@ -359,21 +358,5 @@ export class Chunk extends GameObject {
   }
 }
 
-export const createBlockSelector = chunkSelector => (selector: Vector3D) => {
-  const chunk = chunkSelector(<Vector3D>chunkDivider(CHUNK_SIZE)(selector));
-  if (chunk) {
-    return chunk.getBlock(selector);
-  }
-  return null;
-};
-
 export const chunkDivider = (size: number) => (i: number[]) =>
   divideBy(size, i).map(i => Math.floor(i));
-
-/**
- * Creates a generator for creating blocks and linking it to a scene.
- *
- * @param scene
- */
-const attachBlock = (chunk: Chunk) => (block: Block) =>
-  chunk.blocks.set(getBlockId(block.worldPosition), block) ? block : null;

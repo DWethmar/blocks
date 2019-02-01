@@ -6,18 +6,18 @@ import {CHUNK_SIZE} from "../config";
 export const getVisibleBlocks = (chunk: Chunk): string[] => {
   return Array.from(chunk.blocks)
     .filter(([id, block]) =>
-      isPosVisible(addPos(block.worldPosition, [0, 1, 1]), chunk)
+      isPosVisibleWithinChunk(addPos(block.worldPosition, [0, 1, 1]), chunk)
     )
     .map(([id, block]) => id);
 };
 
-export const isPosVisible = (pos: Vector3D, chunk: Chunk) => {
+export const isPosVisibleWithinChunk = (pos: Vector3D, chunk: Chunk) => {
   if (isPositionWithinChunk(pos, chunk)) {
     const block = chunk.getBlock(pos);
     if (block && !block.transparent) {
       return false;
     }
-    return isPosVisible(addPos(pos, [0, 1, 1]), chunk);
+    return isPosVisibleWithinChunk(addPos(pos, [0, 1, 1]), chunk);
   }
   return true;
 };

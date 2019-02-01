@@ -9,6 +9,7 @@ import * as Viewport from "pixi-viewport";
 
 import "./vendor/noisejs/perlin.js";
 import Ticker = PIXI.ticker.Ticker;
+import {GameOfLife} from "./game-of-life/game-of-life";
 
 // src/vendor/noisejs/perlin.js
 declare var noise;
@@ -21,7 +22,7 @@ document.body.appendChild(app.view);
 app.view.style.margin = "0 auto";
 app.view.style.display = "inherit";
 
-app.renderer.backgroundColor = 0xf00000;
+app.renderer.backgroundColor = 0xffffff;
 
 app.loader.load(setup);
 
@@ -47,22 +48,49 @@ viewport
 
 let scene: Scene = new Scene(viewport);
 
+// const gol = new GameOfLife(CHUNK_SIZE, CHUNK_SIZE);
+// gol.addRandomCells(50);
+
 // setup ticker
 var ticker = new Ticker();
+
+let golTicks = 0;
+
 ticker.add((delta: number) => {
   scene.update(delta);
-  scene.render(delta);
-});
 
+  // // Game of life shizzle
+  // if (golTicks === 100) {
+  //   scene.deleteBlocks([0, CHUNK_SIZE, 1], [CHUNK_SIZE, CHUNK_SIZE * 2, 1]);
+  //   gol.tick();
+  //   gol.getCells()
+  //       .forEach(c => scene.addBlock(addPos([c.x, c.y, 1], [0, CHUNK_SIZE, 0]), BlockType.ROCK));
+  //   golTicks = 0;
+  // } else {
+  //   golTicks++;
+  // }
+});
 ticker.speed = 0.5;
 ticker.start();
 
+// Test 1
+// scene.addBlock([0, 0, 0], BlockType.ROCK);
+// scene.addBlock([CHUNK_SIZE - 1, 0, 0], BlockType.ROCK);
+//
+// // createCheckers(scene, BlockType.VOID, BlockType.GRASS, [CHUNK_SIZE, 0, 0]);
+// scene.addBlock([CHUNK_SIZE, 0, 0], BlockType.ROCK);
+
+// Test 2
+createCheckers(scene, BlockType.GRASS, BlockType.VOID, [0, 0, 0]);
 createTower(scene, BlockType.ROCK, [17, 15, 1]);
 createTower(scene, BlockType.ROCK, [20, 18, 1]);
 createArch(scene, BlockType.ROCK, [6, 1, 1]);
-createCheckers(scene, BlockType.GRASS, BlockType.VOID, [0, 0, 0]);
 
-createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, [CHUNK_SIZE, 0, -1]);
+createCheckers(scene, BlockType.GRASS, BlockType.VOID, [CHUNK_SIZE, 0, 0]);
+createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, [CHUNK_SIZE, 0, 0]);
+
+createCheckers(scene, BlockType.GRASS, BlockType.VOID, [CHUNK_SIZE * 2, 0, 0]);
+createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, [CHUNK_SIZE * 2, 0, 0]);
 
 scene.addBlock([0, 0, 1], BlockType.ROCK);
 scene.addBlock([1, 0, 1], BlockType.ROCK);
@@ -72,7 +100,6 @@ scene.addBlock([2, 0, 1], BlockType.ROCK);
 
 scene.addBlock([8, 0, 1], BlockType.GRASS);
 scene.addBlock([11, 0, 1], BlockType.GRASS);
-
 scene.addBlock([CHUNK_SIZE, 0, 1], BlockType.VOID);
 
 function createTerrainNoise(
@@ -83,7 +110,7 @@ function createTerrainNoise(
 ) {
   // NOISE
   noise.seed(Math.random());
-  for (var x = 0; x < CHUNK_SIZE * 3; x++) {
+  for (var x = 0; x < CHUNK_SIZE; x++) {
     for (var y = 0; y < CHUNK_SIZE; y++) {
       let value = Math.abs(noise.perlin2(x / 10, y / 10));
       value *= 256 / 19;
