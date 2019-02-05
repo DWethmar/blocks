@@ -65,13 +65,13 @@ export class Chunk extends GameObject {
         let y = 0;
         let z = 0;
 
-        if (p.y > CHUNK_SIZE * BLOCK_SIZE) {
+        if (p.y > this.bounds.height / 2) {
             // click on front
-            z = CHUNK_SIZE * BLOCK_SIZE * 2 - p.y;
+            z = ((CHUNK_SIZE * BLOCK_SIZE) * 2) - p.y;
             y = CHUNK_SIZE * BLOCK_SIZE;
         } else {
-            z = CHUNK_SIZE * BLOCK_SIZE * 2 - p.y; // click on ceil
-            y = CHUNK_SIZE * BLOCK_SIZE;
+            z = (CHUNK_SIZE * BLOCK_SIZE); // click on ceil
+            y = ((CHUNK_SIZE * BLOCK_SIZE) * 2) - p.y
         }
 
         const worldPos = <Vector3D>(

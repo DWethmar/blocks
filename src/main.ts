@@ -63,10 +63,10 @@ createTower(scene, BlockType.ROCK, [17, 15, 1]);
 createTower(scene, BlockType.ROCK, [20, 18, 1]);
 createArch(scene, BlockType.ROCK, [6, 1, 1]);
 
-for (let x = 0; x < 10; x++) {
-    for (let y = 0; y < 10; y++) {
-        createCheckers(scene, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, 0, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
-        createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, 0, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
+for (let x = 0; x < 5; x++) {
+    for (let y = 0; y < 5; y++) {
+        createCheckers(scene, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
+        createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
     }
 }
 

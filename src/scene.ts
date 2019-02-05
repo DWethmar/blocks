@@ -8,6 +8,8 @@ import {sortZYXAsc} from "./utils/sort";
 import {Player} from "./player";
 import {Terrain} from "./terrain";
 import * as Viewport from "pixi-viewport";
+import {divideBy} from "./utils/calc";
+import {addPos} from "./utils/position";
 
 export class Scene {
 
