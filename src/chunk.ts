@@ -115,53 +115,55 @@ export class Chunk extends GameObject {
       );
     });
 
-    const preLayers: PIXI.Container[] = [];
+    const blockGraphics: PIXI.Graphics[] = [];
 
     this.blocksToRender.forEach(id => {
       const block = this.blocks.get(id);
 
-      const layerIndex = block.y + BLOCK_SIZE;
+      const index = block.y + BLOCK_SIZE;
 
-      let layer = null;
+      let graphics = null;
 
-      if (preLayers[layerIndex]) {
-        layer = preLayers[layerIndex];
+      if (blockGraphics[index]) {
+        graphics = blockGraphics[index];
       } else {
-        layer = new PIXI.Container();
-
-        layer.cacheAsBitmap = true;
-        layer.zIndex = Math.floor(layerIndex);
-        layer.name = getChunkId(this.chunkPosition) + "-" + layerIndex;
-        preLayers[layerIndex] = layer;
+        graphics = new PIXI.Graphics();
+        graphics.zIndex = Math.floor(index);
+        blockGraphics[index] = graphics;
       }
-      this.renderBlock(block, layer);
-      this.renderLines(block, layer);
+      this.renderBlock(block, graphics);
+      this.renderLines(block, graphics);
     });
 
     // Clear that shit.
     this.layers.forEach(l => l.removeChildren());
 
-    preLayers.forEach((preLayer, i) => {
+    blockGraphics.forEach((graphics, i) => {
       let layer = null;
       if (this.layers[i]) {
         layer = this.layers[i];
       } else {
         layer = new PIXI.Container();
-
-        layer.zIndex = (<any>preLayer).zIndex;
+        layer.zIndex = (<any>graphics).zIndex;
         layer.position.set(this.x, this.y);
-
         this.layers[i] = layer;
         this.stage.addChild(layer);
       }
-      layer.addChild(preLayer);
+
+      // let img = new PIXI.Sprite(graphics.generateCanvasTexture());
+      // img.position.set(graphics.x, (layer.zIndex) + (BLOCK_SIZE * CHUNK_SIZE) - graphics.height);
+      // img.width = graphics.width;
+      // img.height = graphics.height;
+      //
+      // console.log(graphics.position);
+
+      layer.addChild(graphics);
     });
 
     this.hasChanged = false;
   }
 
-  private renderBlock(block: Block, container: PIXI.Container) {
-    const graphics = new PIXI.Graphics();
+  private renderBlock(block: Block, graphics: PIXI.Graphics) {
     let lighten = 0;
 
     const drawX = block.drawX - this.x;
@@ -187,6 +189,7 @@ export class Chunk extends GameObject {
       }
       graphics.beginFill(LightenDarkenColor(frontColor, lighten));
       graphics.drawRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
+      graphics.endFill();
     }
 
     let topColor = null;
@@ -204,11 +207,10 @@ export class Chunk extends GameObject {
     }
     graphics.beginFill(LightenDarkenColor(topColor, lighten));
     graphics.drawRect(drawX, drawY - BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-
-    container.addChild(graphics);
+    graphics.endFill();
   }
 
-  private renderLines(block: Block, container: PIXI.Container) {
+  private renderLines(block: Block, graphics: PIXI.Graphics) {
     const drawX = block.drawX - this.x;
     const drawY = block.drawY - this.y;
 
@@ -299,7 +301,7 @@ export class Chunk extends GameObject {
     }
     const linesContainer = new PIXI.Container();
     lines.forEach(l => linesContainer.addChild(l));
-    container.addChild(linesContainer);
+    graphics.addChild(linesContainer);
   }
 
   isEmpty(position: Vector3D): boolean {

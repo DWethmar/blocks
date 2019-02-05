@@ -22,31 +22,11 @@ document.body.appendChild(app.view);
 app.view.style.margin = "0 auto";
 app.view.style.display = "inherit";
 
-app.renderer.backgroundColor = 0xffffff;
+app.renderer.backgroundColor = 0xF5F5F5;
 
 app.loader.load(setup);
 
-// create viewport
-var viewport = new Viewport({
-  screenWidth: viewPort.width,
-  screenHeight: viewPort.height,
-  worldWidth: 1000,
-  worldHeight: 1000,
-
-  interaction: (<any>app).renderer.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
-});
-
-// add the viewport to the stage
-app.stage.addChild(viewport);
-
-// activate plugins
-viewport
-  .drag()
-  .pinch()
-  .wheel()
-  .decelerate();
-
-let scene: Scene = new Scene(viewport);
+let scene: Scene = new Scene(app);
 
 // const gol = new GameOfLife(CHUNK_SIZE, CHUNK_SIZE);
 // gol.addRandomCells(50);
@@ -86,11 +66,12 @@ createTower(scene, BlockType.ROCK, [17, 15, 1]);
 createTower(scene, BlockType.ROCK, [20, 18, 1]);
 createArch(scene, BlockType.ROCK, [6, 1, 1]);
 
-createCheckers(scene, BlockType.GRASS, BlockType.VOID, [CHUNK_SIZE, 0, 0]);
-createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, [CHUNK_SIZE, 0, 0]);
 
-createCheckers(scene, BlockType.GRASS, BlockType.VOID, [CHUNK_SIZE * 2, 0, 0]);
-createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, [CHUNK_SIZE * 2, 0, 0]);
+for (let i = 0; i < 10; i++) {
+  createCheckers(scene, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, 0, 0], [CHUNK_SIZE * i, 0, 0]));
+  createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, 0, 0], [CHUNK_SIZE * i, 0, 0]));
+}
+
 
 scene.addBlock([0, 0, 1], BlockType.ROCK);
 scene.addBlock([1, 0, 1], BlockType.ROCK);
@@ -176,8 +157,6 @@ function createCheckers(
     }
   }
 }
-
-viewport.center = scene.getChunk([0, 0, 0]).getCenter();
 
 function setup() {
   console.log("Setup");

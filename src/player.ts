@@ -7,7 +7,7 @@ import {addPos, getX, getY} from "./utils/position";
 import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
 
 export class Player extends GameObject {
-  private playerView: PIXI.Container;
+  public playerView: PIXI.Container;
 
   private RotateSpeed = 0.1;
   private Radius = 30;
