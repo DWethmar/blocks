@@ -45,7 +45,7 @@ export class Chunk extends GameObject {
   ) {
     super(position);
 
-    var rect = new PIXI.Graphics();
+    const rect = new PIXI.Graphics();
     rect.lineStyle(1, 0x000);
 
     rect.interactive = true;

@@ -4,7 +4,7 @@ import {Chunk} from "./chunk";
 import {BLOCK_SIZE} from "./config";
 import {Vector3D} from "./types";
 import {BlockType} from "./block";
-import {sortYZXAsc, sortZYXAsc} from "./utils/sort";
+import {sortZYXAsc} from "./utils/sort";
 import {Player} from "./player";
 import {Terrain} from "./terrain";
 import * as Viewport from "pixi-viewport";
@@ -79,16 +79,5 @@ export class Scene {
                 [b.position.x, b.position.y, bZ]
             );
         });
-
-        // Debug
-        if (!(<any>this).kaas) {
-            const x = this.stage.children.reduce((som, c) => {
-                som.push(`P ${c.x} ${c.y} ${(<any>c).zIndex}`);
-                return som;
-            }, []);
-
-            console.log(x);
-            (<any>this).kaas = true
-        }
     }
 }
