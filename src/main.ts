@@ -23,10 +23,13 @@ app.view.style.margin = "0 auto";
 app.view.style.display = "inherit";
 
 app.renderer.backgroundColor = 0xF5F5F5;
-
 app.loader.load(setup);
 
 let scene: Scene = new Scene(app);
+
+// window.addEventListener("resize", () => {
+//   app.renderer.resize(window.innerWidth, window.innerHeight)
+// });
 
 // const gol = new GameOfLife(CHUNK_SIZE, CHUNK_SIZE);
 // gol.addRandomCells(50);

@@ -20,6 +20,7 @@ export class Block extends GameObject {
   get drawX(): number {
     return this.x;
   }
+
   get drawY(): number {
     return this.y - this.z + BLOCK_SIZE * CHUNK_SIZE;
   }

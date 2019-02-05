@@ -14,10 +14,19 @@ export class Player extends GameObject {
   private angle = 0;
   private center: Vector3D;
 
+  get drawX(): number {
+    return this.x;
+  }
+
+  get drawY(): number {
+    return this.y - this.z + BLOCK_SIZE * CHUNK_SIZE;
+  }
+
   constructor(readonly stage: PIXI.Container, position: Vector3D) {
     super(position);
 
     this.playerView = new PIXI.Container();
+    this.playerView.name = 'Player';
 
     this.center = <Vector3D>this.position.slice();
 
@@ -28,6 +37,8 @@ export class Player extends GameObject {
 
     // this.playerView.pivot.x = 5;
     // this.playerView.pivot.y = -5;
+
+    this.playerView.zIndex = Math.ceil(this.y);
 
     this.stage.addChild(this.playerView);
   }
@@ -44,11 +55,11 @@ export class Player extends GameObject {
     this.x = getX(newPos);
     this.y = getY(newPos);
 
-    const drawX = this.x;
-    const drawY = this.y - this.z + BLOCK_SIZE * CHUNK_SIZE;
+    const drawX = this.drawX;
+    const drawY = this.drawY;
 
     this.playerView.x = drawX;
     this.playerView.y = drawY;
-    (<any>this.playerView).zIndex = this.y;
+    this.playerView.zIndex = Math.ceil(this.y);
   }
 }

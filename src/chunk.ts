@@ -120,7 +120,7 @@ export class Chunk extends GameObject {
     this.blocksToRender.forEach(id => {
       const block = this.blocks.get(id);
 
-      const index = block.y + BLOCK_SIZE;
+      const index = block.y;
 
       let graphics = null;
 
@@ -128,7 +128,7 @@ export class Chunk extends GameObject {
         graphics = blockGraphics[index];
       } else {
         graphics = new PIXI.Graphics();
-        graphics.zIndex = Math.floor(index);
+        // graphics.zIndex = Math.floor(index);
         blockGraphics[index] = graphics;
       }
       this.renderBlock(block, graphics);
@@ -144,7 +144,7 @@ export class Chunk extends GameObject {
         layer = this.layers[i];
       } else {
         layer = new PIXI.Container();
-        layer.zIndex = graphics.zIndex;
+        layer.zIndex = i;
         layer.position.set(this.x, this.y);
         this.layers[i] = layer;
         this.stage.addChild(layer);

@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 
 import {Chunk} from "./chunk";
-import {BLOCK_SIZE} from "./config";
+import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
 import {Vector3D} from "./types";
 import {BlockType} from "./block";
 import {sortZYXAsc} from "./utils/sort";
@@ -15,6 +15,7 @@ export class Scene {
 
     private terrain: Terrain;
     public player: Player;
+    public player2: Player;
 
     constructor(readonly app: PIXI.Application) {
 
@@ -34,13 +35,18 @@ export class Scene {
             .wheel()
             .decelerate();
 
-        this.terrain = new Terrain(this.stage);
         this.player = new Player(this.stage, [
             18 * BLOCK_SIZE,
             14 * BLOCK_SIZE,
             BLOCK_SIZE * 3
         ]);
+        this.player2 = new Player(this.stage, [
+            0,
+            CHUNK_SIZE * BLOCK_SIZE,
+            BLOCK_SIZE
+        ]);
 
+        this.terrain = new Terrain(this.stage);
         this.app.stage.addChild(this.stage);
     }
 
@@ -70,5 +76,16 @@ export class Scene {
             .forEach((chunk: Chunk) => void chunk.update(delta));
 
         this.player.update(delta);
+        this.player2.update(delta);
+
+        // Do own sorting
+        this.stage.children.sort((a, b) => {
+            const aZ = a.zIndex || 0;
+            const bZ = b.zIndex || 0;
+            return sortZYXAsc(
+                [a.position.x, a.position.y, aZ],
+                [b.position.x, b.position.y, bZ]
+            );
+        });
     }
 }
