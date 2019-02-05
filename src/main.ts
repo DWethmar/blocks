@@ -50,7 +50,7 @@ ticker.add((delta: number) => {
   //   golTicks++;
   // }
 
-  // console.log(app.ticker.FPS);
+  document.title = `SODA FPS:${ Math.floor(app.ticker.FPS) }`;
 });
 ticker.speed = 0.5;
 ticker.start();
