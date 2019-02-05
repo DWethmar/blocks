@@ -49,29 +49,21 @@ ticker.add((delta: number) => {
   // } else {
   //   golTicks++;
   // }
+
+  // console.log(app.ticker.FPS);
 });
 ticker.speed = 0.5;
 ticker.start();
 
-// Test 1
-// scene.addBlock([0, 0, 0], BlockType.ROCK);
-// scene.addBlock([CHUNK_SIZE - 1, 0, 0], BlockType.ROCK);
-//
-// // createCheckers(scene, BlockType.VOID, BlockType.GRASS, [CHUNK_SIZE, 0, 0]);
-// scene.addBlock([CHUNK_SIZE, 0, 0], BlockType.ROCK);
-
-// Test 2
 createCheckers(scene, BlockType.GRASS, BlockType.VOID, [0, 0, 0]);
 createTower(scene, BlockType.ROCK, [17, 15, 1]);
 createTower(scene, BlockType.ROCK, [20, 18, 1]);
 createArch(scene, BlockType.ROCK, [6, 1, 1]);
 
-
 for (let i = 0; i < 10; i++) {
   createCheckers(scene, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, 0, 0], [CHUNK_SIZE * i, 0, 0]));
   createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, 0, 0], [CHUNK_SIZE * i, 0, 0]));
 }
-
 
 scene.addBlock([0, 0, 1], BlockType.ROCK);
 scene.addBlock([1, 0, 1], BlockType.ROCK);

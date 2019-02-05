@@ -190,6 +190,12 @@ export class Chunk extends GameObject {
       graphics.beginFill(LightenDarkenColor(frontColor, lighten));
       graphics.drawRect(drawX, drawY, BLOCK_SIZE, BLOCK_SIZE);
       graphics.endFill();
+
+      // const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+      // sprite.tint = frontColor;
+      // sprite.width = sprite.height = BLOCK_SIZE;
+      // sprite.position.set(drawX, drawY);
+      // graphics.addChild(sprite);
     }
 
     let topColor = null;
@@ -208,6 +214,12 @@ export class Chunk extends GameObject {
     graphics.beginFill(LightenDarkenColor(topColor, lighten));
     graphics.drawRect(drawX, drawY - BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
     graphics.endFill();
+
+    // const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+    // sprite.tint = topColor;
+    // sprite.width = sprite.height = BLOCK_SIZE;
+    // sprite.position.set(drawX, drawY - BLOCK_SIZE);
+    // graphics.addChild(sprite);
   }
 
   private renderLines(block: Block, graphics: PIXI.Graphics) {
@@ -296,6 +308,20 @@ export class Chunk extends GameObject {
             BLOCK_SIZE,
             lineColor
           )
+        );
+      }
+
+      if (!neighbors.bottom && !neighbors.front) {
+        lines.push(
+            createLineGraphic(
+                drawX,
+                drawY + BLOCK_SIZE,
+                0,
+                0,
+                BLOCK_SIZE,
+                0,
+                lineColor
+            )
         );
       }
     }
