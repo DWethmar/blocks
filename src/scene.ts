@@ -70,14 +70,5 @@ export class Scene {
             .forEach((chunk: Chunk) => void chunk.update(delta));
 
         this.player.update(delta);
-
-        this.stage.children.sort((a, b) => {
-            const aZ = (<any>a).zIndex || 0;
-            const bZ = (<any>b).zIndex || 0;
-            return sortZYXAsc(
-                [a.position.x, a.position.y, aZ],
-                [b.position.x, b.position.y, bZ]
-            );
-        });
     }
 }

@@ -8,7 +8,7 @@ import {addPos} from "./utils/position";
 import * as Viewport from "pixi-viewport";
 
 import "./vendor/noisejs/perlin.js";
-import Ticker = PIXI.ticker.Ticker;
+import Ticker = PIXI.Ticker;
 import {GameOfLife} from "./game-of-life/game-of-life";
 
 // src/vendor/noisejs/perlin.js

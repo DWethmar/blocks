@@ -144,7 +144,7 @@ export class Chunk extends GameObject {
         layer = this.layers[i];
       } else {
         layer = new PIXI.Container();
-        layer.zIndex = (<any>graphics).zIndex;
+        layer.zIndex = graphics.zIndex;
         layer.position.set(this.x, this.y);
         this.layers[i] = layer;
         this.stage.addChild(layer);
