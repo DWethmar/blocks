@@ -87,5 +87,26 @@ export class Scene {
                 [b.position.x, b.position.y, bZ]
             );
         });
+
+        this.terrain.chunks.forEach(chunk => {
+            const bounds = this.stage.getVisibleBounds();
+            const sceneRect = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
+            if (intersects(sceneRect, chunk.bounds)) {
+                chunk.show();
+            } else {
+                chunk.hide();
+            }
+        });
+
     }
+}
+
+function intersects(a: PIXI.Rectangle, b: PIXI.Rectangle) {
+    return (
+        (a.x + a.width > b.x && a.x + a.width <= b.x + b.width)
+        || (b.x + b.width > a.x && b.x + b.width <= a.x + a.width)
+    ) && (
+        (a.y + a.height > b.y && a.y + a.height <= b.y + b.height)
+        || (b.y + b.height > a.y && b.y + b.height <= a.y + a.height)
+    );
 }

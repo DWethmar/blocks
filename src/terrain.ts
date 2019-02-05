@@ -22,15 +22,14 @@ export class Terrain {
     constructor(
         readonly stage: PIXI.Container,
     ) {
-
     }
 
     /**
-     * @param worldPosition The world position of the block.
+     * @param blockIndex The world position of the block.
      * @param type
      */
-    addBlock(worldPosition: Vector3D, type: BlockType) {
-        const blockPosition = <Vector3D>multiply(BLOCK_SIZE, worldPosition);
+    addBlock(blockIndex: Vector3D, type: BlockType) {
+        const blockPosition = <Vector3D>multiply(BLOCK_SIZE, blockIndex);
         const chunkIndex = <Vector3D>(
             chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
         );
@@ -43,12 +42,12 @@ export class Terrain {
 
         // Check if block is on a edge of the chunk.
         if ([
-            getX(worldPosition) % (CHUNK_SIZE * BLOCK_SIZE) === 0
-            || getY(worldPosition) % (CHUNK_SIZE * BLOCK_SIZE) === 0
-            || getZ(worldPosition) % (CHUNK_SIZE * BLOCK_SIZE) === 0
+            getX(blockIndex) % (CHUNK_SIZE * BLOCK_SIZE) === 0
+            || getY(blockIndex) % (CHUNK_SIZE * BLOCK_SIZE) === 0
+            || getZ(blockIndex) % (CHUNK_SIZE * BLOCK_SIZE) === 0
         ]) {
             // console.log('Update surrounding chunks', blockPosition);
-            this.triggerSurroundingChunk(chunkIndex);
+            this.triggerSurroundingChunk(chunkIndex, blockIndex);
         }
 
         return null;
@@ -119,19 +118,19 @@ export class Terrain {
 
         const chunk = new Chunk(this.stage, this, chunkPosition);
 
-        this.chunks.set(getChunkId(chunk.chunkPosition), chunk);
-        this.activeChunkIds.push(getChunkId(chunk.chunkPosition));
+        this.chunks.set(getChunkId(chunk.chunkIndex.point), chunk);
+        this.activeChunkIds.push(getChunkId(chunk.chunkIndex.point));
 
         console.log(
             `Created Chunk with id: ${getChunkId(
-                chunk.chunkPosition
-            )} for position: ${chunk.chunkPosition}`
+                chunk.chunkIndex.point
+            )} for position: ${chunk.chunkIndex.point}`
         );
 
         return chunk;
     }
 
-    triggerSurroundingChunk(chunkIndex: Vector3D) {
+    triggerSurroundingChunk(chunkIndex: Vector3D, blockIndex: Vector3D) {
         // update chunks around it
         [
             addPos(chunkIndex, [1, 0, 0]), // right

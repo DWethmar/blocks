@@ -1,55 +1,31 @@
 import {Vector3D} from "./types";
-import {getX, getY, getZ} from "./utils/position";
+import {BlockIndex, ChunkIndex, Position} from "./position";
 
 export abstract class GameObject {
-  // Position
-  get x() {
-    return getX(this.position);
-  }
-  set x(value: number) {
-    this.position[0] = value;
-  }
 
-  get y() {
-    return getY(this.position);
-  }
-  set y(value: number) {
-    this.position[1] = value;
-  }
+    position: Position = null;
+    blockIndex: BlockIndex = null;
+    chunkIndex: ChunkIndex = null;
 
-  get z() {
-    return getZ(this.position);
-  }
-  set z(value: number) {
-    this.position[2] = value;
-  }
+    get x() {
+        return this.position.x;
+    }
 
-  // Direction
-  get dX() {
-    return getX(this.direction);
-  }
-  set dX(value: number) {
-    this.direction[0] = value;
-  }
+    get y() {
+        return this.position.y;
+    }
 
-  get dY() {
-    return getY(this.direction);
-  }
-  set dY(value: number) {
-    this.direction[1] = value;
-  }
+    get z() {
+        return this.position.z;
+    }
 
-  get dZ() {
-    return getZ(this.direction);
-  }
-  set dZ(value: number) {
-    this.direction[2] = value;
-  }
+    constructor(
+        public vector3d: Vector3D,
+    ) {
+        this.position   = new Position(vector3d);
+        this.blockIndex = new BlockIndex(this.position);
+        this.chunkIndex = new ChunkIndex(this.position);
+    }
 
-  constructor(
-    public position: Vector3D,
-    public direction: Vector3D = [0, 0, 0]
-  ) {}
-
-  abstract update(delta): void;
+    abstract update(delta): void;
 }
