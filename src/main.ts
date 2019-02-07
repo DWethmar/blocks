@@ -14,7 +14,7 @@ import {GameOfLife} from "./game-of-life/game-of-life";
 // src/vendor/noisejs/perlin.js
 declare var noise;
 
-const viewPort = {width: 400, height: 400};
+const viewPort = {width: 1400, height: 750};
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
