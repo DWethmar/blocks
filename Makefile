@@ -35,7 +35,7 @@ serve:
 # always work - except if there's an OS limitation in the build flags
 # (e.g, a linux-only project).
 install:
-	go install -v $(SRC)/main.go
+	CGO_ENABLED=0 go install -v $(SRC)/main.go
 
 
 # Keeping `./main.go` with just a `cli` and `./lib/*.go` with actual
