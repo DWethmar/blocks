@@ -4,7 +4,7 @@ import {Vector3D} from "../types";
 import {CHUNK_SIZE} from "../config";
 import {addPos} from "./position";
 
-import "../vendor/noisejs/perlin.js";
+import "../../vendor/noisejs/perlin.js";
 
 declare var noise;
 

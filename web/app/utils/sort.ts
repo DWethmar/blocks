@@ -1,4 +1,4 @@
-import {Vector3D} from "types";
+import {Vector3D} from "../types";
 import {getX, getY, getZ} from "./position";
 
 export function sortZYXAsc(a: Vector3D, b: Vector3D): number {
