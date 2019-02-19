@@ -42,7 +42,6 @@ scene.addBlock([8, 0, 1], BlockType.GRASS);
 scene.addBlock([11, 0, 1], BlockType.GRASS);
 scene.addBlock([CHUNK_SIZE, 0, 1], BlockType.VOID);
 
-
 // setup ticker
 const ticker = new Ticker();
 ticker.add((delta: number) => {
