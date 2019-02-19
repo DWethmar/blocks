@@ -19,6 +19,7 @@
     ]
   },
   "include": [
-    "./vendor/noisejs/perlin.js"
+    "./vendor/noisejs/perlin.js",
+    "./vendor/wasm/wasm_exec.js"
   ]
 }

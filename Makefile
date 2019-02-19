@@ -7,7 +7,8 @@
 # build context and have the version set in the binary that ends
 # up inside the Docker image too.
 VERSION         :=      $(shell cat ./VERSION)
-IMAGE_NAME      :=      cirocosta/l7
+SRC      		:=      cmd/app
+DIST      		:=      dist
 
 
 # As a call to `make` without any arguments leads to the execution
@@ -20,7 +21,7 @@ IMAGE_NAME      :=      cirocosta/l7
 all: build
 
 build:
-	GOOS=js GOARCH=wasm go build -o dist/main.wasm cmd/app/main.go
+	GOOS=js GOARCH=wasm go build -o $(DIST)/main.wasm $(SRC)/main.go
 	npm --prefix web run build
 
 # Install just performs a normal `go install` which builds the source
@@ -31,7 +32,7 @@ build:
 # always work - except if there's an OS limitation in the build flags
 # (e.g, a linux-only project).
 install:
-	go install -v
+	go install -v $(SRC)/main.go
 
 
 # Keeping `./main.go` with just a `cli` and `./lib/*.go` with actual
@@ -50,12 +51,9 @@ test:
 # By using the `./...` notation, all the non-vendor packages are going
 # to be formatted (including test files).
 fmt:
-	go fmt ./... -v
+	go fmt ./...
 
 # This is pretty much an optional thing that I tend always to include.
-#
-# Goreleaser is a tool that allows anyone to integrate a binary releasing
-# process to their pipelines.
 #
 # Here in this target With just a simple `make release` you can have a
 # `tag` created in GitHub with multiple builds if you wish.
@@ -64,6 +62,5 @@ fmt:
 release:
 	git tag -a $(VERSION) -m "Release" || true
 	git push origin $(VERSION)
-	goreleaser --rm-dist
 
 .PHONY: install test fmt release

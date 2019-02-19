@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "webpack-dev-server --content-base dist/ --watch --port 9000",
+    "start": "webpack-dev-server --content-base ../dist/ --watch --port 9000",
     "build": "webpack --env production"
   },
   "author": "",
