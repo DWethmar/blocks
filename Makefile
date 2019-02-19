@@ -24,6 +24,9 @@ build:
 	GOOS=js GOARCH=wasm go build -o $(DIST)/main.wasm $(SRC)/main.go
 	npm --prefix web run build
 
+serve:
+	npm --prefix web start
+
 # Install just performs a normal `go install` which builds the source
 # files from the package at `./` (I like to keep a `main.go` in the root
 # that imports other subpackages).

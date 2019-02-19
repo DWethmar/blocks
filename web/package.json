@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "webpack-dev-server --content-base ../dist/ --watch --port 9000",
+    "start": "webpack-dev-server --content-base ../dist/ --watch --port 9001",
     "build": "webpack --env production"
   },
   "author": "",
@@ -12,6 +12,7 @@
     "@types/core-js": "^2.5.0",
     "@types/lodash": "^4.14.117",
     "@types/redux": "^3.6.0",
+  	"@types/webassembly-js-api": "0.0.2",
     "babel-polyfill": "^6.26.0",
     "core-js": "^2.5.7",
     "html-webpack-plugin": "^4.0.0-beta.1",
@@ -28,7 +29,6 @@
     "webpack-fail-plugin": "^2.0.0"
   },
   "dependencies": {
-    "@types/webassembly-js-api": "0.0.2",
     "lodash": "^4.17.11",
     "pixi-viewport": "^3.15.0",
     "pixi.js": "5.0.0-rc",
