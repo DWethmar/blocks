@@ -34,7 +34,7 @@
     "babel-polyfill": "^6.26.0",
     "lodash": "^4.17.11",
     "pixi-viewport": "^3.15.0",
-    "pixi.js": "5.0.0-rc",
+    "pixi.js": "5.0.0-rc.2",
     "rxjs": "^6.4.0"
   }
 }

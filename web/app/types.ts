@@ -8,3 +8,8 @@ export type viewPort = {
     width: number;
     height: number;
 };
+
+export interface LoadProgress {
+    total: number;
+    done: number;
+}
