@@ -1,0 +1,25 @@
+{
+	"meta": {
+		"image": "spritesheet.png",
+		"size": {"w":512,"h":480},
+		"scale": "1"
+	},
+	"frames": {
+		"tiles.png":
+		{
+			"frame": {"x":0,"y":0,"w":512,"h":480},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":512,"h":480},
+			"sourceSize": {"w":512,"h":480}
+		},
+		"rock.png":
+		{
+			"frame": {"x":0,"y":0,"w":64,"h":128},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":512,"h":480},
+			"sourceSize": {"w":512,"h":480}
+		}
+	}
+}

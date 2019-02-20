@@ -2,6 +2,7 @@
 
 const path = require('path');
 const TSLintPlugin = require('tslint-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: ["babel-polyfill", path.join(__dirname, '/app/main.ts')],
@@ -34,7 +35,10 @@ module.exports = {
     plugins: [
         new TSLintPlugin({
             files: ['./src/**/*.ts']
-        })
+        }),
+        new CopyWebpackPlugin([
+            { from: __dirname + '/assets', to: __dirname + '/../dist' },
+        ])
     ],
     node: {
         fs: 'empty'

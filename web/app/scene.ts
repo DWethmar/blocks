@@ -50,6 +50,12 @@ export class Scene {
 
         this.terrain = new Terrain(this.stage);
         this.app.stage.addChild(this.stage);
+
+        const loader = new PIXI.Loader();
+        loader.add('spritesheet.json').load(() => {
+            let sheet = loader.resources['rock.png'];
+            console.log('LOADED', sheet);
+        });
     }
 
     addBlock(index: Vector3D, type: BlockType) {
