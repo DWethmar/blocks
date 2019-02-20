@@ -3,8 +3,9 @@ package main
 import "syscall/js"
 
 func add(i []js.Value) {
+
 	js.Global().Set("output", js.ValueOf(i[0].Int()+i[1].Int()))
-	println(js.ValueOf(i[0].Int() + i[1].Int()).String())
+	println("Answer:" + js.ValueOf(i[0].Int()+i[1].Int()).String())
 }
 
 func subtract(i []js.Value) {
@@ -20,7 +21,7 @@ func registerCallbacks() {
 func main() {
 	c := make(chan struct{}, 0)
 
-	println("WASM Go Initialized")
+	println("WASM Go Initialized!")
 	// register functions
 	registerCallbacks()
 	<-c
