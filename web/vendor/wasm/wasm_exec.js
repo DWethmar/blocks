@@ -4,7 +4,8 @@
 
 (() => {
     // Map web browser API and Node.js API to a single common API (preferring web standards over Node.js API).
-    const isNodeJS = typeof process !== "undefined";
+    // const isNodeJS = typeof process !== "undefined";
+    const isNodeJS = typeof process !== "undefined" && process.title === "node";
     if (isNodeJS) {
         global.require = require;
         global.fs = require("fs");

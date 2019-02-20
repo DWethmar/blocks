@@ -7,6 +7,9 @@ import {addPos} from "./utils/position";
 
 import Ticker = PIXI.Ticker;
 import {createArch, createCheckers, createTerrainNoise, createTower} from "./utils/terrain";
+
+import "./wasm";
+
 const viewPort = {width: 1400, height: 750};
 
 let app = new PIXI.Application(viewPort);
