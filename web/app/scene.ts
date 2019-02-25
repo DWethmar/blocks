@@ -7,13 +7,12 @@ import {BlockType} from "./block";
 import {sortZYXAsc} from "./utils/sort";
 import {Player} from "./player";
 import {Terrain} from "./terrain";
-import * as Viewport from "pixi-viewport";
-import {divideBy} from "./utils/calc";
-import {addPos} from "./utils/position";
+// import * as Viewport from "pixi-viewport";
 
 export class Scene {
 
-    readonly stage: Viewport;
+    // readonly stage: Viewport;
+    readonly stage: PIXI.Container;
 
     private terrain: Terrain;
     public player: Player;
@@ -21,21 +20,22 @@ export class Scene {
 
     constructor(readonly app: PIXI.Application) {
 
-        // create viewport
-        this.stage = new Viewport({
-            screenWidth: app.screen.width,
-            screenHeight: app.screen.height,
-            worldWidth: 1000,
-            worldHeight: 1000,
-            interaction: (<any>app).renderer.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
-        });
+        // // create viewport
+        // this.stage = new Viewport({
+        //     screenWidth: app.screen.width,
+        //     screenHeight: app.screen.height,
+        //     worldWidth: 1000,
+        //     worldHeight: 1000,
+        //     interaction: (<any>app).renderer.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
+        // });
+        this.stage = new PIXI.Container();
 
         // activate plugins
-        this.stage
-            .drag()
-            .pinch()
-            .wheel()
-            .decelerate();
+        // this.stage
+        //     .drag()
+        //     .pinch()
+        //     .wheel()
+        //     .decelerate();
 
         this.player = new Player(this.stage, [
             18 * BLOCK_SIZE,
@@ -50,6 +50,11 @@ export class Scene {
 
         this.terrain = new Terrain(this.stage);
         this.app.stage.addChild(this.stage);
+
+        const loader = new PIXI.Loader();
+        loader.add('spritesheet.json').load(() => {
+            console.log('LOADED');
+        });
     }
 
     addBlock(index: Vector3D, type: BlockType) {
@@ -90,15 +95,15 @@ export class Scene {
             );
         });
 
-        this.terrain.chunks.forEach(chunk => {
-            const bounds = this.stage.getVisibleBounds();
-            const sceneRect = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
-            if (intersects(sceneRect, chunk.bounds)) {
-                chunk.show();
-            } else {
-                chunk.hide();
-            }
-        });
+        // this.terrain.chunks.forEach(chunk => {
+        //     const bounds = this.stage.getVisibleBounds();
+        //     const sceneRect = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
+        //     if (intersects(sceneRect, chunk.bounds)) {
+        //         chunk.show();
+        //     } else {
+        //         chunk.hide();
+        //     }
+        // });
 
     }
 }

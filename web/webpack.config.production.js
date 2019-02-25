@@ -9,13 +9,13 @@ module.exports = function() {
     myProdConfig.mode = 'production';
     myProdConfig.optimization.minimize = true;
 
-    myProdConfig.plugins = [
+    myProdConfig.plugins.push(
         new webpack.DefinePlugin({
             'process.env': {
                 'NODE_ENV': JSON.stringify('production')
             }
-        }),
-    ];
+        })
+    );
 
     myProdConfig.optimization = {
         splitChunks: {

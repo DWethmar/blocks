@@ -8,15 +8,12 @@ import {addPos} from "./utils/position";
 import Ticker = PIXI.Ticker;
 import {createArch, createCheckers, createTerrainNoise, createTower} from "./utils/terrain";
 
-import "./wasm";
+// import "./wasm";
 
 const viewPort = {width: 1400, height: 750};
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
-
-// app.view.style.margin = "0 auto";
-// app.view.style.display = "inherit";
 
 app.renderer.backgroundColor = 0xF5F5F5;
 app.loader.load(setup);
