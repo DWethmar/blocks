@@ -1,9 +1,10 @@
 const spritesheet = require('spritesheet-js');
 
 // https://github.com/krzysztof-o/spritesheet.js
-spritesheet('assets/*.png', {
+spritesheet('assets/images/*.png', {
     format: 'json',
-    path: __dirname + '/assets'
+    path: __dirname + '/assets/spritesheets',
+    name: 'tiles-spritesheet'
 }, function (err) {
     if (err) throw err;
 
