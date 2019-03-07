@@ -7,12 +7,16 @@ import {BlockType} from "./block";
 import {sortZYXAsc} from "./utils/sort";
 import {Player} from "./player";
 import {Terrain} from "./terrain";
+import {Game} from "./game";
+import {AddGameObject} from "./actions/game-objects";
 // import * as Viewport from "pixi-viewport";
 
 export class Scene {
 
     // readonly stage: Viewport;
     readonly stage: PIXI.Container;
+
+    game: Game;
 
     private terrain: Terrain;
     public player: Player;
@@ -51,10 +55,12 @@ export class Scene {
         this.terrain = new Terrain(this.stage);
         this.app.stage.addChild(this.stage);
 
-        const loader = new PIXI.Loader();
-        loader.add('spritesheet.json').load(() => {
-            console.log('LOADED');
-        });
+        this.game = new Game();
+        this.game.emit(new AddGameObject({ gameObject: new Player(this.stage, [
+            0,
+            0,
+            0
+        ])}));
     }
 
     addBlock(index: Vector3D, type: BlockType) {

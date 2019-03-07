@@ -21,6 +21,7 @@ export abstract class GameObject {
 
     constructor(
         public vector3d: Vector3D,
+        readonly id: string = crypto.getRandomValues(new Uint32Array(2)).join('-')
     ) {
         this.position   = new Position(vector3d);
         this.blockIndex = new BlockIndex(this.position);
