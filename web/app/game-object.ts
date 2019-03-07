@@ -1,31 +1,18 @@
 import {Vector3D} from "./types";
 import {BlockIndex, ChunkIndex, Position} from "./position";
 
-export abstract class GameObject {
+export abstract class GameObject extends Position {
 
-    position: Position = null;
     blockIndex: BlockIndex = null;
     chunkIndex: ChunkIndex = null;
 
-    get x() {
-        return this.position.x;
-    }
-
-    get y() {
-        return this.position.y;
-    }
-
-    get z() {
-        return this.position.z;
-    }
-
     constructor(
-        public vector3d: Vector3D,
-        readonly id: string = crypto.getRandomValues(new Uint32Array(2)).join('-')
+        readonly id: string,
+        public vector3d: Vector3D
     ) {
-        this.position   = new Position(vector3d);
-        this.blockIndex = new BlockIndex(this.position);
-        this.chunkIndex = new ChunkIndex(this.position);
+        super(vector3d);
+        this.blockIndex = new BlockIndex(this);
+        this.chunkIndex = new ChunkIndex(this);
     }
 
     abstract update(delta): void;

@@ -5,6 +5,7 @@ import {GameObject} from "./game-object";
 import {addPos} from "./utils/position";
 import * as PIXI from "pixi.js";
 import {createLineGraphic} from "./utils/graphics";
+import {BlockIndex, ChunkIndex, Position} from "./position";
 
 export enum BlockType {
     AIR = "air",
@@ -13,7 +14,7 @@ export enum BlockType {
     VOID = "void"
 }
 
-export class Block extends GameObject {
+export class Block extends Position {
 
     get drawX(): number {
         return this.x;
@@ -25,6 +26,8 @@ export class Block extends GameObject {
 
     transparent = false;
     updated = false;
+    worldIndex: BlockIndex = null;
+    chunkIndex: ChunkIndex = null;
 
     private views: PIXI.DisplayObject[] = [];
 
@@ -36,6 +39,9 @@ export class Block extends GameObject {
         this.transparent = this.type === BlockType.AIR;
 
         this.updated = true;
+
+        this.worldIndex = new BlockIndex(this);
+        this.chunkIndex = new ChunkIndex(this);
     }
 
     update(delta: number) {
@@ -61,7 +67,7 @@ export class Block extends GameObject {
         const drawY = this.drawY - chunk.y;
 
         const neighbors = {
-            front: !chunk.isEmpty(addPos(this.blockIndex.point, [0, 1, 0]))
+            front: !chunk.isEmpty(addPos(this.worldIndex.point, [0, 1, 0]))
         };
 
         if (!neighbors.front) {
@@ -115,13 +121,13 @@ export class Block extends GameObject {
         const drawY = this.drawY - chunk.y;
 
         const neighbors = {
-            left:         !chunk.isEmpty(addPos(this.blockIndex.point, [-1, 0, 0])),
-            right:        !chunk.isEmpty(addPos(this.blockIndex.point, [1, 0, 0])),
-            front:        !chunk.isEmpty(addPos(this.blockIndex.point, [0, 1, 0])),
-            top:          !chunk.isEmpty(addPos(this.blockIndex.point, [0, 0, 1])),
-            back:         !chunk.isEmpty(addPos(this.blockIndex.point, [0, -1, 0])),
-            frontBottom:  !chunk.isEmpty(addPos(this.blockIndex.point, [0, 1, -1])),
-            bottom:       !chunk.isEmpty(addPos(this.blockIndex.point, [0, 0, -1]))
+            left:         !chunk.isEmpty(addPos(this.worldIndex.point, [-1, 0, 0])),
+            right:        !chunk.isEmpty(addPos(this.worldIndex.point, [1, 0, 0])),
+            front:        !chunk.isEmpty(addPos(this.worldIndex.point, [0, 1, 0])),
+            top:          !chunk.isEmpty(addPos(this.worldIndex.point, [0, 0, 1])),
+            back:         !chunk.isEmpty(addPos(this.worldIndex.point, [0, -1, 0])),
+            frontBottom:  !chunk.isEmpty(addPos(this.worldIndex.point, [0, 1, -1])),
+            bottom:       !chunk.isEmpty(addPos(this.worldIndex.point, [0, 0, -1]))
         };
 
         const linesContainer = new PIXI.Container();

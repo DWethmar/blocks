@@ -22,13 +22,13 @@ export class Player extends GameObject {
         return this.y - this.z + BLOCK_SIZE * CHUNK_SIZE;
     }
 
-    constructor(readonly stage: PIXI.Container, position: Vector3D) {
-        super(position);
+    constructor(id: string, readonly stage: PIXI.Container, position: Vector3D) {
+        super(id, position);
 
         this.playerView = new PIXI.Container();
         this.playerView.name = 'Player';
 
-        this.center = <Vector3D>this.position.vector3D.slice();
+        this.center = <Vector3D>this.vector3D.slice();
 
         this.playerView.x = this.x;
         this.playerView.y = this.y - this.z;
@@ -52,8 +52,8 @@ export class Player extends GameObject {
 
         const newPos = addPos(offset, this.center);
 
-        this.position.x = getX(newPos);
-        this.position.y = getY(newPos);
+        this.x = getX(newPos);
+        this.y = getY(newPos);
 
         const drawX = this.drawX;
         const drawY = this.drawY;

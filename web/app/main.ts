@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 
-import {Scene} from "./scene";
+import {Game} from "./game";
 import {BlockType} from "./block";
 import {CHUNK_SIZE} from "./config";
 import {addPos} from "./utils/position";
@@ -18,19 +18,19 @@ document.body.appendChild(app.view);
 app.renderer.backgroundColor = 0xF5F5F5;
 app.loader.load(setup);
 
-let scene: Scene = new Scene(app);
+let scene: Game = new Game(app);
 
 createCheckers(scene, BlockType.GRASS, BlockType.VOID, [0, 0, 0]);
 createTower(scene, BlockType.ROCK, [17, 15, 1]);
 createTower(scene, BlockType.ROCK, [20, 18, 1]);
 createArch(scene, BlockType.ROCK, [6, 1, 1]);
 
-for (let x = 0; x < 2; x++) {
-    for (let y = 0; y < 2; y++) {
-        createCheckers(scene, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
-        createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
-    }
-}
+// for (let x = 0; x < 2; x++) {
+//     for (let y = 0; y < 2; y++) {
+//         createCheckers(scene, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
+//         createTerrainNoise(scene, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
+//     }
+// }
 
 scene.addBlock([0, 0, 1], BlockType.ROCK);
 scene.addBlock([1, 0, 1], BlockType.ROCK);

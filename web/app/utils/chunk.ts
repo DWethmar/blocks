@@ -2,11 +2,12 @@ import {addPos, isWithin, minusPos} from "./position";
 import {Chunk} from "../chunk";
 import {Vector3D} from "../types";
 import {CHUNK_SIZE} from "../config";
+import {Block} from "../block";
 
 export const getVisibleBlocks = (chunk: Chunk): string[] => {
     return Array.from(chunk.blocks)
-        .filter(([id, block]) =>
-            isPosVisibleWithinChunk(addPos(block.blockIndex.point, [0, 1, 1]), chunk)
+        .filter(([id, block]: [string, Block]) =>
+            isPosVisibleWithinChunk(addPos(block.worldIndex.point, [0, 1, 1]), chunk)
         )
         .map(([id, block]) => id);
 };

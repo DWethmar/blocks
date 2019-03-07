@@ -1,125 +1,47 @@
-import * as PIXI from "pixi.js";
+import {GameObject} from "./game-object";
+import {BehaviorSubject, combineLatest, Observable, of, Subject} from "rxjs";
+import {GameAction} from "./actions/game-action";
+import {filter, pluck, switchMap, tap, withLatestFrom} from "rxjs/operators";
 
-import {Chunk} from "./chunk";
-import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
-import {Vector3D} from "./types";
-import {BlockType} from "./block";
-import {sortZYXAsc} from "./utils/sort";
-import {Player} from "./player";
-import {Terrain} from "./terrain";
-import {Game} from "./game";
-import {AddGameObject} from "./actions/game-objects";
-// import * as Viewport from "pixi-viewport";
+export interface SceneState {
+    gameObjects:            { [id: string]: GameObject },
+    activeGameObjects:      string[]
+}
 
 export class Scene {
 
-    // readonly stage: Viewport;
-    readonly stage: PIXI.Container;
+    private state = new BehaviorSubject<SceneState>({
+        gameObjects: {},
+        activeGameObjects: []
+    });
 
-    game: Game;
+    private events = new BehaviorSubject<GameAction>(null);
 
-    private terrain: Terrain;
-    public player: Player;
-    public player2: Player;
-
-    constructor(readonly app: PIXI.Application) {
-
-        // // create viewport
-        // this.stage = new Viewport({
-        //     screenWidth: app.screen.width,
-        //     screenHeight: app.screen.height,
-        //     worldWidth: 1000,
-        //     worldHeight: 1000,
-        //     interaction: (<any>app).renderer.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
-        // });
-        this.stage = new PIXI.Container();
-
-        // activate plugins
-        // this.stage
-        //     .drag()
-        //     .pinch()
-        //     .wheel()
-        //     .decelerate();
-
-        this.player = new Player(this.stage, [
-            18 * BLOCK_SIZE,
-            14 * BLOCK_SIZE,
-            BLOCK_SIZE * 3
-        ]);
-        this.player2 = new Player(this.stage, [
-            0,
-            CHUNK_SIZE * BLOCK_SIZE,
-            BLOCK_SIZE
-        ]);
-
-        this.terrain = new Terrain(this.stage);
-        this.app.stage.addChild(this.stage);
-
-        this.game = new Game();
-        this.game.emit(new AddGameObject({ gameObject: new Player(this.stage, [
-            0,
-            0,
-            0
-        ])}));
+    emit(event: GameAction): void {
+        this.events.next(event);
     }
 
-    addBlock(index: Vector3D, type: BlockType) {
-        return this.terrain.addBlock(index, type);
+    update(gameState: SceneState): void {
+        this.state.next(gameState);
     }
 
-    deleteBlock(index: Vector3D) {
-        return this.terrain.deleteBlock(index);
+    listen(actionType: string): Observable<GameAction> {
+        return this.events.pipe(
+            filter(action => !!action && action.type === actionType),
+        );
     }
 
-    deleteBlocks(startIndex: Vector3D, endIndex: Vector3D) {
-        return this.terrain.deleteBlocks(startIndex, endIndex);
+    getState() {
+        return this.state;
     }
 
-    hasChunk(chunkPosition: Vector3D): boolean {
-        return this.terrain.hasChunk(chunkPosition);
-    }
-
-    getChunk(chunkPosition: Vector3D): Chunk | null {
-        return this.terrain.getChunk(chunkPosition);
-    }
-
-    update(delta: number) {
-        this.terrain.activeChunkIds
-            .map(id => this.terrain.chunks.get(id))
-            .forEach((chunk: Chunk) => void chunk.update(delta));
-
-        this.player.update(delta);
-        this.player2.update(delta);
-
-        // Do own sorting
-        this.stage.children.sort((a, b) => {
-            const aZ = a.zIndex || 0;
-            const bZ = b.zIndex || 0;
-            return sortZYXAsc(
-                [a.position.x, a.position.y, aZ],
-                [b.position.x, b.position.y, bZ]
-            );
-        });
-
-        // this.terrain.chunks.forEach(chunk => {
-        //     const bounds = this.stage.getVisibleBounds();
-        //     const sceneRect = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
-        //     if (intersects(sceneRect, chunk.bounds)) {
-        //         chunk.show();
-        //     } else {
-        //         chunk.hide();
-        //     }
-        // });
-
+    getGameObject<T extends GameObject>(id: string): Observable<T> {
+        return this.state.pipe(
+            filter(state => !!state
+                && Object.entries(state.gameObjects).length === 0
+                && state.gameObjects.constructor === Object),
+            pluck(id)
+        )
     }
 }
 
-function intersects(a: PIXI.Rectangle, b: PIXI.Rectangle) {
-    return (
-        (a.x + a.width > b.x && a.x + a.width <= b.x + b.width)
-        || (b.x + b.width > a.x && b.x + b.width <= a.x + a.width)
-    ) && (
-        (a.y + a.height > b.y && a.y + a.height <= b.y + b.height)
-        || (b.y + b.height > a.y && b.y + b.height <= a.y + a.height)
-    );
-}
