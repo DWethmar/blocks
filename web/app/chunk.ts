@@ -7,10 +7,8 @@ import {Block} from "./block";
 import {GameObject} from "./game-object";
 import {sortZYXAsc} from "./utils/sort";
 import {getBlockId} from "./utils/id";
-import {getVisibleBlocks, isPositionWithinChunk} from "./utils/chunk";
+import {getVisibleBlocks} from "./utils/chunk";
 import {Terrain} from "./terrain";
-import {Observable, of} from "rxjs";
-import {map} from "rxjs/operators";
 
 export class Chunk extends GameObject {
 

@@ -1,7 +1,5 @@
 import * as PIXI from "pixi.js";
-
-import {Chunk} from "./chunk";
-import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
+import {BLOCK_SIZE} from "./config";
 import {Vector3D} from "./types";
 import {Block, BlockType} from "./block";
 import {sortZYXAsc} from "./utils/sort";
@@ -9,21 +7,16 @@ import {Player} from "./player";
 import {Terrain} from "./terrain";
 import {Scene} from "./scene";
 import {AddGameObject, GameObjectActionTypes} from "./actions/game-objects";
-import {AddBlock, TerrainActionTypes} from "./actions/terrain-actions";
-import {map, take} from "rxjs/operators";
-import {Observable} from "rxjs";
+import {AddBlock} from "./actions/terrain-actions";
+import {take, withLatestFrom} from "rxjs/operators";
+
 // import * as Viewport from "pixi-viewport";
 
 export class Game {
 
     // readonly stage: Viewport;
     readonly stage: PIXI.Container;
-
     scene: Scene;
-
-    private terrain: Terrain;
-    public player: Player;
-    public player2: Player;
 
     constructor(readonly app: PIXI.Application) {
 
@@ -36,6 +29,7 @@ export class Game {
         //     interaction: (<any>app).renderer.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
         // });
         this.stage = new PIXI.Container();
+        this.app.stage.addChild(this.stage);
 
         // activate plugins
         // this.stage
@@ -44,58 +38,64 @@ export class Game {
         //     .wheel()
         //     .decelerate();
 
-        this.player = new Player('player1', this.stage, [
-            18 * BLOCK_SIZE,
-            14 * BLOCK_SIZE,
-            BLOCK_SIZE * 3
-        ]);
-        this.player2 = new Player('player2', this.stage, [
-            0,
-            CHUNK_SIZE * BLOCK_SIZE,
-            BLOCK_SIZE
-        ]);
-
         this.scene = new Scene();
 
-        this.terrain = new Terrain(this.stage, this.scene);
-        this.app.stage.addChild(this.stage);
+        this.scene.listen<AddGameObject>(GameObjectActionTypes.ADD_GAME_OBJECT)
+            .pipe(
+                withLatestFrom(this.scene.getState().pipe(take(1))),
+            )
+            .subscribe(([action, state]: [AddGameObject, any]) => {
+                state.gameObjects[action.payload.gameObject.id] = action.payload.gameObject;
+                if (action.payload.active) {
+                    state.activeGameObjects.push(action.payload.gameObject.id);
+                }
+                this.scene.update(state);
+            });
 
-        this.scene.emit(new AddGameObject({ gameObject: new Terrain(this.stage, this.scene)}));
+        this.scene.emit(new AddGameObject({ gameObject: new Terrain(this.stage, this.scene), active: true}));
+        this.scene.emit(new AddGameObject({
+            gameObject: new Player(
+                'player1',
+                this.stage,
+                [
+                    18 * BLOCK_SIZE,
+                    14 * BLOCK_SIZE,
+                    BLOCK_SIZE * 3
+                ]
+            ),
+            active: true }));
+
+        this.scene.emit(new AddGameObject({
+            gameObject: new Player(
+                'player2',
+                this.stage,
+                [
+                    0,
+                    14 * BLOCK_SIZE,
+                    BLOCK_SIZE * 3
+                ]
+            ),
+            active: true
+        }));
     }
 
     addBlock(index: Vector3D, type: BlockType) {
-        // return this.terrain.addBlock(index, type);
-        this.scene.emit(new AddBlock({ block: new Block(type, <Vector3D>index.map(i => i * BLOCK_SIZE))}));
-    }
-
-    deleteBlock(index: Vector3D) {
-        return this.terrain.deleteBlock(index);
-    }
-
-    deleteBlocks(startIndex: Vector3D, endIndex: Vector3D) {
-        return this.terrain.deleteBlocks(startIndex, endIndex);
-    }
-
-    hasChunk(chunkPosition: Vector3D): Observable<boolean> {
-        return this.terrain.getChunk(chunkPosition).pipe(
-            map(chunk => !!chunk)
-        );
-    }
-
-    getChunk(chunkPosition: Vector3D): Observable<Chunk | null> {
-        return this.terrain.getChunk(chunkPosition);
+        const p = <Vector3D>index.map(i => i * BLOCK_SIZE);
+        this.scene.emit(new AddBlock({
+            block: new Block(type, p)
+        }));
     }
 
     update(delta: number) {
-
         this.scene.getState().pipe(
             take(1)
         ).subscribe(state => {
             state.activeGameObjects
                 .map(id => state.gameObjects[id])
                 .forEach(gameObject => void gameObject.update(delta));
-        });
 
+            this.scene.update(state);
+        });
         // Do own sorting
         this.stage.children.sort((a, b) => {
             const aZ = a.zIndex || 0;

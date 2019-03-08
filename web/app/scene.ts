@@ -1,7 +1,7 @@
 import {GameObject} from "./game-object";
-import {BehaviorSubject, combineLatest, Observable, of, Subject} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {GameAction} from "./actions/game-action";
-import {filter, pluck, switchMap, tap, withLatestFrom} from "rxjs/operators";
+import {filter, map, pluck} from "rxjs/operators";
 
 export interface SceneState {
     gameObjects:            { [id: string]: GameObject },
@@ -15,7 +15,7 @@ export class Scene {
         activeGameObjects: []
     });
 
-    private events = new BehaviorSubject<GameAction>(null);
+    private events = new Subject<any>();
 
     emit(event: GameAction): void {
         this.events.next(event);
@@ -25,21 +25,19 @@ export class Scene {
         this.state.next(gameState);
     }
 
-    listen(actionType: string): Observable<GameAction> {
+    listen<T extends GameAction>(actionType: string): Observable<T> {
         return this.events.pipe(
-            filter(action => !!action && action.type === actionType),
+            filter(action => action.type === actionType)
         );
     }
 
-    getState() {
+    getState(): Observable<SceneState> {
         return this.state;
     }
 
-    getGameObject<T extends GameObject>(id: string): Observable<T> {
+    getGameObject(id: string): Observable<GameObject> {
         return this.state.pipe(
-            filter(state => !!state
-                && Object.entries(state.gameObjects).length === 0
-                && state.gameObjects.constructor === Object),
+            map(state => state.gameObjects),
             pluck(id)
         )
     }
