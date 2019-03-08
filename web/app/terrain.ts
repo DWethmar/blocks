@@ -15,7 +15,6 @@ import {Observable, zip} from "rxjs";
 
 export class Terrain extends GameObject {
 
-
     constructor(
         readonly stage: PIXI.Container,
         readonly scene: Scene,
@@ -26,8 +25,8 @@ export class Terrain extends GameObject {
             .pipe(
                 switchMap((action: AddBlock) => this.addBlock(action.payload.block))
             )
-            .subscribe((chunk) => {
-                console.log(`Added block to chunk`, chunk);
+            .subscribe((chunk: Chunk) => {
+                console.log(`Added block to chunk: ${ chunk.id }`);
             });
 
         this.scene.listen(TerrainActionTypes.REMOVE_BLOCK)

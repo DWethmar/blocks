@@ -6,10 +6,11 @@ import {CHUNK_SIZE} from "./config";
 import {createArch, createCheckers, createTerrainNoise, createTower} from "./utils/terrain";
 import Ticker = PIXI.Ticker;
 import {addPos} from "./utils/position";
+import {Chunk} from "./chunk";
 
 // import "./wasm";
 
-const viewPort = {width: 1400, height: 750};
+const viewPort = {width: 750, height: 500};
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);
@@ -24,8 +25,8 @@ createTower(game, BlockType.ROCK, [17, 15, 1]);
 createTower(game, BlockType.ROCK, [20, 18, 1]);
 createArch(game, BlockType.ROCK, [6, 1, 1]);
 
-for (let x = 0; x < 2; x++) {
-    for (let y = 0; y < 2; y++) {
+for (let x = 0; x < 1; x++) {
+    for (let y = 0; y < 1; y++) {
         createCheckers(game, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
         createTerrainNoise(game, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
     }
@@ -47,7 +48,6 @@ ticker.add((delta: number) => {
     game.update(delta);
     document.title = `SODA FPS:${Math.floor(app.ticker.FPS)}`;
 });
-ticker.speed = 0.5;
 ticker.start();
 
 function setup() {
@@ -64,9 +64,21 @@ game.scene.getState().subscribe(state => {
     ul = document.createElement('ul');
     for (let g of Object.values(state.gameObjects)) {
         let li = document.createElement('li');
-        li.innerText = `GameObject: ${ g.id } ${ g.x } ${ g.y } ${ g.z }`;
+        li.innerText = `GameObject: ${ g.id } - x:${ g.x } y:${ g.y } z:${ g.z }`;
         ul.appendChild(li);
     }
+
+    const chunks = Object.values(state.gameObjects).filter(g => g instanceof Chunk);
+    const numberOfBlocks = chunks.reduce((som, chunk: Chunk) => {
+        return som + chunk.blocks.size;
+    }, 0);
+    const numberOfVisibleBlocks = chunks.reduce((som, chunk: Chunk) => {
+        return som + chunk.blocksToRender.length;
+    }, 0);
+
+    let li = document.createElement('li');
+    li.innerText = `Visible blocks: ${ numberOfVisibleBlocks }/${ numberOfBlocks }`;
+    ul.appendChild(li);
 
     container.append(ul);
 });

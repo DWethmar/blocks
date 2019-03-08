@@ -1,7 +1,6 @@
 import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
 import {Vector3D} from "./types";
-import {Chunk, chunkDivider} from "./chunk";
-import {GameObject} from "./game-object";
+import {Chunk} from "./chunk";
 import {addPos} from "./utils/position";
 import * as PIXI from "pixi.js";
 import {createLineGraphic} from "./utils/graphics";
@@ -25,7 +24,6 @@ export class Block extends Position {
     }
 
     transparent = false;
-    updated = false;
     worldIndex: BlockIndex = null;
     chunkIndex: ChunkIndex = null;
 
@@ -37,15 +35,8 @@ export class Block extends Position {
     ) {
         super(vector3D);
         this.transparent = this.type === BlockType.AIR;
-
-        this.updated = true;
-
         this.worldIndex = new BlockIndex(this);
         this.chunkIndex = new ChunkIndex(this);
-    }
-
-    update(delta: number) {
-
     }
 
     getViews(): PIXI.DisplayObject[] {
