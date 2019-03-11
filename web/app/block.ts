@@ -4,7 +4,8 @@ import {Chunk} from "./chunk";
 import {addPos} from "./utils/position";
 import * as PIXI from "pixi.js";
 import {createLineGraphic} from "./utils/graphics";
-import {BlockIndex, ChunkIndex, Position} from "./position";
+import {BlockIndex, ChunkIndex} from "./position";
+import {GameObject} from "./game-object";
 
 export enum BlockType {
     AIR = "air",
@@ -13,18 +14,18 @@ export enum BlockType {
     VOID = "void"
 }
 
-export class Block extends Position {
+export class Block extends GameObject {
 
     get drawX(): number {
-        return this.x;
+        return this.position.x;
     }
 
     get drawY(): number {
-        return this.y - this.z + BLOCK_SIZE * CHUNK_SIZE;
+        return this.position.y - this.position.z + BLOCK_SIZE * CHUNK_SIZE;
     }
 
     transparent = false;
-    worldIndex: BlockIndex = null;
+    blockIndex: BlockIndex = null;
     chunkIndex: ChunkIndex = null;
 
     private views: PIXI.DisplayObject[] = [];
@@ -33,15 +34,17 @@ export class Block extends Position {
         readonly type: BlockType,
         public vector3D: Vector3D
     ) {
-        super(vector3D);
+        super('', vector3D);
+        this.blockIndex = new BlockIndex(this.position);
+        this.chunkIndex = new ChunkIndex(this.position);
         this.transparent = this.type === BlockType.AIR;
-        this.worldIndex = new BlockIndex(this);
-        this.chunkIndex = new ChunkIndex(this);
     }
 
     getViews(): PIXI.DisplayObject[] {
         return this.views;
     }
+
+    update(delta: number) {}
 
     renderViews(chunk: Chunk) {
         if (this.views.length) {
@@ -54,11 +57,11 @@ export class Block extends Position {
     }
 
     private renderTop(chunk: Chunk) {
-        const drawX = this.drawX - chunk.x;
-        const drawY = this.drawY - chunk.y;
+        const drawX = this.drawX - chunk.position.x;
+        const drawY = this.drawY - chunk.position.y;
 
         const neighbors = {
-            front: !chunk.isEmpty(addPos(this.worldIndex.point, [0, 1, 0]))
+            front: !chunk.isEmpty(addPos(this.blockIndex.point, [0, 1, 0]))
         };
 
         if (!neighbors.front) {
@@ -84,8 +87,8 @@ export class Block extends Position {
     }
 
     private renderBottom(chunk: Chunk) {
-        const drawX = this.drawX - chunk.x;
-        const drawY = this.drawY - chunk.y;
+        const drawX = this.drawX - chunk.position.x;
+        const drawY = this.drawY - chunk.position.y;
 
         let topColor = null;
         // Top
@@ -108,17 +111,17 @@ export class Block extends Position {
     }
 
     private renderBlockOutline(chunk: Chunk) {
-        const drawX = this.drawX - chunk.x;
-        const drawY = this.drawY - chunk.y;
+        const drawX = this.drawX - chunk.position.x;
+        const drawY = this.drawY - chunk.position.y;
 
         const neighbors = {
-            left:         !chunk.isEmpty(addPos(this.worldIndex.point, [-1, 0, 0])),
-            right:        !chunk.isEmpty(addPos(this.worldIndex.point, [1, 0, 0])),
-            front:        !chunk.isEmpty(addPos(this.worldIndex.point, [0, 1, 0])),
-            top:          !chunk.isEmpty(addPos(this.worldIndex.point, [0, 0, 1])),
-            back:         !chunk.isEmpty(addPos(this.worldIndex.point, [0, -1, 0])),
-            frontBottom:  !chunk.isEmpty(addPos(this.worldIndex.point, [0, 1, -1])),
-            bottom:       !chunk.isEmpty(addPos(this.worldIndex.point, [0, 0, -1]))
+            left:         !chunk.isEmpty(addPos(this.blockIndex.point, [-1, 0, 0])),
+            right:        !chunk.isEmpty(addPos(this.blockIndex.point, [1, 0, 0])),
+            front:        !chunk.isEmpty(addPos(this.blockIndex.point, [0, 1, 0])),
+            top:          !chunk.isEmpty(addPos(this.blockIndex.point, [0, 0, 1])),
+            back:         !chunk.isEmpty(addPos(this.blockIndex.point, [0, -1, 0])),
+            frontBottom:  !chunk.isEmpty(addPos(this.blockIndex.point, [0, 1, -1])),
+            bottom:       !chunk.isEmpty(addPos(this.blockIndex.point, [0, 0, -1]))
         };
 
         const linesContainer = new PIXI.Container();

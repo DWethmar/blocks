@@ -7,7 +7,7 @@ import {Block} from "../block";
 export const getVisibleBlocks = (chunk: Chunk): string[] => {
     return Array.from(chunk.blocks)
         .filter(([id, block]: [string, Block]) =>
-            isPosVisibleWithinChunk(addPos(block.worldIndex.point, [0, 1, 1]), chunk)
+            isPosVisibleWithinChunk(addPos(block.blockIndex.point, [0, 1, 1]), chunk)
         )
         .map(([id, block]) => id);
 };

@@ -10,6 +10,7 @@ import {getBlockId} from "./utils/id";
 import {getVisibleBlocks} from "./utils/chunk";
 import {Terrain} from "./terrain";
 import {addPos} from "./utils/position";
+import {BlockIndex, ChunkIndex} from "./position";
 
 export class Chunk extends GameObject {
 
@@ -18,6 +19,8 @@ export class Chunk extends GameObject {
     public blocksToRender: string[] = [];
     public hasChanged = false;
     public bounds: PIXI.Rectangle;
+    public blockIndex: BlockIndex = null;
+    public chunkIndex: ChunkIndex = null;
 
     /**
      * layers are the cross-section of a chunk on the Y axis (back to front).
@@ -32,9 +35,12 @@ export class Chunk extends GameObject {
     ) {
         super(id, vector3D);
 
+        this.chunkIndex = new ChunkIndex(this.position);
+        this.blockIndex = new BlockIndex(this.position);
+
         this.bounds = new PIXI.Rectangle(
-            this.x,
-            this.y,
+            this.position.x,
+            this.position.y,
             CHUNK_SIZE * BLOCK_SIZE,
             CHUNK_SIZE * BLOCK_SIZE * 2
         );
@@ -101,8 +107,8 @@ export class Chunk extends GameObject {
         // Sort
         this.blocksToRender.sort((idA, idB) => {
             return sortZYXAsc(
-                this.blocks.get(idA).vector3D,
-                this.blocks.get(idB).vector3D
+                this.blocks.get(idA).position.vector3D,
+                this.blocks.get(idB).position.vector3D
             );
         });
 
@@ -111,7 +117,7 @@ export class Chunk extends GameObject {
         this.blocksToRender.forEach(id => {
             const block = this.blocks.get(id);
 
-            const index = block.y;
+            const index = block.position.y;
             let layer = null;
 
             if (blockLayers[index]) {
@@ -119,7 +125,7 @@ export class Chunk extends GameObject {
             } else {
                 layer = new PIXI.Container();
                 layer.sortableChildren = false;
-                layer.name = `BlockLayer: ${this.x} ${this.y} ${this.z}`;
+                layer.name = `BlockLayer: ${this.position.x} ${this.position.y} ${this.position.z}`;
                 blockLayers[index] = layer;
             }
 
@@ -139,8 +145,8 @@ export class Chunk extends GameObject {
                 layer.sortableChildren = false;
                 // layer.cacheAsBitmap = true;
                 layer.zIndex = i;
-                layer.position.set(this.x, this.y);
-                layer.name = `ChunkLayer: ${this.x} ${this.y} ${this.z}`;
+                layer.position.set(this.position.x, this.position.y);
+                layer.name = `ChunkLayer: ${this.position.x} ${this.position.y} ${this.position.z}`;
                 this.layers[i] = layer;
                 this.stage.addChild(layer);
             }
@@ -160,7 +166,7 @@ export class Chunk extends GameObject {
     }
 
     addBlock(block: Block): Block {
-        this.blocks.set(getBlockId(block.worldIndex.point), block);
+        this.blocks.set(getBlockId(block.blockIndex.point), block);
         this.hasChanged = true;
         return block;
     }
@@ -188,8 +194,8 @@ export class Chunk extends GameObject {
 
     getCenter(): PIXI.Point {
         return new PIXI.Point(
-            this.x + (CHUNK_SIZE * BLOCK_SIZE) / 2,
-            this.y - this.z + (CHUNK_SIZE * BLOCK_SIZE) / 2
+            this.position.x + (CHUNK_SIZE * BLOCK_SIZE) / 2,
+            this.position.y - this.position.z + (CHUNK_SIZE * BLOCK_SIZE) / 2
         );
     }
 }

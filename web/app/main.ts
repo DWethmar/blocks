@@ -64,7 +64,7 @@ game.scene.getState().subscribe(state => {
     ul = document.createElement('ul');
     for (let g of Object.values(state.gameObjects)) {
         let li = document.createElement('li');
-        li.innerText = `GameObject: ${ g.id } - x:${ g.x } y:${ g.y } z:${ g.z }`;
+        li.innerText = `GameObject: ${ g.id } - x:${ g.position.x } y:${ g.position.y } z:${ g.position.z }`;
         ul.appendChild(li);
     }
 

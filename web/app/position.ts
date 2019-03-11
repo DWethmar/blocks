@@ -28,31 +28,6 @@ export class Position {
         this.vector3D[2] = value;
     }
 
-    // Direction
-    get dX() {
-        return getX(this.vector3D);
-    }
-
-    set dX(value: number) {
-        this.vector3D[0] = value;
-    }
-
-    get dY() {
-        return getY(this.vector3D);
-    }
-
-    set dY(value: number) {
-        this.vector3D[1] = value;
-    }
-
-    get dZ() {
-        return getZ(this.vector3D);
-    }
-
-    set dZ(value: number) {
-        this.vector3D[2] = value;
-    }
-
     constructor(public vector3D: Vector3D) { }
 }
 

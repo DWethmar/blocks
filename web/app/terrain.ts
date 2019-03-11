@@ -31,11 +31,10 @@ export class Terrain extends GameObject {
 
         this.scene.listen(TerrainActionTypes.REMOVE_BLOCK)
             .pipe(
-                tap(() => console.log(':D')),
-                switchMap((action: AddBlock) => this.deleteBlock(action.payload.block.worldIndex.point))
+                switchMap((action: AddBlock) => this.deleteBlock(action.payload.block.blockIndex.point))
             )
             .subscribe((chunk) => {
-                console.log(`Added block to chunk`, chunk);
+                console.log(`Remove block from chunk`, chunk);
             });
     }
 
@@ -43,7 +42,7 @@ export class Terrain extends GameObject {
      * @param block The world position of the block.
      */
     private addBlock(block: Block): Observable<Chunk> {
-        const blockPosition = block.worldIndex.point;
+        const blockPosition = block.blockIndex.point;
         const chunkIndex = <Vector3D>(
             chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
         );
@@ -96,7 +95,7 @@ export class Terrain extends GameObject {
         return zip<Block[]>(deletions);
     }
 
-    deleteBlock(index: Vector3D): Observable<Block | null> {
+    deleteBlock(index: Vector3D): Observable<Block> {
         const blockPosition = <Vector3D>multiply(BLOCK_SIZE, index);
         const chunkIndex = <Vector3D>(
             chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
@@ -123,7 +122,5 @@ export class Terrain extends GameObject {
         return chunk;
     }
 
-    update(delta) {
-
-    }
+    update(delta) { }
 }
