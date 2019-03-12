@@ -57,18 +57,6 @@ export class Terrain extends GameObject {
             });
     }
 
-    /**
-     * @param block The world position of the block.
-     */
-    private addBlock(block: Block): Observable<Chunk> {
-        const chunkIndex = block.chunkIndex.point;
-        return this.getChunk(chunkIndex).pipe(
-            take(1),
-            tap(chunk => console.log('Found chunk:', chunk)),
-            tap(chunk => chunk.addBlock(block))
-        );
-    }
-
     getBlock(worldPosition: Vector3D): Observable<Block | null> {
         const blockPosition = <Vector3D>multiply(BLOCK_SIZE, worldPosition);
         const chunkIndex = <Vector3D>(
