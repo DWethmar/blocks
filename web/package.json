@@ -15,9 +15,8 @@
     "@types/lodash": "^4.14.117",
     "@types/redux": "^3.6.0",
     "@types/webassembly-js-api": "0.0.2",
-    "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^5.0.0",
-    "core-js": "^2.5.7",
+    "core-js": "^2.6.5",
     "html-webpack-plugin": "^4.0.0-beta.1",
     "prettier": "1.16.1",
     "spritesheet-js": "^1.2.6",
@@ -32,10 +31,9 @@
     "webpack-dev-server": "^3.1.9"
   },
   "dependencies": {
-    "babel-polyfill": "^6.26.0",
     "lodash": "^4.17.11",
     "pixi-viewport": "^3.18.1",
     "pixi.js": "5.0.0-rc.2",
-    "rxjs": "^6.4.0"
+    "rxjs": "6.3.3"
   }
 }

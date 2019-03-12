@@ -1,7 +1,7 @@
 import {GameObject} from "./game-object";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {GameAction} from "./actions/game-action";
-import {filter, map, pluck} from "rxjs/operators";
+import {filter, map, pluck, tap} from "rxjs/operators";
 
 export interface SceneState {
     gameObjects:            { [id: string]: GameObject },
@@ -38,7 +38,7 @@ export class Scene {
     getGameObject(id: string): Observable<GameObject> {
         return this.state.pipe(
             map(state => state.gameObjects),
-            pluck(id)
+            pluck(id),
         )
     }
 }

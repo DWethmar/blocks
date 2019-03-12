@@ -7,6 +7,7 @@ import {createArch, createCheckers, createTerrainNoise, createTower} from "./uti
 import Ticker = PIXI.Ticker;
 import {addPos} from "./utils/position";
 import {Chunk} from "./chunk";
+import {distinctUntilChanged} from "rxjs/operators";
 
 // import "./wasm";
 
@@ -25,8 +26,8 @@ createTower(game, BlockType.ROCK, [17, 15, 1]);
 createTower(game, BlockType.ROCK, [20, 18, 1]);
 createArch(game, BlockType.ROCK, [6, 1, 1]);
 
-for (let x = 0; x < 1; x++) {
-    for (let y = 0; y < 1; y++) {
+for (let x = 0; x < 2; x++) {
+    for (let y = 0; y < 2; y++) {
         createCheckers(game, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
         createTerrainNoise(game, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
     }
@@ -59,7 +60,7 @@ const container = document.createElement('div');
 let ul = document.createElement('ul');
 container.append(ul);
 
-game.scene.getState().subscribe(state => {
+game.scene.getState().pipe().subscribe(state => {
     container.removeChild(ul);
     ul = document.createElement('ul');
     for (let g of Object.values(state.gameObjects)) {

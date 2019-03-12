@@ -1,6 +1,7 @@
 import {Vector3D} from "./types";
 import {getX, getY, getZ} from "./utils/position";
 import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
+import {getChunkId} from "./utils/id";
 
 export class Position {
 
@@ -68,6 +69,10 @@ export class ChunkIndex {
 
     get point(): Vector3D {
         return [this.x, this.y, this.z];
+    }
+
+    get chunkId() {
+        return getChunkId(this.point)
     }
 
     constructor(private position: Position) { }

@@ -7,11 +7,10 @@ import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
 import {getX, getY, getZ, isEqual} from "./utils/position";
 import {getBlockId, getChunkId} from "./utils/id";
 import {GameObject} from "./game-object";
-import {Scene} from "./scene";
+import {Scene, SceneState} from "./scene";
 import {AddBlock, TerrainActionTypes} from "./actions/terrain-actions";
-import {filter, map, switchMap, take, tap} from "rxjs/operators";
-import {AddGameObject} from "./actions/game-objects";
-import {Observable, zip} from "rxjs";
+import {filter, map, switchMap, take, tap, withLatestFrom} from "rxjs/operators";
+import {iif, Observable, of, zip} from "rxjs";
 
 export class Terrain extends GameObject {
 
@@ -23,18 +22,38 @@ export class Terrain extends GameObject {
 
         this.scene.listen(TerrainActionTypes.ADD_BLOCK)
             .pipe(
-                switchMap((action: AddBlock) => this.addBlock(action.payload.block))
+                withLatestFrom(this.scene.getState()),
+                switchMap(([action, state]: [AddBlock, SceneState]) =>
+                    iif(
+                        () => state.gameObjects.hasOwnProperty(action.payload.block.chunkIndex.chunkId),
+                        this.getChunk(action.payload.block.chunkIndex.point),
+                        of(this.createChunk(action.payload.block.chunkIndex.point))
+                    ).pipe(
+                        take(1),
+                        tap(chunk => {
+                            chunk.addBlock(action.payload.block)
+                        }),
+                        map(chunk => [chunk, state])
+                    )
+                ),
             )
-            .subscribe((chunk: Chunk) => {
+            .subscribe(([chunk, state]: [Chunk, SceneState]) => {
                 console.log(`Added block to chunk: ${ chunk.id }`);
+                state.activeGameObjects.push(chunk.id );
+                state.gameObjects[chunk.id] = chunk;
+                this.scene.update(state);
             });
 
         this.scene.listen(TerrainActionTypes.REMOVE_BLOCK)
             .pipe(
-                switchMap((action: AddBlock) => this.deleteBlock(action.payload.block.blockIndex.point))
+                switchMap((action: AddBlock) => this.deleteBlock(action.payload.block.blockIndex.point)),
+                withLatestFrom(this.scene.getState()),
             )
-            .subscribe((chunk) => {
-                console.log(`Remove block from chunk`, chunk);
+            .subscribe(([chunk, state]: [Chunk, SceneState]) => {
+                console.log(`Removed block to chunk: ${ chunk.id }`);
+                state.gameObjects[chunk.id] = chunk;
+                state.activeGameObjects.push(chunk.id);
+                this.scene.update(state);
             });
     }
 
@@ -42,15 +61,10 @@ export class Terrain extends GameObject {
      * @param block The world position of the block.
      */
     private addBlock(block: Block): Observable<Chunk> {
-        const blockPosition = block.blockIndex.point;
-        const chunkIndex = <Vector3D>(
-            chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
-        );
-
+        const chunkIndex = block.chunkIndex.point;
         return this.getChunk(chunkIndex).pipe(
             take(1),
             tap(chunk => console.log('Found chunk:', chunk)),
-            map(chunk => chunk ? chunk : this.createChunk(chunkIndex)),
             tap(chunk => chunk.addBlock(block))
         );
     }
@@ -95,7 +109,7 @@ export class Terrain extends GameObject {
         return zip<Block[]>(deletions);
     }
 
-    deleteBlock(index: Vector3D): Observable<Block> {
+    deleteBlock(index: Vector3D): Observable<Chunk> {
         const blockPosition = <Vector3D>multiply(BLOCK_SIZE, index);
         const chunkIndex = <Vector3D>(
             chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
@@ -103,7 +117,7 @@ export class Terrain extends GameObject {
         return this.getChunk(chunkIndex).pipe(
             filter(chunk => !!chunk),
             take(1),
-            map(chunk => chunk.removeBlock(index)),
+            tap(chunk => chunk.removeBlock(index)),
         );
     }
 
@@ -113,13 +127,8 @@ export class Terrain extends GameObject {
 
     createChunk(index: Vector3D): Chunk {
         const chunkPosition = <Vector3D>multiply(CHUNK_SIZE * BLOCK_SIZE, index);
-        const id = getChunkId(chunkPosition);
-        const chunk = new Chunk(id, this.stage, this, chunkPosition);
-        this.scene.emit(new AddGameObject({
-            gameObject: chunk,
-            active: true
-        }));
-        return chunk;
+        const id = getChunkId(index);
+        return new Chunk(id, this.stage, this, chunkPosition);
     }
 
     update(delta) { }
