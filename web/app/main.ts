@@ -7,7 +7,6 @@ import {createArch, createCheckers, createTerrainNoise, createTower} from "./uti
 import Ticker = PIXI.Ticker;
 import {addPos} from "./utils/position";
 import {Chunk} from "./chunk";
-import {distinctUntilChanged} from "rxjs/operators";
 
 // import "./wasm";
 

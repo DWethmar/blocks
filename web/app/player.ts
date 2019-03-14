@@ -38,7 +38,7 @@ export class Player extends GameObject {
         // this.playerView.pivot.x = 5;
         // this.playerView.pivot.y = -5;
 
-        this.playerView.zIndex = Math.ceil(this.position.y);
+        this.playerView.zIndex = Math.ceil(this.position.z);
 
         this.stage.addChild(this.playerView);
     }

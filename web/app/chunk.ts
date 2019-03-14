@@ -68,6 +68,7 @@ export class Chunk extends GameObject {
     }
 
     private click(p: PIXI.Point) {
+        console.log('CLICKED');
         const x = p.x;
         let y = 0;
         let z = 0;
@@ -90,7 +91,8 @@ export class Chunk extends GameObject {
 
         if (hit) {
             const nb = this.addBlock(
-                new Block(BlockType.VOID, addPos(hit.vector3D, [0, 0, BLOCK_SIZE])));
+                new Block(BlockType.VOID, addPos(hit.vector3D, [0, 0, BLOCK_SIZE]))
+            );
             console.log(nb);
         }
     }
