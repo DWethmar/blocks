@@ -1,8 +1,8 @@
-import {addPos, isWithin, minusPos} from "./position";
-import {Chunk} from "../chunk";
-import {Point3D} from "../types";
+import {Chunk} from "./chunk";
+import {Block} from "../block/block";
+import {addPos, isWithin, minusPos, positionId} from "../position/point-utils";
+import {Point3D} from "../position/point";
 import {CHUNK_SIZE} from "../config";
-import {Block} from "../block";
 
 export const getVisibleBlocks = (chunk: Chunk): string[] => {
     return Array.from(chunk.blocks)
@@ -30,3 +30,6 @@ export const isPositionWithinChunk = (pos: Point3D, chunk: Chunk) => {
         addPos(chunk.blockIndex.point, [CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE])
     );
 };
+
+export const getChunkId = (position: Point3D) =>
+    `chunk-${positionId(position)}`;

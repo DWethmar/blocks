@@ -1,18 +1,14 @@
-import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
-import {Point3D} from "./types";
-import {Chunk} from "./chunk";
-import {addPos} from "./utils/position";
 import * as PIXI from "pixi.js";
-import {createLineGraphic} from "./utils/graphics";
-import {BlockIndex, ChunkIndex} from "./position";
-import {GameObject} from "./game-object";
 
-export enum BlockType {
-    AIR = "air",
-    ROCK = "rock",
-    GRASS = "grass",
-    VOID = "void"
-}
+import {GameObject} from "../game-object/game-object";
+import {BLOCK_SIZE, CHUNK_SIZE} from "../config";
+import {BlockIndex} from "../position/block-index";
+import {ChunkIndex} from "../position/chunk-index";
+import {BlockType} from "./block-type";
+import {Point3D} from "../position/point";
+import {Chunk} from "../chunk/chunk";
+import {addPos} from "../position/point-utils";
+import {createLineGraphic} from "../graphics/line";
 
 export class Block extends GameObject {
 

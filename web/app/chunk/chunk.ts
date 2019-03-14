@@ -1,16 +1,17 @@
 import * as PIXI from "pixi.js";
-
-import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
-import {divideBy} from "./utils/calc";
-import {Point3D} from "./types";
-import {Block, BlockType} from "./block";
-import {GameObject} from "./game-object";
-import {sortZYXAsc} from "./utils/sort";
-import {getBlockId} from "./utils/id";
-import {getVisibleBlocks} from "./utils/chunk";
-import {Terrain} from "./terrain";
-import {addPos} from "./utils/position";
-import {BlockIndex, ChunkIndex} from "./position";
+import {GameObject} from "../game-object/game-object";
+import {Block} from "../block/block";
+import {BlockIndex} from "../position/block-index";
+import {ChunkIndex} from "../position/chunk-index";
+import {Terrain} from "../terrain/terrain";
+import {Point3D} from "../position/point";
+import {BLOCK_SIZE, CHUNK_SIZE} from "../config";
+import {divideBy} from "../calc/calc";
+import {addPos} from "../position/point-utils";
+import {BlockType} from "../block/block-type";
+import {getVisibleBlocks} from "./chunk-utils";
+import {sortZYXAsc} from "../calc/sort";
+import {getBlockId} from "../block/block-utils";
 
 export class Chunk extends GameObject {
 
@@ -109,8 +110,8 @@ export class Chunk extends GameObject {
         // Sort
         this.blocksToRender.sort((idA, idB) => {
             return sortZYXAsc(
-                this.blocks.get(idA).position.vector3D,
-                this.blocks.get(idB).position.vector3D
+                this.blocks.get(idA).position.point,
+                this.blocks.get(idB).position.point
             );
         });
 

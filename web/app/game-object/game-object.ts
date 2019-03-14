@@ -1,5 +1,5 @@
-import {Point3D} from "./types";
-import {BlockIndex, ChunkIndex, Position} from "./position";
+import {Point3D} from "../position/point";
+import {Position} from "../position/position";
 
 export abstract class GameObject {
 

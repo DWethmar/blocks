@@ -1,5 +1,5 @@
-import {Point3D} from "../types";
-import {getX, getY, getZ} from "./position";
+import {Point3D} from "../position/point";
+import {getX, getY, getZ} from "../position/point-utils";
 
 export function sortZYXAsc(a: Point3D, b: Point3D): number {
     if (getZ(a) < getZ(b)) return -1;
