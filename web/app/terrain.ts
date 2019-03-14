@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import {Chunk, chunkDivider} from "./chunk";
-import {Vector3D} from "./types";
+import {Point3D} from "./types";
 import {Block} from "./block";
 import {multiply} from "./utils/calc";
 import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
@@ -9,7 +9,7 @@ import {getBlockId, getChunkId} from "./utils/id";
 import {GameObject} from "./game-object";
 import {Scene, SceneState} from "./scene";
 import {AddBlock, TerrainActionTypes} from "./actions/terrain-actions";
-import {filter, map, switchMap, take, tap, withLatestFrom} from "rxjs/operators";
+import {filter, map, mergeMap, switchMap, take, tap, withLatestFrom} from "rxjs/operators";
 import {iif, Observable, of, zip} from "rxjs";
 
 export class Terrain extends GameObject {
@@ -23,7 +23,7 @@ export class Terrain extends GameObject {
         this.scene.listen(TerrainActionTypes.ADD_BLOCK)
             .pipe(
                 withLatestFrom(this.scene.getState()),
-                switchMap(([action, state]: [AddBlock, SceneState]) =>
+                mergeMap(([action, state]: [AddBlock, SceneState]) =>
                     iif(
                         () => state.gameObjects.hasOwnProperty(action.payload.block.chunkIndex.chunkId),
                         this.getChunk(action.payload.block.chunkIndex.point),
@@ -57,9 +57,9 @@ export class Terrain extends GameObject {
             });
     }
 
-    getBlock(worldPosition: Vector3D): Observable<Block | null> {
-        const blockPosition = <Vector3D>multiply(BLOCK_SIZE, worldPosition);
-        const chunkIndex = <Vector3D>(
+    getBlock(worldPosition: Point3D): Observable<Block | null> {
+        const blockPosition = <Point3D>multiply(BLOCK_SIZE, worldPosition);
+        const chunkIndex = <Point3D>(
             chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
         );
         return this.getChunk(chunkIndex).pipe(
@@ -68,7 +68,7 @@ export class Terrain extends GameObject {
         );
     }
 
-    deleteBlocks(startIndex: Vector3D, endIndex: Vector3D): Observable<Block[]> {
+    deleteBlocks(startIndex: Point3D, endIndex: Point3D): Observable<Block[]> {
         let startX = getX(startIndex);
         let startY = getY(startIndex);
         let startZ = getZ(startIndex);
@@ -97,9 +97,9 @@ export class Terrain extends GameObject {
         return zip<Block[]>(deletions);
     }
 
-    deleteBlock(index: Vector3D): Observable<Chunk> {
-        const blockPosition = <Vector3D>multiply(BLOCK_SIZE, index);
-        const chunkIndex = <Vector3D>(
+    deleteBlock(index: Point3D): Observable<Chunk> {
+        const blockPosition = <Point3D>multiply(BLOCK_SIZE, index);
+        const chunkIndex = <Point3D>(
             chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition)
         );
         return this.getChunk(chunkIndex).pipe(
@@ -109,12 +109,12 @@ export class Terrain extends GameObject {
         );
     }
 
-    getChunk(chunkIndex: Vector3D): Observable<Chunk> {
+    getChunk(chunkIndex: Point3D): Observable<Chunk> {
         return this.scene.getGameObject(getChunkId(chunkIndex)) as Observable<Chunk>;
     }
 
-    createChunk(index: Vector3D): Chunk {
-        const chunkPosition = <Vector3D>multiply(CHUNK_SIZE * BLOCK_SIZE, index);
+    createChunk(index: Point3D): Chunk {
+        const chunkPosition = <Point3D>multiply(CHUNK_SIZE * BLOCK_SIZE, index);
         const id = getChunkId(index);
         return new Chunk(id, this.stage, this, chunkPosition);
     }

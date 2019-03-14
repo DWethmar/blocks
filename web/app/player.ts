@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import {Vector3D} from "./types";
+import {Point3D} from "./types";
 import {GameObject} from "./game-object";
 import {createCircleGraphic} from "./utils/graphics";
 import {multiply} from "./utils/calc";
@@ -12,7 +12,7 @@ export class Player extends GameObject {
     private RotateSpeed = 0.1;
     private Radius = 30;
     private angle = 0;
-    private center: Vector3D;
+    private center: Point3D;
 
     get drawX(): number {
         return this.position.x;
@@ -22,13 +22,13 @@ export class Player extends GameObject {
         return this.position.y - this.position.z + BLOCK_SIZE * CHUNK_SIZE;
     }
 
-    constructor(id: string, readonly stage: PIXI.Container, position: Vector3D) {
+    constructor(id: string, readonly stage: PIXI.Container, position: Point3D) {
         super(id, position);
 
         this.playerView = new PIXI.Container();
         this.playerView.name = 'Player';
 
-        this.center = <Vector3D>this.position.vector3D.slice();
+        this.center = <Point3D>this.position.vector3D.slice();
 
         this.playerView.x = this.position.x;
         this.playerView.y = this.position.y - this.position.z;
@@ -46,7 +46,7 @@ export class Player extends GameObject {
     update(delta: number) {
         this.angle += this.RotateSpeed * delta;
 
-        const offset = <Vector3D>(
+        const offset = <Point3D>(
             multiply(this.Radius, [Math.sin(this.angle), Math.cos(this.angle), 0])
         );
 

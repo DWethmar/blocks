@@ -35,7 +35,7 @@ export class Scene {
         return this.state;
     }
 
-    getGameObject(id: string): Observable<GameObject> {
+    getGameObject<T extends GameObject>(id: string): Observable<T> {
         return this.state.pipe(
             map(state => state.gameObjects),
             pluck(id),

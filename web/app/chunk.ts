@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 
 import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
 import {divideBy} from "./utils/calc";
-import {Vector3D} from "./types";
+import {Point3D} from "./types";
 import {Block, BlockType} from "./block";
 import {GameObject} from "./game-object";
 import {sortZYXAsc} from "./utils/sort";
@@ -31,7 +31,7 @@ export class Chunk extends GameObject {
         readonly id: string,
         readonly stage: PIXI.Container,
         readonly terrain: Terrain,
-        readonly vector3D: Vector3D
+        readonly vector3D: Point3D
     ) {
         super(id, vector3D);
 
@@ -82,11 +82,11 @@ export class Chunk extends GameObject {
             y = ((CHUNK_SIZE * BLOCK_SIZE) * 2) - p.y
         }
 
-        const worldPos = <Vector3D>(
+        const worldPos = <Point3D>(
             divideBy(BLOCK_SIZE, [x, y, z]).map(i => Math.floor(i))
         );
 
-        const dir = <Vector3D>[0, -1, -1];
+        const dir = <Point3D>[0, -1, -1];
         const hit = this.raycast(addPos(worldPos, dir), dir);
 
         if (hit) {
@@ -158,12 +158,12 @@ export class Chunk extends GameObject {
         this.hasChanged = false;
     }
 
-    isEmpty(position: Vector3D): boolean {
+    isEmpty(position: Point3D): boolean {
         const block = this.getBlock(position);
         return !block || (!!block && block.transparent);
     }
 
-    getBlock(worldPosition: Vector3D): Block | null {
+    getBlock(worldPosition: Point3D): Block | null {
         return this.blocks.get(getBlockId(worldPosition)) || null;
     }
 
@@ -173,14 +173,14 @@ export class Chunk extends GameObject {
         return block;
     }
 
-    removeBlock(position: Vector3D): Block {
+    removeBlock(position: Point3D): Block {
         this.hasChanged = true;
         const block = this.getBlock(position);
         this.blocks.delete(getBlockId(position));
         return block;
     }
 
-    raycast(start: Vector3D, direction: Vector3D): Block | null {
+    raycast(start: Point3D, direction: Point3D): Block | null {
         const block = this.getBlock(start);
 
         if (block) {

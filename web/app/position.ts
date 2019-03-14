@@ -1,4 +1,4 @@
-import {Vector3D} from "./types";
+import {Point3D} from "./types";
 import {getX, getY, getZ} from "./utils/position";
 import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
 import {getChunkId} from "./utils/id";
@@ -29,7 +29,7 @@ export class Position {
         this.vector3D[2] = value;
     }
 
-    constructor(public vector3D: Vector3D) { }
+    constructor(public vector3D: Point3D) { }
 }
 
 export class BlockIndex {
@@ -46,7 +46,7 @@ export class BlockIndex {
         return Math.floor(getZ(this.position.vector3D) / BLOCK_SIZE);
     }
 
-    get point(): Vector3D {
+    get point(): Point3D {
         return [this.x, this.y, this.z];
     }
 
@@ -67,7 +67,7 @@ export class ChunkIndex {
         return Math.floor(getZ(this.position.vector3D) / (BLOCK_SIZE * CHUNK_SIZE));
     }
 
-    get point(): Vector3D {
+    get point(): Point3D {
         return [this.x, this.y, this.z];
     }
 

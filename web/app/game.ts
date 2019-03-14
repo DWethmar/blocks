@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import {BLOCK_SIZE} from "./config";
-import {Vector3D} from "./types";
+import {Point3D} from "./types";
 import {Block, BlockType} from "./block";
 import {sortZYXAsc} from "./utils/sort";
 import {Player} from "./player";
@@ -79,8 +79,8 @@ export class Game {
         }));
     }
 
-    addBlock(index: Vector3D, type: BlockType) {
-        const p = <Vector3D>index.map(i => i * BLOCK_SIZE);
+    addBlock(index: Point3D, type: BlockType) {
+        const p = <Point3D>index.map(i => i * BLOCK_SIZE);
         this.scene.emit(new AddBlock({
             block: new Block(type, p)
         }));

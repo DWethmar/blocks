@@ -1,6 +1,6 @@
 import {Game} from "../game";
 import {BlockType} from "../block";
-import {Vector3D} from "../types";
+import {Point3D} from "../types";
 import {CHUNK_SIZE} from "../config";
 import {addPos} from "./position";
 
@@ -12,7 +12,7 @@ export function createTerrainNoise(
     scene: Game,
     type1: BlockType,
     type2: BlockType,
-    start: Vector3D
+    start: Point3D
 ) {
     // NOISE
     noise.seed(Math.random());
@@ -30,7 +30,7 @@ export function createTerrainNoise(
     }
 }
 
-export function createArch(scene: Game, type: BlockType, start: Vector3D) {
+export function createArch(scene: Game, type: BlockType, start: Point3D) {
     scene.addBlock(addPos(start, [0, 0, 0]), type);
     scene.addBlock(addPos(start, [0, 0, 1]), type);
     scene.addBlock(addPos(start, [0, 0, 2]), type);
@@ -50,19 +50,19 @@ export function createArch(scene: Game, type: BlockType, start: Vector3D) {
     scene.addBlock(addPos(start, [6, 0, 3]), type);
 }
 
-export function createTower(scene: Game, type: BlockType, start: Vector3D) {
+export function createTower(scene: Game, type: BlockType, start: Point3D) {
     for (let z = 0; z < 20; z++) {
         scene.addBlock(addPos(start, [0, 0, z]), type);
     }
 }
 
-export function createBar(scene: Game, type: BlockType, start: Vector3D) {
+export function createBar(scene: Game, type: BlockType, start: Point3D) {
     for (let x = 0; x < 20; x++) {
         scene.addBlock(addPos(start, [x, 0, 0]), type);
     }
 }
 
-export function createGround(scene: Game, type: BlockType, start: Vector3D) {
+export function createGround(scene: Game, type: BlockType, start: Point3D) {
     for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let y = 0; y < CHUNK_SIZE; y++) {
             scene.addBlock(addPos(start, [x, y, 0]), type);
@@ -74,7 +74,7 @@ export function createCheckers(
     scene: Game,
     type: BlockType,
     type2: BlockType,
-    start: Vector3D
+    start: Point3D
 ) {
     for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let y = 0; y < CHUNK_SIZE; y++) {

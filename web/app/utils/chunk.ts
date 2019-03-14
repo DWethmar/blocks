@@ -1,6 +1,6 @@
 import {addPos, isWithin, minusPos} from "./position";
 import {Chunk} from "../chunk";
-import {Vector3D} from "../types";
+import {Point3D} from "../types";
 import {CHUNK_SIZE} from "../config";
 import {Block} from "../block";
 
@@ -12,7 +12,7 @@ export const getVisibleBlocks = (chunk: Chunk): string[] => {
         .map(([id, block]) => id);
 };
 
-export const isPosVisibleWithinChunk = (pos: Vector3D, chunk: Chunk) => {
+export const isPosVisibleWithinChunk = (pos: Point3D, chunk: Chunk) => {
     if (isPositionWithinChunk(pos, chunk)) {
         if (chunk.isEmpty(pos)) {
             return isPosVisibleWithinChunk(addPos(pos, [0, 1, 1]), chunk);
@@ -23,7 +23,7 @@ export const isPosVisibleWithinChunk = (pos: Vector3D, chunk: Chunk) => {
     return true;
 };
 
-export const isPositionWithinChunk = (pos: Vector3D, chunk: Chunk) => {
+export const isPositionWithinChunk = (pos: Point3D, chunk: Chunk) => {
     return isWithin(
         pos,
         minusPos(chunk.blockIndex.point, [1, 1, 1]),

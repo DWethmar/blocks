@@ -1,5 +1,5 @@
 import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
-import {Vector3D} from "./types";
+import {Point3D} from "./types";
 import {Chunk} from "./chunk";
 import {addPos} from "./utils/position";
 import * as PIXI from "pixi.js";
@@ -32,7 +32,7 @@ export class Block extends GameObject {
 
     constructor(
         readonly type: BlockType,
-        public vector3D: Vector3D
+        public vector3D: Point3D
     ) {
         super('', vector3D);
         this.blockIndex = new BlockIndex(this.position);
