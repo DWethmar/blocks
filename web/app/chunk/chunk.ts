@@ -7,11 +7,12 @@ import {Terrain} from "../terrain/terrain";
 import {Point3D} from "../position/point";
 import {BLOCK_SIZE, CHUNK_SIZE} from "../config";
 import {divideBy} from "../calc/calc";
-import {addPos} from "../position/point-utils";
+import {addPos, minusPos} from "../position/point-utils";
 import {BlockType} from "../block/block-type";
-import {getVisibleBlocks} from "./chunk-utils";
+import {getVisibleBlocks, isPositionWithinChunk} from "./chunk-utils";
 import {sortZYXAsc} from "../calc/sort";
 import {getBlockId} from "../block/block-utils";
+import {Position} from "../position/position";
 
 export class Chunk extends GameObject {
 
@@ -69,32 +70,28 @@ export class Chunk extends GameObject {
     }
 
     private click(p: PIXI.Point) {
-        console.log('CLICKED');
+
         const x = p.x;
-        let y = 0;
+        let y = p.y;
         let z = 0;
 
-        if (p.y > this.bounds.height / 2) {
-            // click on front
-            z = ((CHUNK_SIZE * BLOCK_SIZE) * 2) - p.y;
-            y = CHUNK_SIZE * BLOCK_SIZE;
-        } else {
-            z = (CHUNK_SIZE * BLOCK_SIZE); // click on ceil
-            y = ((CHUNK_SIZE * BLOCK_SIZE) * 2) - p.y
-        }
+        const lowerHalve = p.y > this.bounds.height / 2;
 
-        const worldPos = <Point3D>(
-            divideBy(BLOCK_SIZE, [x, y, z]).map(i => Math.floor(i))
-        );
+        console.log('CLICKED', x, y, lowerHalve);
 
-        const dir = <Point3D>[0, -1, -1];
-        const hit = this.raycast(addPos(worldPos, dir), dir);
+        const position = new Position(<Point3D>[
+            x,
+            y,
+            this.position.z + (CHUNK_SIZE * BLOCK_SIZE)
+        ]);
+        const blockIndex = new BlockIndex(position);
+
+        const hit: Block = this.raycast(blockIndex.point, [0, -1, -1]);
 
         if (hit) {
-            const nb = this.addBlock(
-                new Block(BlockType.VOID, addPos(hit.vector3D, [0, 0, BLOCK_SIZE]))
+            this.addBlock(
+                new Block(BlockType.VOID, <Point3D>hit.position.point)
             );
-            console.log(nb);
         }
     }
 

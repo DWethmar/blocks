@@ -1,10 +1,11 @@
 import * as PIXI from "pixi.js";
-import {Point3D} from "./types";
-import {GameObject} from "./game-object";
-import {createCircleGraphic} from "./utils/graphics";
-import {multiply} from "./utils/calc";
-import {addPos, getX, getY} from "./utils/position";
-import {BLOCK_SIZE, CHUNK_SIZE} from "./config";
+import {GameObject} from "../game-object/game-object";
+import {Point3D} from "../position/point";
+import {BLOCK_SIZE, CHUNK_SIZE} from "../config";
+import {createCircleGraphic} from "../graphics/circle";
+import {multiply} from "../calc/calc";
+import {addPos, getX, getY} from "../position/point-utils";
+
 
 export class Player extends GameObject {
     public playerView: PIXI.Container;
@@ -28,7 +29,7 @@ export class Player extends GameObject {
         this.playerView = new PIXI.Container();
         this.playerView.name = 'Player';
 
-        this.center = <Point3D>this.position.vector3D.slice();
+        this.center = <Point3D>this.position.point.slice();
 
         this.playerView.x = this.position.x;
         this.playerView.y = this.position.y - this.position.z;

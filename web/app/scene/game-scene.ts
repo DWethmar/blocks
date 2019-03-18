@@ -1,3 +1,5 @@
+import * as PIXI from "pixi.js";
+
 import {GameObjectRepository} from "../game-object/game-object-repository";
 import {sortZYXAsc} from "../calc/sort";
 import {createArch, createCheckers, createTerrainNoise, createTower} from "../terrain/terrain-utils";
@@ -6,6 +8,8 @@ import {Scene} from "./scene";
 import {Terrain} from "../terrain/terrain";
 import {addPos} from "../position/point-utils";
 import {CHUNK_SIZE} from "../config";
+import {Player} from "../player/player";
+import {Point3D} from "../position/point";
 
 export class GameScene extends Scene {
 
@@ -38,6 +42,13 @@ export class GameScene extends Scene {
         terrain.addBlock([8, 0, 1], BlockType.GRASS);
         terrain.addBlock([11, 0, 1], BlockType.GRASS);
         terrain.addBlock([CHUNK_SIZE, 0, 1], BlockType.VOID);
+
+        this.gameObjectRepository.setGameObject(new Player(
+            'zoink',
+            this.stage,
+            <Point3D>[75, 10, 10]
+        ));
+        this.activeGameObjects.push('zoink');
     }
 
     update(delta: number) {
@@ -66,4 +77,15 @@ export class GameScene extends Scene {
         // });
     }
 }
+
+function intersects(a: PIXI.Rectangle, b: PIXI.Rectangle) {
+    return (
+        (a.x + a.width > b.x && a.x + a.width <= b.x + b.width)
+        || (b.x + b.width > a.x && b.x + b.width <= a.x + a.width)
+    ) && (
+        (a.y + a.height > b.y && a.y + a.height <= b.y + b.height)
+        || (b.y + b.height > a.y && b.y + b.height <= a.y + a.height)
+    );
+}
+
 
