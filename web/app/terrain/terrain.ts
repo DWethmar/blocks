@@ -8,6 +8,9 @@ import {multiply} from "../calc/calc";
 import {Chunk, chunkDivider} from "../chunk/chunk";
 import {BlockType} from "../block/block-type";
 import {getChunkId} from "../chunk/chunk-utils";
+import {addPos} from "../position/point-utils";
+import {Position} from "../position/position";
+import {BlockIndex} from "../position/block-index";
 
 export class Terrain extends GameObject {
 
@@ -16,6 +19,34 @@ export class Terrain extends GameObject {
         readonly scene: Scene,
     ) {
         super('terrain', [0, 0, 0]);
+
+        this.stage.interactive = true;
+        this.stage.on("click", (event) => {
+            this.click(event.data.global);
+        });
+    }
+
+    private click(p: PIXI.Point) {
+        const x = p.x;
+        let y = p.y;
+        let z = 0;
+
+        const lowerHalve = p.y > this.stage.height / 2;
+
+        console.log('CLICKED', x, y, lowerHalve);
+
+        const position = new Position(<Point3D>[
+            x,
+            y,
+            this.position.z + (CHUNK_SIZE * BLOCK_SIZE)
+        ]);
+        const blockIndex = new BlockIndex(position);
+
+        const hit: Block = this.raycast(blockIndex.point, [0, -1, -1]);
+
+        if (hit) {
+            this.addBlock(<Point3D>hit.position.point, BlockType.VOID);
+        }
     }
 
     /**
@@ -77,6 +108,20 @@ export class Terrain extends GameObject {
         );
 
         return chunk;
+    }
+
+    raycast(start: Point3D, direction: Point3D): Block | null {
+        const block = this.getBlock(start);
+
+        if (block) {
+            if (block.type !== BlockType.AIR) {
+                return block;
+            }
+        } else {
+            return null;
+        }
+
+        return this.raycast(addPos(start, direction), direction);
     }
 
     update(delta) { }

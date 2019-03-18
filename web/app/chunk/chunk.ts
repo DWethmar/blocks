@@ -7,12 +7,9 @@ import {Terrain} from "../terrain/terrain";
 import {Point3D} from "../position/point";
 import {BLOCK_SIZE, CHUNK_SIZE} from "../config";
 import {divideBy} from "../calc/calc";
-import {addPos, minusPos} from "../position/point-utils";
-import {BlockType} from "../block/block-type";
-import {getVisibleBlocks, isPositionWithinChunk} from "./chunk-utils";
+import {getVisibleBlocks} from "./chunk-utils";
 import {sortZYXAsc} from "../calc/sort";
 import {getBlockId} from "../block/block-utils";
-import {Position} from "../position/position";
 
 export class Chunk extends GameObject {
 
@@ -46,19 +43,6 @@ export class Chunk extends GameObject {
             CHUNK_SIZE * BLOCK_SIZE,
             CHUNK_SIZE * BLOCK_SIZE * 2
         );
-
-        const rect = new PIXI.Graphics();
-        rect.lineStyle(1, 0x000);
-
-        rect.interactive = true;
-        rect.hitArea = this.bounds;
-        rect.renderable = false;
-
-        rect.on("click", (event: any) =>
-            this.click(event.data.getLocalPosition(rect))
-        );
-
-        stage.addChild(rect);
     }
 
     public show() {
@@ -67,32 +51,6 @@ export class Chunk extends GameObject {
 
     public hide() {
         this.layers.forEach(l => l.visible = false);
-    }
-
-    private click(p: PIXI.Point) {
-
-        const x = p.x;
-        let y = p.y;
-        let z = 0;
-
-        const lowerHalve = p.y > this.bounds.height / 2;
-
-        console.log('CLICKED', x, y, lowerHalve);
-
-        const position = new Position(<Point3D>[
-            x,
-            y,
-            this.position.z + (CHUNK_SIZE * BLOCK_SIZE)
-        ]);
-        const blockIndex = new BlockIndex(position);
-
-        const hit: Block = this.raycast(blockIndex.point, [0, -1, -1]);
-
-        if (hit) {
-            this.addBlock(
-                new Block(BlockType.VOID, <Point3D>hit.position.point)
-            );
-        }
     }
 
     update(delta: number) {
@@ -176,20 +134,6 @@ export class Chunk extends GameObject {
         const block = this.getBlock(position);
         this.blocks.delete(getBlockId(position));
         return block;
-    }
-
-    raycast(start: Point3D, direction: Point3D): Block | null {
-        const block = this.getBlock(start);
-
-        if (block) {
-            if (block.type !== BlockType.AIR) {
-                return block;
-            }
-        } else {
-            return null;
-        }
-
-        return this.raycast(addPos(start, direction), direction);
     }
 
     getCenter(): PIXI.Point {
