@@ -1,14 +1,10 @@
 import * as PIXI from "pixi.js";
 import {Game} from "./game/game";
-import {BlockType} from "./block/block-type";
-import {createArch, createCheckers, createTower} from "./terrain/terrain-utils";
-import {Chunk} from "./chunk/chunk";
 import {Ticker} from "pixi.js";
-
 
 // import "./wasm";
 
-const viewPort = {width: 750, height: 500};
+const viewPort = { width: 750, height: 500 };
 
 let app = new PIXI.Application(viewPort);
 document.body.appendChild(app.view);

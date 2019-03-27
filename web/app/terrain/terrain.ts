@@ -99,7 +99,7 @@ export class Terrain extends GameObject {
             chunkPosition
         );
         this.scene.gameObjectRepository.setGameObject(chunk);
-        this.scene.activeGameObjects.push(chunk.id);
+        this.scene.gameObjectRepository.activateGameObject(chunk.id);
 
         console.log(
             `Created Chunk with id: ${getChunkId(

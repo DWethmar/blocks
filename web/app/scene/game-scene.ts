@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 
-import {GameObjectRepository} from "../game-object/game-object-repository";
 import {sortZYXAsc} from "../calc/sort";
 import {createArch, createCheckers, createTerrainNoise, createTower} from "../terrain/terrain-utils";
 import {BlockType} from "../block/block-type";
@@ -10,15 +9,26 @@ import {addPos} from "../position/point-utils";
 import {CHUNK_SIZE} from "../config";
 import {Player} from "../player/player";
 import {Point3D} from "../position/point";
+import * as Viewport from "pixi-viewport";
+import * as Cull from "pixi-cull";
 
 export class GameScene extends Scene {
+
+    readonly camera: Viewport;
+    cull: any;
 
     constructor(private stage: PIXI.Container) {
         super();
 
-        this.gameObjectRepository = new GameObjectRepository();
+        this.camera = new Viewport({
+            screenWidth: window.innerWidth,
+            screenHeight: window.innerHeight,
+            worldWidth: 1000,
+            worldHeight: 1000,
+        });
+        this.camera.sortableChildren = false;
 
-        const terrain = new Terrain(stage, this);
+        const terrain = new Terrain(this.camera, this);
         this.gameObjectRepository.setGameObject(terrain);
 
         createCheckers(terrain, BlockType.GRASS, BlockType.VOID, [0, 0, 0]);
@@ -26,8 +36,8 @@ export class GameScene extends Scene {
         createTower(terrain, BlockType.ROCK, [20, 18, 1]);
         createArch(terrain, BlockType.ROCK, [6, 1, 1]);
 
-        for (let x = 0; x < 2; x++) {
-            for (let y = 0; y < 2; y++) {
+        for (let x = 0; x < 3; x++) {
+            for (let y = 0; y < 3; y++) {
                 createCheckers(terrain, BlockType.GRASS, BlockType.VOID, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
                 createTerrainNoise(terrain, BlockType.GRASS, BlockType.ROCK, addPos([CHUNK_SIZE, -1, 0], [CHUNK_SIZE * x, CHUNK_SIZE * y, 0]));
             }
@@ -45,19 +55,30 @@ export class GameScene extends Scene {
 
         this.gameObjectRepository.setGameObject(new Player(
             'zoink',
-            this.stage,
+            this.camera,
             <Point3D>[75, 10, 10]
         ));
-        this.activeGameObjects.push('zoink');
+        this.gameObjectRepository.activateGameObject('zoink');
+
+        this.stage.addChild(this.camera);
+
+        this.camera
+            .drag()
+            .pinch()
+            .wheel()
+            .decelerate();
+            // .moveCenter(10, 10);
+
+        this.cull = new Cull.Simple();
+        this.cull.addList(this.camera.children);
+        this.cull.cull(this.camera.getVisibleBounds())
     }
 
     update(delta: number) {
-        this.activeGameObjects
-            .map(id => this.gameObjectRepository.getGameObject(id))
-            .forEach(gameObject => void gameObject.update(delta));
+        this.gameObjectRepository.getActiveGameObjects().forEach(g => g.update(delta));
 
         // Do own sorting
-        this.stage.children.sort((a, b) => {
+        this.camera.children.sort((a, b) => {
             const aZ = a.zIndex || 0;
             const bZ = b.zIndex || 0;
             return sortZYXAsc(
@@ -66,15 +87,10 @@ export class GameScene extends Scene {
             );
         });
 
-        // this.terrain.chunks.forEach(chunk => {
-        //     const bounds = this.stage.getVisibleBounds();
-        //     const sceneRect = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
-        //     if (intersects(sceneRect, chunk.bounds)) {
-        //         chunk.show();
-        //     } else {
-        //         chunk.hide();
-        //     }
-        // });
+        // if (this.camera.dirty) {
+        //     this.cull.cull(this.camera.getVisibleBounds());
+        //     this.camera.dirty = false;
+        // }
     }
 }
 

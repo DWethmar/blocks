@@ -4,7 +4,6 @@ import {GameScene} from "../scene/game-scene";
 
 export class Game {
 
-    // readonly stage: Viewport;
     readonly stage: PIXI.Container;
     scene: Scene;
 
