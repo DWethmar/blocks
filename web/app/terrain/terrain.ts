@@ -4,7 +4,7 @@ import {Scene} from "../scene/scene";
 import {Point3D} from "../position/point";
 import {Block} from "../block/block";
 import {BLOCK_SIZE, CHUNK_SIZE} from "../config";
-import {multiply} from "../calc/calc";
+import {divideBy, multiply} from "../calc/calc";
 import {Chunk, chunkDivider} from "../chunk/chunk";
 import {BlockType} from "../block/block-type";
 import {getChunkId} from "../chunk/chunk-utils";
@@ -20,10 +20,44 @@ export class Terrain extends GameObject {
     ) {
         super('terrain', [0, 0, 0]);
 
-        this.stage.interactive = true;
-        this.stage.on("click", (event) => {
-            this.click(event.data.global);
-        });
+        // this.stage.interactive = true;
+        //
+        // this.stage.on("click", (event) => {
+        //     this.click(event.data.global);
+        // });
+        //
+        // this.stage.on("mousemove", (event) => {
+        //     this.mousemove(event.data.global);
+        // });
+    }
+
+    private mousemove(p: PIXI.Point) {
+        console.log('CLICKED');
+        const x = p.x;
+        let y = 0;
+        let z = 0;
+
+        // if (p.y > this.bounds.height / 2) {
+        //     // click on front
+        //     z = ((CHUNK_SIZE * BLOCK_SIZE) * 2) - p.y;
+        //     y = CHUNK_SIZE * BLOCK_SIZE;
+        // } else {
+        //     z = (CHUNK_SIZE * BLOCK_SIZE); // click on ceil
+        //     y = ((CHUNK_SIZE * BLOCK_SIZE) * 2) - p.y
+        // }
+        //
+        // const worldPos = <Point3D>(
+        //     divideBy(BLOCK_SIZE, [x, y, z]).map(i => Math.floor(i))
+        // );
+        //
+        // const dir = <Point3D>[0, -1, -1];
+        // const hit = this.raycast(addPos(worldPos, dir), dir);
+        //
+        // if (hit) {
+        //     console.log(
+        //         this.addBlock(addPos(hit.vector3D, [0, 0, BLOCK_SIZE]), BlockType.VOID)
+        //     );
+        // }
     }
 
     private click(p: PIXI.Point) {
@@ -78,8 +112,26 @@ export class Terrain extends GameObject {
         return null;
     }
 
+    hasBlock(blockIndex: Point3D): boolean {
+        const chunkIndex = <Point3D>(
+            multiply(CHUNK_SIZE * BLOCK_SIZE, blockIndex)
+        );
+        const chunk = this.getChunk(chunkIndex);
+        if (chunk) {
+            return chunk.isEmpty(blockIndex)
+        }
+        return null;
+    }
+
     hasChunk(chunkIndex: Point3D): boolean {
         return this.scene.gameObjectRepository.hasGameObject(getChunkId(chunkIndex));
+    }
+
+    removeBlock(blockIndex: Point3D) {
+        let chunk = this.getChunk(blockIndex);
+        if (chunk) {
+            chunk.removeBlock(blockIndex);
+        }
     }
 
     getChunk(chunkPosition: Point3D): Chunk | null {

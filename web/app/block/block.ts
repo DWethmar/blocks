@@ -17,7 +17,7 @@ export class Block extends GameObject {
     }
 
     get drawY(): number {
-        return this.position.y - this.position.z + BLOCK_SIZE * CHUNK_SIZE;
+        return this.position.y - this.position.z + (BLOCK_SIZE * CHUNK_SIZE);
     }
 
     transparent = false;
@@ -70,6 +70,9 @@ export class Block extends GameObject {
                 case BlockType.GRASS:
                     frontColor = 0x795128;
                     break;
+                case BlockType.SELECTION:
+                    frontColor = 0xff4d4d;
+                    break;
                 default:
                     frontColor = 0x9e34a1;
                     break;
@@ -94,6 +97,9 @@ export class Block extends GameObject {
                 break;
             case BlockType.GRASS:
                 topColor = 0x008000;
+                break;
+            case BlockType.SELECTION:
+                topColor = 0xe60000;
                 break;
             default:
                 topColor = 0xff00d1;
