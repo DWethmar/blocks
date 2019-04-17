@@ -1,6 +1,9 @@
-/**
- * 1. X is horizontal.
- * 2. Y is vertical
- * 3. Z is back to front (layers)
- */
-export type Point3D = [number, number, number];
+export type Point3D = { x: number; y: number; z: number };
+
+export function getStartPoint(): Point3D {
+	return { x: 0, y: 0, z: 0 };
+}
+
+export function createPoint(x?: number, y?: number, z?: number) {
+	return { x: x || 0, y: y || 0, z: z || 0 };
+}
