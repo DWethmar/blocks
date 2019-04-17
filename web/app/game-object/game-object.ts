@@ -1,16 +1,11 @@
-import {Point3D} from "../position/point";
-import {Position} from "../position/position";
+import { Point3D } from '../position/point';
 
 export abstract class GameObject {
+	position: Point3D = null;
 
-    position: Position = null;
+	constructor(readonly id: string, vector3d: Point3D) {
+		this.position = vector3d;
+	}
 
-    constructor(
-        readonly id: string,
-        vector3d: Point3D
-    ) {
-        this.position   = new Position(vector3d);
-    }
-
-    abstract update(delta): void;
+	abstract update(delta): void;
 }
