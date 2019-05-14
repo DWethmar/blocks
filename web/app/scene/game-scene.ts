@@ -9,9 +9,11 @@ import { addPos, bresenham3D, getX, getY, getZ, minusPos } from '../position/poi
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { Player } from '../player/player';
 import { Point3D, createPoint } from '../position/point';
+var Viewport = require('pixi-viewport');
 
 export class GameScene extends Scene {
-    readonly camera: PIXI.Container;
+
+    readonly viewport: any;
     cull: any;
 
     terrain: Terrain;
@@ -20,10 +22,22 @@ export class GameScene extends Scene {
     constructor(private stage: PIXI.Container) {
         super();
 
-        this.camera = new PIXI.Container();
-        this.camera.sortableChildren = false;
+        this.viewport = new Viewport({
+            screenWidth: window.innerWidth,
+            screenHeight: window.innerHeight,
+            worldWidth: 1000,
+            worldHeight: 1000,
 
-        this.terrain = new Terrain(this.camera, this);
+            // interaction: app.renderer.plugins.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
+        });
+        this.viewport
+            .drag()
+            .pinch()
+            .wheel()
+            .decelerate();
+        this.viewport.sortableChildren = false;
+
+        this.terrain = new Terrain(this.viewport, this);
         this.gameObjectRepository.setGameObject(this.terrain);
 
         createCheckers(this.terrain, BlockType.GRASS, BlockType.VOID, createPoint());
@@ -58,13 +72,13 @@ export class GameScene extends Scene {
         this.terrain.addBlock(createPoint(11, 0, 1), BlockType.GRASS);
         this.terrain.addBlock(createPoint(CHUNK_SIZE, 0, 1), BlockType.VOID);
 
-        this.gameObjectRepository.setGameObject(new Player('zoink', this.camera, createPoint(75, 10, 10)));
+        this.gameObjectRepository.setGameObject(new Player('zoink', this.viewport, createPoint(75, 10, 10)));
         this.gameObjectRepository.activateGameObject('zoink');
 
         // Test Line
         bresenham3D(1, 0, 10, 10, 0, 20).forEach((p) => this.terrain.addBlock(p, BlockType.SELECTION));
 
-        this.stage.addChild(this.camera);
+        this.stage.addChild(this.viewport);
         this.blockSelection = [];
     }
 
@@ -72,7 +86,7 @@ export class GameScene extends Scene {
         this.gameObjectRepository.getActiveGameObjects().forEach((g) => g.update(delta));
 
         // Do own sorting
-        this.camera.children.sort((a, b) => {
+        this.viewport.children.sort((a, b) => {
             const aZ = a.zIndex || 0;
             const bZ = b.zIndex || 0;
             return sortZYXAsc(createPoint(a.position.x, a.position.y, aZ), createPoint(b.position.x, b.position.y, bZ));
