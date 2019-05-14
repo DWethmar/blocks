@@ -3,8 +3,8 @@
     "version": "0.0.1",
     "description": "",
     "scripts": {
-        "start": "webpack-dev-server --content-base ../dist/ --watch --port 9001",
-        "build": "webpack --env production"
+        "start": "parcel index.html",
+        "build": "parcel build index.html --out-dir ../dist --cache-dir ../.cache"
     },
     "author": "",
     "license": "ISC",
@@ -15,26 +15,22 @@
         "@types/lodash": "^4.14.117",
         "@types/redux": "^3.6.0",
         "@types/webassembly-js-api": "0.0.2",
-        "copy-webpack-plugin": "^5.0.0",
         "core-js": "^2.6.5",
         "html-webpack-plugin": "^4.0.0-beta.1",
+        "parcel-bundler": "^1.12.3",
         "prettier": "1.16.1",
         "spritesheet-js": "^1.2.6",
         "ts-loader": "5.2.1",
         "tsconfig-paths-webpack-plugin": "3.2.0",
         "tslint": "5.11.0",
         "tslint-loader": "3.6.0",
-        "tslint-webpack-plugin": "^1.2.2",
-        "typescript": "^3.3.3",
-        "webpack": "^4.20.2",
-        "webpack-cli": "3.1.2",
-        "webpack-dev-server": "^3.1.9"
+        "typescript": "^3.3.3"
     },
     "dependencies": {
         "lodash": "^4.17.11",
         "pixi-cull": "^0.5.0",
-        "pixi-viewport": "3.21.1",
-        "pixi.js": "5.0.0-rc.3",
+        "pixi-viewport": "3.23.2",
+        "pixi.js": "5.0.0",
         "rxjs": "6.3.3"
     }
 }
