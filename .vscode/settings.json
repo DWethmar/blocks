@@ -1,0 +1,12 @@
+{
+	"editor.formatOnSave": true,
+	"eslint.validate": [
+		"javascript",
+		{
+			"language": "typescript",
+			"autoFix": true
+		},
+	],
+	"javascript.preferences.quoteStyle": "single",
+	"typescript.preferences.quoteStyle": "single",
+}

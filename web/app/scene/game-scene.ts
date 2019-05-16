@@ -34,6 +34,7 @@ export class GameScene extends Scene {
             .pinch()
             .wheel()
             .decelerate();
+
         this.viewport.sortableChildren = false;
 
         this.terrain = new Terrain(this.viewport, this);
