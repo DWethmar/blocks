@@ -23,7 +23,7 @@ export class Player extends GameObject {
     }
 
     public constructor(id: string, stage: PIXI.Container, position: Point3D) {
-        super(id, position);
+        super({ id: id, position: position });
 
         this.playerView = new PIXI.Container();
         this.playerView.name = 'Player';

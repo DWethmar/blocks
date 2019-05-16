@@ -1,7 +1,8 @@
 import * as PIXI from 'pixi.js';
+
 import { GameObject } from '../game-object/game-object';
 import { Scene } from '../scene/scene';
-import { Point3D, getStartPoint, createPoint } from '../position/point';
+import { Point3D, createPoint } from '../position/point';
 import { Block } from '../block/block';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { multiply } from '../calc/calc';
@@ -16,7 +17,7 @@ export class Terrain extends GameObject {
     private readonly scene: Scene;
 
     public constructor(stage: PIXI.Container, scene: Scene) {
-        super('terrain', getStartPoint());
+        super({ id: 'terrain', position: createPoint() });
         this.stage = stage;
         this.scene = scene;
         // this.stage.interactive = true;
@@ -89,7 +90,11 @@ export class Terrain extends GameObject {
      */
     public addBlock(blockIndex: Point3D, type: BlockType): void {
         const blockPosition = multiply(BLOCK_SIZE, blockIndex);
-        const block = new Block(type, blockPosition);
+        const block = new Block({
+            id: '',
+            type: type,
+            position: blockPosition,
+        });
 
         let chunk = this.getChunk(block.chunkIndex.point);
         if (!chunk) {
@@ -105,7 +110,7 @@ export class Terrain extends GameObject {
         if (chunk) {
             return chunk.isEmpty(worldPosition)
                 ? chunk.getBlock(worldPosition)
-                : new Block(BlockType.AIR, worldPosition);
+                : new Block({ id: '', type: BlockType.AIR, position: worldPosition });
         }
         return null;
     }

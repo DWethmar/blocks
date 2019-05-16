@@ -32,7 +32,7 @@ export class Chunk extends GameObject {
     private layers: PIXI.Container[] = [];
 
     public constructor(id: string, stage: PIXI.Container, terrain: Terrain, position: Point3D) {
-        super(id, position);
+        super({ id: id, position: position });
 
         this.stage = stage;
         this.terrain = terrain;

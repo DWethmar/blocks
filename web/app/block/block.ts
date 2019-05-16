@@ -9,6 +9,7 @@ import { Point3D, createPoint } from '../position/point';
 import { Chunk } from '../chunk/chunk';
 import { addPos } from '../position/point-utils';
 import { createLineGraphic } from '../graphics/line';
+import { BlockProperties } from './block-properties';
 
 export class Block extends GameObject {
     public get drawX(): number {
@@ -25,9 +26,9 @@ export class Block extends GameObject {
     public type: BlockType;
     private views: PIXI.DisplayObject[] = [];
 
-    public constructor(type: BlockType, vector3D: Point3D) {
-        super('', vector3D);
-        this.type = type;
+    public constructor(props: BlockProperties) {
+        super(props);
+        this.type = props.type;
         this.blockIndex = new BlockIndex(this.position);
         this.chunkIndex = new ChunkIndex(this.position);
         this.transparent = this.type === BlockType.AIR;
@@ -41,7 +42,11 @@ export class Block extends GameObject {
 
     public renderViews(chunk: Chunk): void {
         if (this.views.length) {
-            this.views.forEach(v => v.destroy());
+            this.views.forEach(
+                (v): void => {
+                    v.destroy();
+                },
+            );
             this.views = [];
         }
         this.renderTop(chunk);
