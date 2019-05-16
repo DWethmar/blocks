@@ -2,164 +2,142 @@ import * as PIXI from 'pixi.js';
 
 import { GameObject } from '../game-object/game-object';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
-import { BlockIndex } from '../position/block-index';
-import { ChunkIndex } from '../position/chunk-index';
 import { BlockType } from './block-type';
 import { Point3D, createPoint } from '../position/point';
-import { Chunk } from '../chunk/chunk';
+import { Chunk, getBlock } from '../chunk/chunk';
 import { addPos } from '../position/point-utils';
 import { createLineGraphic } from '../graphics/line';
-import { BlockProperties } from './block-properties';
+import { Terrain } from '../terrain/terrain';
 
-export class Block extends GameObject {
-    public get drawX(): number {
-        return this.position.x;
-    }
+export function isBlockTransparent(block: Block): boolean {
+    return block.type === BlockType.AIR;
+}
 
-    public get drawY(): number {
-        return this.position.y - this.position.z + BLOCK_SIZE * CHUNK_SIZE;
-    }
+export interface Block extends GameObject {
+    type: BlockType;
+}
 
-    public transparent = false;
-    public blockIndex: BlockIndex = null;
-    public chunkIndex: ChunkIndex = null;
-    public type: BlockType;
-    private views: PIXI.DisplayObject[] = [];
+function renderTop(blockIndex: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
+    const drawX = 0;
+    const drawY = BLOCK_SIZE;
 
-    public constructor(props: BlockProperties) {
-        super(props);
-        this.type = props.type;
-        this.blockIndex = new BlockIndex(this.position);
-        this.chunkIndex = new ChunkIndex(this.position);
-        this.transparent = this.type === BlockType.AIR;
-    }
+    const neighbors = {
+        front: terrain.hasBlock(addPos(blockIndex, createPoint(0, 1, 0))),
+    };
 
-    public getViews(): PIXI.DisplayObject[] {
-        return this.views;
-    }
-
-    public update(delta: number): void {}
-
-    public renderViews(chunk: Chunk): void {
-        if (this.views.length) {
-            this.views.forEach(
-                (v): void => {
-                    v.destroy();
-                },
-            );
-            this.views = [];
-        }
-        this.renderTop(chunk);
-        this.renderBottom(chunk);
-        this.renderBlockOutline(chunk);
-    }
-
-    private renderTop(chunk: Chunk): void {
-        const drawX = this.drawX - chunk.position.x;
-        const drawY = this.drawY - chunk.position.y;
-
-        const neighbors = {
-            front: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 1, 0))),
-        };
-
-        if (!neighbors.front) {
-            let frontColor = null;
-            // Front
-            switch (this.type) {
-                case BlockType.ROCK:
-                    frontColor = 0x5a5a5a;
-                    break;
-                case BlockType.GRASS:
-                    frontColor = 0x795128;
-                    break;
-                case BlockType.SELECTION:
-                    frontColor = 0xff4d4d;
-                    break;
-                default:
-                    frontColor = 0x9e34a1;
-                    break;
-            }
-            const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-            sprite.tint = frontColor;
-            sprite.width = sprite.height = BLOCK_SIZE;
-            sprite.position.set(drawX, drawY);
-            this.views.push(sprite);
-        }
-    }
-
-    private renderBottom(chunk: Chunk): void {
-        const drawX = this.drawX - chunk.position.x;
-        const drawY = this.drawY - chunk.position.y;
-
-        let topColor = null;
-        // Top
+    if (!neighbors.front) {
+        let frontColor = null;
+        // Front
         switch (this.type) {
             case BlockType.ROCK:
-                topColor = 0xa5a5a5;
+                frontColor = 0x5a5a5a;
                 break;
             case BlockType.GRASS:
-                topColor = 0x008000;
+                frontColor = 0x795128;
                 break;
             case BlockType.SELECTION:
-                topColor = 0xe60000;
+                frontColor = 0xff4d4d;
                 break;
             default:
-                topColor = 0xff00d1;
+                frontColor = 0x9e34a1;
                 break;
         }
         const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-        sprite.tint = topColor;
+        sprite.tint = frontColor;
         sprite.width = sprite.height = BLOCK_SIZE;
-        sprite.position.set(drawX, drawY - BLOCK_SIZE);
-        this.views.push(sprite);
+        sprite.position.set(drawX, drawY);
+        return sprite;
     }
+}
 
-    private renderBlockOutline(chunk: Chunk): void {
-        const drawX = this.drawX - chunk.position.x;
-        const drawY = this.drawY - chunk.position.y;
+function renderBottom(position: Point3D, type: BlockType, chunk: Chunk): PIXI.DisplayObject {
+    const drawX = position.x - chunk.position.x;
+    const drawY = position.y - chunk.position.y;
 
-        const neighbors = {
-            left: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(-1, 0, 0))),
-            right: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(1, 0, 0))),
-            front: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 1, 0))),
-            top: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 0, 1))),
-            back: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, -1, 0))),
-            frontBottom: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 1, -1))),
-            bottom: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 0, -1))),
-        };
+    let topColor = null;
+    // Top
+    switch (this.type) {
+        case BlockType.ROCK:
+            topColor = 0xa5a5a5;
+            break;
+        case BlockType.GRASS:
+            topColor = 0x008000;
+            break;
+        case BlockType.SELECTION:
+            topColor = 0xe60000;
+            break;
+        default:
+            topColor = 0xff00d1;
+            break;
+    }
+    const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+    sprite.tint = topColor;
+    sprite.width = sprite.height = BLOCK_SIZE;
+    sprite.position.set(drawX, drawY - BLOCK_SIZE);
+    return sprite;
+}
 
-        const linesContainer = new PIXI.Container();
+function renderBlockOutline(position: Point3D, type: BlockType, chunk: Chunk): PIXI.DisplayObject {
+    const drawX = 0;
+    const drawY = BLOCK_SIZE;
 
-        const lineColor = 0x000000;
-        const lines = [];
-        if (!neighbors.top) {
-            if (!neighbors.left) {
-                lines.push(createLineGraphic(drawX, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor));
-            }
+    const neighbors = {
+        left: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(-1, 0, 0))),
+        right: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(1, 0, 0))),
+        front: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 1, 0))),
+        top: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 0, 1))),
+        back: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, -1, 0))),
+        frontBottom: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 1, -1))),
+        bottom: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 0, -1))),
+    };
 
-            if (!neighbors.right) {
-                lines.push(createLineGraphic(drawX + BLOCK_SIZE, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor));
-            }
+    const linesContainer = new PIXI.Container();
 
-            if (!neighbors.back) {
-                lines.push(createLineGraphic(drawX, drawY - BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
-            }
+    const lineColor = 0x000000;
+    const lines = [];
+    if (!neighbors.top) {
+        if (!neighbors.left) {
+            lines.push(createLineGraphic(drawX, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor));
         }
 
-        if (!neighbors.front) {
-            if (!neighbors.left) {
-                lines.push(createLineGraphic(drawX, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
-            }
-
-            if (!neighbors.right) {
-                lines.push(createLineGraphic(drawX + BLOCK_SIZE, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
-            }
-
-            if (!neighbors.bottom && !neighbors.front) {
-                lines.push(createLineGraphic(drawX, drawY + BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
-            }
+        if (!neighbors.right) {
+            lines.push(createLineGraphic(drawX + BLOCK_SIZE, drawY - BLOCK_SIZE, 0, 0, 0, BLOCK_SIZE, lineColor));
         }
-        lines.forEach((l): void => void linesContainer.addChild(l));
-        this.views.push(linesContainer);
+
+        if (!neighbors.back) {
+            lines.push(createLineGraphic(drawX, drawY - BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
+        }
     }
+
+    if (!neighbors.front) {
+        if (!neighbors.left) {
+            lines.push(createLineGraphic(drawX, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
+        }
+
+        if (!neighbors.right) {
+            lines.push(createLineGraphic(drawX + BLOCK_SIZE, drawY, 0, 0, 0, BLOCK_SIZE, lineColor));
+        }
+
+        if (!neighbors.bottom && !neighbors.front) {
+            lines.push(createLineGraphic(drawX, drawY + BLOCK_SIZE, 0, 0, BLOCK_SIZE, 0, lineColor));
+        }
+    }
+    lines.forEach((l): void => void linesContainer.addChild(l));
+    return linesContainer;
+}
+
+export function renderBlockViews(position: Point3D, type: BlockType, chunk: Chunk): PIXI.Container[] {
+    const views = [];
+    views.push(renderTop(position, type, chunk));
+    views.push(renderBottom(position, type, chunk));
+    views.push(renderBlockOutline(position, type, chunk));
+    return views;
+}
+
+export function createBlock(id: string, position: Point3D, type: BlockType): Block {
+    return {
+        id: '',
+        position: position,
+        type: type,
+    };
 }

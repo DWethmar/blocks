@@ -1,5 +1,6 @@
 import { Point3D, createPoint } from './point';
 import { Point } from 'pixi.js';
+import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 
 export const getX = (a: Point3D): number => a.x;
 export const getY = (a: Point3D): number => a.y;
@@ -39,6 +40,22 @@ export function isEqual(a: Point3D, b: Point3D): boolean {
 
 export function positionId(c: Point3D): string {
     return `${c.x}.${c.y}.${c.z}`;
+}
+
+export function positionToChunkIndex(position: Point3D): Point3D {
+    return createPoint(
+        Math.floor(position.x / (BLOCK_SIZE * CHUNK_SIZE)),
+        Math.floor(position.y / (BLOCK_SIZE * CHUNK_SIZE)),
+        Math.floor(position.z / (BLOCK_SIZE * CHUNK_SIZE)),
+    );
+}
+
+export function positionToBlockIndex(position: Point3D): Point3D {
+    return createPoint(
+        Math.floor(position.x / BLOCK_SIZE),
+        Math.floor(position.y / BLOCK_SIZE),
+        Math.floor(position.z / BLOCK_SIZE),
+    );
 }
 
 // https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/

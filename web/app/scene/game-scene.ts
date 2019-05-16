@@ -1,26 +1,44 @@
-
 import * as PIXI from 'pixi.js';
 import { sortZYXAsc } from '../calc/sort';
 import { createArch, createCheckers, createTerrainNoise, createTower } from '../terrain/terrain-utils';
 import { BlockType } from '../block/block-type';
-import { Scene } from './scene';
+import { Scene, LoadAssetParams } from './scene';
 import { Terrain } from '../terrain/terrain';
 import { addPos, bresenham3D, getX, getY, getZ, minusPos } from '../position/point-utils';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { Player } from '../player/player';
 import { Point3D, createPoint } from '../position/point';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 var Viewport = require('pixi-viewport');
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import data from '../../assets/spritesheets/tiles-spritesheet.json';
+import image from '../../assets/spritesheets/tiles-spritesheet.png';
+
 export class GameScene extends Scene {
+    public readonly viewport: any;
 
-    readonly viewport: any;
-    cull: any;
+    private terrain: Terrain;
+    private blockSelection: Point3D[];
 
-    terrain: Terrain;
-    blockSelection: Point3D[];
-
-    constructor(private stage: PIXI.Container) {
+    public constructor(stage: PIXI.Container) {
         super();
+
+        this.loadAndRegisterAsset(
+            new Promise<LoadAssetParams>(
+                (resolve, reject): void => {
+                    const baseTexture = new PIXI.BaseTexture(image);
+                    const spritesheet = new PIXI.Spritesheet(baseTexture, data);
+                    spritesheet.parse(function(textures): void {
+                        resolve({
+                            name: 'spritesheet',
+                            asset: spritesheet,
+                        });
+                    });
+                },
+            ),
+        );
 
         this.viewport = new Viewport({
             screenWidth: window.innerWidth,
@@ -38,7 +56,7 @@ export class GameScene extends Scene {
         this.viewport.sortableChildren = false;
 
         this.terrain = new Terrain(this.viewport, this);
-        this.gameObjectRepository.setGameObject(this.terrain);
+        this.gameObjects.setGameObject(this.terrain);
 
         createCheckers(this.terrain, BlockType.GRASS, BlockType.VOID, createPoint());
         createTower(this.terrain, BlockType.ROCK, createPoint(17, 15, 1));
@@ -51,13 +69,13 @@ export class GameScene extends Scene {
                     this.terrain,
                     BlockType.GRASS,
                     BlockType.VOID,
-                    addPos(createPoint(CHUNK_SIZE, -1, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0))
+                    addPos(createPoint(CHUNK_SIZE, -1, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
                 );
                 createTerrainNoise(
                     this.terrain,
                     BlockType.GRASS,
                     BlockType.ROCK,
-                    addPos(createPoint(CHUNK_SIZE, -1, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0))
+                    addPos(createPoint(CHUNK_SIZE, -1, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
                 );
             }
         }
@@ -72,40 +90,42 @@ export class GameScene extends Scene {
         this.terrain.addBlock(createPoint(11, 0, 1), BlockType.GRASS);
         this.terrain.addBlock(createPoint(CHUNK_SIZE, 0, 1), BlockType.VOID);
 
-        this.gameObjectRepository.setGameObject(new Player('zoink', this.viewport, createPoint(75, 10, 10)));
-        this.gameObjectRepository.activateGameObject('zoink');
+        this.gameObjects.setGameObject(new Player('zoink', this.viewport, createPoint(75, 10, 10)));
+        this.gameObjects.activateGameObject('zoink');
 
         // Test Line
-        bresenham3D(1, 0, 10, 10, 0, 20).forEach((p) => this.terrain.addBlock(p, BlockType.SELECTION));
+        bresenham3D(1, 0, 10, 10, 0, 20).forEach(p => this.terrain.addBlock(p, BlockType.SELECTION));
 
-        this.stage.addChild(this.viewport);
+        stage.addChild(this.viewport);
         this.blockSelection = [];
     }
 
-    update(delta: number) {
-        this.gameObjectRepository.getActiveGameObjects().forEach((g) => g.update(delta));
+    public update(delta: number): void {
+        this.gameObjects.getActiveGameObjects().forEach(
+            (g): void => {
+                g.update(delta);
+            },
+        );
 
         // Do own sorting
-        this.viewport.children.sort((a, b) => {
-            const aZ = a.zIndex || 0;
-            const bZ = b.zIndex || 0;
-            return sortZYXAsc(createPoint(a.position.x, a.position.y, aZ), createPoint(b.position.x, b.position.y, bZ));
-        });
-
-        // if (this.camera.dirty) {
-        //     this.cull.cull(this.camera.getVisibleBounds());
-        //     this.camera.dirty = false;
-        // }
-
-        // this.selection();
+        this.viewport.children.sort(
+            (a: PIXI.Container, b: PIXI.Container): number => {
+                const aZ = a.zIndex || 0;
+                const bZ = b.zIndex || 0;
+                return sortZYXAsc(
+                    createPoint(a.position.x, a.position.y, aZ),
+                    createPoint(b.position.x, b.position.y, bZ),
+                );
+            },
+        );
     }
 }
 
-function intersects(a: PIXI.Rectangle, b: PIXI.Rectangle) {
-    return (
-        ((a.x + a.width > b.x && a.x + a.width <= b.x + b.width) ||
-            (b.x + b.width > a.x && b.x + b.width <= a.x + a.width)) &&
-        ((a.y + a.height > b.y && a.y + a.height <= b.y + b.height) ||
-            (b.y + b.height > a.y && b.y + b.height <= a.y + a.height))
-    );
-}
+// function intersects(a: PIXI.Rectangle, b: PIXI.Rectangle) {
+//     return (
+//         ((a.x + a.width > b.x && a.x + a.width <= b.x + b.width) ||
+//             (b.x + b.width > a.x && b.x + b.width <= a.x + a.width)) &&
+//         ((a.y + a.height > b.y && a.y + a.height <= b.y + b.height) ||
+//             (b.y + b.height > a.y && b.y + b.height <= a.y + a.height))
+//     );
+// }

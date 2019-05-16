@@ -1,17 +1,52 @@
 {
-	"meta": {
-		"image": "tiles-spritesheet.png",
-		"size": {"w":512,"h":480},
-		"scale": "1"
-	},
-	"frames": {
-		"tiles.png":
-		{
-			"frame": {"x":0,"y":0,"w":512,"h":480},
-			"rotated": false,
-			"trimmed": false,
-			"spriteSourceSize": {"x":0,"y":0,"w":512,"h":480},
-			"sourceSize": {"w":512,"h":480}
-		}
-	}
+    "meta": {
+        "image": "tiles-spritesheet.png",
+        "size": {
+            "w": 512,
+            "h": 480
+        },
+        "scale": "1"
+    },
+    "frames": {
+        "rock_top_left_edge": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 32,
+                "h": 32
+            },
+            "sourceSize": {
+                "w": 32,
+                "h": 32
+            }
+        },
+        "tiles.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 512,
+                "h": 480
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 512,
+                "h": 480
+            },
+            "sourceSize": {
+                "w": 512,
+                "h": 480
+            }
+        }
+    }
 }

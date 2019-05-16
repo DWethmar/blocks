@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const fs = require('fs');
 const path = require('path');
 const version = require(path.resolve(__dirname, 'package.json')).version;
@@ -10,11 +11,11 @@ export const version = '${version}';
 `;
 
 if (version) {
-    fs.writeFile('./app/version.ts', data, (err) => {
+    fs.writeFile('./app/version.ts', data, err => {
         if (err) {
             console.log(err);
             return;
         }
-        console.log("Successfully Written version to File.");
+        console.log('Successfully Written version to File.');
     });
 }
