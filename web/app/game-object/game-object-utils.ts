@@ -1,2 +1,1 @@
-import { Point3D } from "../position/point";
-
+import { Point3D } from '../position/point';

@@ -14,6 +14,10 @@ if (process.env.NODE_ENV === 'development') {
     document.body.appendChild(app.view);
 }
 
+function setup(): void {
+    console.log('Setup');
+}
+
 app.renderer.backgroundColor = 0xf5f5f5;
 app.loader.load(setup);
 
@@ -21,12 +25,10 @@ let game: Game = new Game(app);
 
 // setup ticker
 const ticker = new Ticker();
-ticker.add((delta: number) => {
-    game.update(delta);
-    document.title = `${process.env.TITLE} ${version} FPS:${Math.floor(app.ticker.FPS)}`;
-});
+ticker.add(
+    (delta: number): void => {
+        game.update(delta);
+        document.title = `${process.env.TITLE} ${version} FPS:${Math.floor(app.ticker.FPS)}`;
+    },
+);
 ticker.start();
-
-function setup() {
-    console.log('Setup');
-}

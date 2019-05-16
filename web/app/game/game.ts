@@ -3,16 +3,18 @@ import { Scene } from '../scene/scene';
 import { GameScene } from '../scene/game-scene';
 
 export class Game {
-    readonly stage: PIXI.Container;
-    scene: Scene;
+    private readonly app: PIXI.Application;
+    private readonly stage: PIXI.Container;
+    private scene: Scene;
 
-    constructor(readonly app: PIXI.Application) {
+    public constructor(app: PIXI.Application) {
+        this.app = app;
         this.stage = new PIXI.Container();
         this.app.stage.addChild(this.stage);
         this.scene = new GameScene(this.stage);
     }
 
-    update(delta: number) {
+    public update(delta: number): void {
         this.scene.update(delta);
     }
 }

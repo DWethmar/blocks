@@ -7,7 +7,7 @@ import { Point3D, createPoint } from '../position/point';
 
 declare var noise;
 
-export function createTerrainNoise(terrain: Terrain, type1: BlockType, type2: BlockType, start: Point3D) {
+export function createTerrainNoise(terrain: Terrain, type1: BlockType, type2: BlockType, start: Point3D): void {
     // NOISE
     noise.seed(Math.random());
     for (var x = 0; x < CHUNK_SIZE; x++) {
@@ -24,7 +24,7 @@ export function createTerrainNoise(terrain: Terrain, type1: BlockType, type2: Bl
     }
 }
 
-export function createArch(terrain: Terrain, type: BlockType, start: Point3D) {
+export function createArch(terrain: Terrain, type: BlockType, start: Point3D): void {
     terrain.addBlock(addPos(start, createPoint(0, 0, 0)), type);
     terrain.addBlock(addPos(start, createPoint(0, 0, 1)), type);
     terrain.addBlock(addPos(start, createPoint(0, 0, 2)), type);
@@ -44,19 +44,19 @@ export function createArch(terrain: Terrain, type: BlockType, start: Point3D) {
     terrain.addBlock(addPos(start, createPoint(6, 0, 3)), type);
 }
 
-export function createTower(terrain: Terrain, type: BlockType, start: Point3D) {
+export function createTower(terrain: Terrain, type: BlockType, start: Point3D): void {
     for (let z = 0; z < 20; z++) {
         terrain.addBlock(addPos(start, createPoint(0, 0, z)), type);
     }
 }
 
-export function createBar(terrain: Terrain, type: BlockType, start: Point3D) {
+export function createBar(terrain: Terrain, type: BlockType, start: Point3D): void {
     for (let x = 0; x < 20; x++) {
         terrain.addBlock(addPos(start, createPoint(x, 0, 0)), type);
     }
 }
 
-export function createGround(terrain: Terrain, type: BlockType, start: Point3D) {
+export function createGround(terrain: Terrain, type: BlockType, start: Point3D): void {
     for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let y = 0; y < CHUNK_SIZE; y++) {
             terrain.addBlock(addPos(start, createPoint(x, y, 0)), type);
@@ -64,7 +64,7 @@ export function createGround(terrain: Terrain, type: BlockType, start: Point3D) 
     }
 }
 
-export function createCheckers(terrain: Terrain, type: BlockType, type2: BlockType, start: Point3D) {
+export function createCheckers(terrain: Terrain, type: BlockType, type2: BlockType, start: Point3D): void {
     for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let y = 0; y < CHUNK_SIZE; y++) {
             terrain.addBlock(addPos(start, createPoint(x, y, 0)), (x + y) % 2 == 0 ? type : type2);

@@ -1,42 +1,42 @@
 import { GameObject } from './game-object';
 
 export class GameObjectRepository {
-    gameObjects: { [id: string]: GameObject };
-    activeGameObjects: Set<string>;
+    public gameObjects: { [id: string]: GameObject };
+    public activeGameObjects: Set<string>;
 
-    constructor() {
+    public constructor() {
         this.gameObjects = {};
         this.activeGameObjects = new Set<string>();
     }
 
-    getGameObject(id: string): GameObject {
+    public getGameObject(id: string): GameObject {
         if (this.hasGameObject(id)) {
             return this.gameObjects[id];
         }
         return null;
     }
 
-    setGameObject(gameObject: GameObject) {
+    public setGameObject(gameObject: GameObject): void {
         this.gameObjects[gameObject.id] = gameObject;
     }
 
-    hasGameObject(id: string): boolean {
+    public hasGameObject(id: string): boolean {
         return this.gameObjects.hasOwnProperty(id);
     }
 
-    activateGameObject(id: string): void {
+    public activateGameObject(id: string): void {
         this.activeGameObjects.add(id);
     }
 
-    deactivateGameObject(id: string): boolean {
+    public deactivateGameObject(id: string): boolean {
         return this.activeGameObjects.delete(id);
     }
 
-    isGameObjectActive(id: string): boolean {
+    public isGameObjectActive(id: string): boolean {
         return this.activeGameObjects.has(id);
     }
 
-    getActiveGameObjects(): GameObject[] {
-        return Array.from(this.activeGameObjects).map((id) => this.gameObjects[id]);
+    public getActiveGameObjects(): GameObject[] {
+        return Array.from(this.activeGameObjects).map(id => this.gameObjects[id]);
     }
 }

@@ -14,15 +14,15 @@ export class Player extends GameObject {
     private angle = 0;
     private center: Point3D;
 
-    get drawX(): number {
+    public get drawX(): number {
         return this.position.x;
     }
 
-    get drawY(): number {
+    public get drawY(): number {
         return this.position.y - this.position.z + BLOCK_SIZE * CHUNK_SIZE;
     }
 
-    constructor(id: string, readonly stage: PIXI.Container, position: Point3D) {
+    public constructor(id: string, stage: PIXI.Container, position: Point3D) {
         super(id, position);
 
         this.playerView = new PIXI.Container();
@@ -40,10 +40,10 @@ export class Player extends GameObject {
 
         this.playerView.zIndex = Math.ceil(this.position.z);
 
-        this.stage.addChild(this.playerView);
+        stage.addChild(this.playerView);
     }
 
-    update(delta: number) {
+    public update(delta: number): void {
         this.angle += this.RotateSpeed * delta;
 
         const offset = multiply(this.Radius, createPoint(Math.sin(this.angle), Math.cos(this.angle), 0));

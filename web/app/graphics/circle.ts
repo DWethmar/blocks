@@ -1,15 +1,10 @@
-import * as PIXI from "pixi.js";
+import * as PIXI from 'pixi.js';
 
-export const createCircleGraphic = (
-    x: number,
-    y: number,
-    radius: number,
-    color: number
-) => {
+export function createCircleGraphic(x: number, y: number, radius: number, color: number): PIXI.Graphics {
     const circle = new PIXI.Graphics();
 
     circle.beginFill(color);
     circle.drawCircle(x, y, radius);
 
     return circle;
-};
+}

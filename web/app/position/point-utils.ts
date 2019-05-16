@@ -1,22 +1,23 @@
 import { Point3D, createPoint } from './point';
+import { Point } from 'pixi.js';
 
 export const getX = (a: Point3D): number => a.x;
 export const getY = (a: Point3D): number => a.y;
 export const getZ = (a: Point3D): number => a.z;
 
-export function isWithin(target: Point3D, start: Point3D, end: Point3D) {
+export function isWithin(target: Point3D, start: Point3D, end: Point3D): boolean {
     return [
         target.x > start.x && target.x < end.x,
         target.y > start.y && target.y < end.y,
-        target.z > start.z && target.z < end.z
-    ].every((x) => !!x);
+        target.z > start.z && target.z < end.z,
+    ].every((x): boolean => !!x);
 }
 
 export function addPos(a: Point3D, b: Point3D): Point3D {
     return {
         x: a.x + b.x,
         y: a.y + b.y,
-        z: a.z + b.z
+        z: a.z + b.z,
     };
 }
 
@@ -24,24 +25,24 @@ export function minusPos(a: Point3D, b: Point3D): Point3D {
     return {
         x: a.x - b.x,
         y: a.y - b.y,
-        z: a.z - b.z
+        z: a.z - b.z,
     };
 }
 
-export function floorPos(point: Point3D) {
+export function floorPos(point: Point3D): Point3D {
     return createPoint(Math.floor(point.x), Math.floor(point.y), Math.floor(point.z));
 }
 
-export function isEqual(a: Point3D, b: Point3D) {
+export function isEqual(a: Point3D, b: Point3D): boolean {
     return getX(a) === getX(b) && getY(a) === getY(b) && getZ(a) === getZ(b);
 }
 
-export function positionId(c: Point3D) {
+export function positionId(c: Point3D): string {
     return `${c.x}.${c.y}.${c.z}`;
 }
 
 // https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
-export function bresenham3D(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number) {
+export function bresenham3D(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Point3D[] {
     const listOfPoints: Point3D[] = [];
     listOfPoints.push({ x: x1, y: y1, z: z1 });
     let dx = Math.abs(x2 - x1);

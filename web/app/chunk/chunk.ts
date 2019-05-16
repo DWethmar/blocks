@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+
 import { GameObject } from '../game-object/game-object';
 import { Block } from '../block/block';
 import { BlockIndex } from '../position/block-index';
@@ -13,7 +14,11 @@ import { getBlockId } from '../block/block-utils';
 import { floorPos } from '../position/point-utils';
 
 export class Chunk extends GameObject {
-    readonly blocks: Map<string, Block> = new Map<string, Block>();
+    public readonly blocks: Map<string, Block> = new Map<string, Block>();
+
+    public readonly stage: PIXI.Container;
+    public readonly terrain: Terrain;
+    public readonly vector3D: Point3D;
 
     public blocksToRender: string[] = [];
     public hasChanged = false;
@@ -21,18 +26,16 @@ export class Chunk extends GameObject {
     public blockIndex: BlockIndex = null;
     public chunkIndex: ChunkIndex = null;
 
-	/**
+    /**
      * layers are the cross-section of a chunk on the Y axis (back to front).
      */
     private layers: PIXI.Container[] = [];
 
-    constructor(
-        readonly id: string,
-        readonly stage: PIXI.Container,
-        readonly terrain: Terrain,
-        readonly vector3D: Point3D
-    ) {
-        super(id, vector3D);
+    public constructor(id: string, stage: PIXI.Container, terrain: Terrain, position: Point3D) {
+        super(id, position);
+
+        this.stage = stage;
+        this.terrain = terrain;
 
         this.chunkIndex = new ChunkIndex(this.position);
         this.blockIndex = new BlockIndex(this.position);
@@ -41,19 +44,19 @@ export class Chunk extends GameObject {
             this.position.x,
             this.position.y,
             CHUNK_SIZE * BLOCK_SIZE,
-            CHUNK_SIZE * BLOCK_SIZE * 2
+            CHUNK_SIZE * BLOCK_SIZE * 2,
         );
     }
 
-    public show() {
-        this.layers.forEach((l) => (l.visible = true));
+    public show(): void {
+        this.layers.forEach((l): void => void (l.visible = true));
     }
 
-    public hide() {
-        this.layers.forEach((l) => (l.visible = false));
+    public hide(): void {
+        this.layers.forEach((l): void => void (l.visible = false));
     }
 
-    update(delta: number) {
+    public update(delta: number): void {
         if (!this.hasChanged) {
             return;
         }
@@ -63,80 +66,85 @@ export class Chunk extends GameObject {
         this.blocksToRender = getVisibleBlocks(this);
 
         // Sort
-        this.blocksToRender.sort((idA, idB) => {
-            return sortZYXAsc(this.blocks.get(idA).position, this.blocks.get(idB).position);
-        });
+        this.blocksToRender.sort(
+            (idA, idB): number => {
+                return sortZYXAsc(this.blocks.get(idA).position, this.blocks.get(idB).position);
+            },
+        );
 
         const blockLayers: PIXI.Container[] = [];
 
-        this.blocksToRender.forEach((id) => {
-            const block = this.blocks.get(id);
+        this.blocksToRender.forEach(
+            (id): void => {
+                const block = this.blocks.get(id);
 
-            const index = block.position.y;
-            let layer = null;
+                const index = block.position.y;
+                let layer = null;
 
-            if (blockLayers[index]) {
-                layer = blockLayers[index];
-            } else {
-                layer = new PIXI.Container();
-                layer.sortableChildren = false;
-                layer.name = `BlockLayer: ${this.position.x} ${this.position.y} ${this.position.z}`;
-                blockLayers[index] = layer;
-            }
+                if (blockLayers[index]) {
+                    layer = blockLayers[index];
+                } else {
+                    layer = new PIXI.Container();
+                    layer.sortableChildren = false;
+                    layer.name = `BlockLayer: ${this.position.x} ${this.position.y} ${this.position.z}`;
+                    blockLayers[index] = layer;
+                }
 
-            block.renderViews(this);
-            block.getViews().forEach((v) => layer.addChild(v));
-        });
+                block.renderViews(this);
+                block.getViews().forEach(v => layer.addChild(v));
+            },
+        );
 
         // Clear that shit.
-        this.layers.forEach((l) => l.removeChildren());
+        this.layers.forEach((l): void => void l.removeChildren());
 
-        blockLayers.forEach((graphics, i) => {
-            let layer = null;
-            if (this.layers[i]) {
-                layer = this.layers[i];
-            } else {
-                layer = new PIXI.Container();
-                layer.sortableChildren = false;
-                // layer.cacheAsBitmap = true;
-                layer.zIndex = i;
-                layer.position.set(this.position.x, this.position.y);
-                layer.name = `ChunkLayer: ${this.position.x} ${this.position.y} ${this.position.z}`;
-                this.layers[i] = layer;
-                this.stage.addChild(layer);
-            }
-            layer.addChild(graphics);
-        });
-
+        blockLayers.forEach(
+            (graphics, i): void => {
+                let layer = null;
+                if (this.layers[i]) {
+                    layer = this.layers[i];
+                } else {
+                    layer = new PIXI.Container();
+                    layer.sortableChildren = false;
+                    // layer.cacheAsBitmap = true;
+                    layer.zIndex = i;
+                    layer.position.set(this.position.x, this.position.y);
+                    layer.name = `ChunkLayer: ${this.position.x} ${this.position.y} ${this.position.z}`;
+                    this.layers[i] = layer;
+                    this.stage.addChild(layer);
+                }
+                layer.addChild(graphics);
+            },
+        );
         this.hasChanged = false;
     }
 
-    isEmpty(position: Point3D): boolean {
+    public isEmpty(position: Point3D): boolean {
         const block = this.getBlock(position);
         return !block || (!!block && block.transparent);
     }
 
-    getBlock(worldPosition: Point3D): Block | null {
+    public getBlock(worldPosition: Point3D): Block | null {
         return this.blocks.get(getBlockId(worldPosition)) || null;
     }
 
-    addBlock(block: Block): Block {
+    public addBlock(block: Block): Block {
         this.blocks.set(getBlockId(block.blockIndex.point), block);
         this.hasChanged = true;
         return block;
     }
 
-    removeBlock(position: Point3D): Block {
+    public removeBlock(position: Point3D): Block {
         this.hasChanged = true;
         const block = this.getBlock(position);
         this.blocks.delete(getBlockId(position));
         return block;
     }
 
-    getCenter(): PIXI.Point {
+    public getCenter(): PIXI.Point {
         return new PIXI.Point(
-            this.position.x + CHUNK_SIZE * BLOCK_SIZE / 2,
-            this.position.y - this.position.z + CHUNK_SIZE * BLOCK_SIZE / 2
+            this.position.x + (CHUNK_SIZE * BLOCK_SIZE) / 2,
+            this.position.y - this.position.z + (CHUNK_SIZE * BLOCK_SIZE) / 2,
         );
     }
 }

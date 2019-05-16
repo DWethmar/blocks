@@ -1,14 +1,14 @@
-import * as PIXI from "pixi.js";
+import * as PIXI from 'pixi.js';
 
-export const createLineGraphic = (
+export function createLineGraphic(
     x: number,
     y: number,
     xA: number,
     yA: number,
     xB: number,
     yB: number,
-    color: number
-) => {
+    color: number,
+): PIXI.Graphics {
     const line = new PIXI.Graphics();
     line.lineStyle(2, color, 1);
 
@@ -21,4 +21,4 @@ export const createLineGraphic = (
     line.lineTo(xB, yB);
 
     return line;
-};
+}
