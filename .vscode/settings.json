@@ -17,4 +17,6 @@
 	"cSpell.words": [
 		"spritesheets"
 	],
+	"editor.formatOnPaste": true,
+	"editor.formatOnType": true,
 }

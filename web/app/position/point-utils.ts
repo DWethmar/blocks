@@ -1,5 +1,4 @@
 import { Point3D, createPoint } from './point';
-import { Point } from 'pixi.js';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 
 export const getX = (a: Point3D): number => a.x;
@@ -30,8 +29,15 @@ export function minusPos(a: Point3D, b: Point3D): Point3D {
     };
 }
 
+export function isIntegerPoint3D(point: Point3D): boolean {
+    return [point.x, point.y, point.z].every((axis): boolean => Number.isInteger(axis));
+}
+
 export function floorPos(point: Point3D): Point3D {
-    return createPoint(Math.floor(point.x), Math.floor(point.y), Math.floor(point.z));
+    point.x = Math.floor(point.x);
+    point.y = Math.floor(point.y);
+    point.z = Math.floor(point.z);
+    return point;
 }
 
 export function isEqual(a: Point3D, b: Point3D): boolean {
@@ -42,19 +48,35 @@ export function positionId(c: Point3D): string {
     return `${c.x}.${c.y}.${c.z}`;
 }
 
-export function positionToChunkIndex(position: Point3D): Point3D {
-    return createPoint(
-        Math.floor(position.x / (BLOCK_SIZE * CHUNK_SIZE)),
-        Math.floor(position.y / (BLOCK_SIZE * CHUNK_SIZE)),
-        Math.floor(position.z / (BLOCK_SIZE * CHUNK_SIZE)),
-    );
+export function convertblockIndexToChunkIndex(index: Point3D): Point3D {
+    return floorPos(createPoint(
+        index.x / CHUNK_SIZE,
+        index.y / CHUNK_SIZE,
+        index.z / CHUNK_SIZE,
+    ));
 }
 
-export function positionToBlockIndex(position: Point3D): Point3D {
+export function convertPositionToChunkIndex(position: Point3D): Point3D {
+    return floorPos(createPoint(
+      position.x / (BLOCK_SIZE * CHUNK_SIZE),
+      position.y / (BLOCK_SIZE * CHUNK_SIZE),
+      position.z / (BLOCK_SIZE * CHUNK_SIZE),
+    ))
+}
+
+export function convertPositionToBlockIndex(position: Point3D): Point3D {
+    return floorPos(createPoint(
+      position.x / BLOCK_SIZE,
+      position.y / BLOCK_SIZE,
+      position.z / BLOCK_SIZE,
+    ))
+}
+
+export function convertBlockIndexToLocalChunkIndex(blockIndex: Point3D) {
     return createPoint(
-        Math.floor(position.x / BLOCK_SIZE),
-        Math.floor(position.y / BLOCK_SIZE),
-        Math.floor(position.z / BLOCK_SIZE),
+        blockIndex.x % CHUNK_SIZE,
+        blockIndex.y % CHUNK_SIZE,
+        blockIndex.z % CHUNK_SIZE,
     );
 }
 

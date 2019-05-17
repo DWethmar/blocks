@@ -1,107 +1,84 @@
 import * as PIXI from 'pixi.js';
 
 import { Scene } from '../scene/scene';
-import { Point3D } from '../position/point';
+import { Point3D, createPoint } from '../position/point';
 import { Block, createBlock } from '../block/block';
-import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
+import { BLOCK_SIZE, CHUNK_SIZE, WORLD_SIZE } from '../config';
 import { multiply } from '../calc/calc';
-import { Chunk, chunkDivider, createChunk, setBlock, getBlock, createBlockSelector } from '../chunk/chunk';
+import { Chunk, createChunk } from '../chunk/chunk';
 import { BlockType } from '../block/block-type';
-import { getChunkId } from '../chunk/chunk-utils';
-import { addPos, positionToChunkIndex } from '../position/point-utils';
+import {
+    isIntegerPoint3D,
+    convertblockIndexToChunkIndex as chunkIndexFromBlockIndex,
+    convertblockIndexToChunkIndex,
+} from '../position/point-utils';
+import { GameObject } from '../game-object/game-object';
+import { collection3d, getPointInCollection3D, setPointInCollection3D, createCollection3D } from '../collection/collection';
+import { GameObjectRepository } from '../game-object/game-object-repository';
 
-export class Terrain {
-    private readonly stage: PIXI.Container;
-    private readonly scene: Scene;
+export function updateTerrain(terrain: Terrain, scene: Scene): void {
+    console.log('Nothing to do fml', terrain, scene);
+}
 
-    public constructor(stage: PIXI.Container, scene: Scene) {
-        this.stage = stage;
-        this.scene = scene;
-    }
+export type blockSetter = (blockIndex: Point3D, type: BlockType) => Block;
+export type blockGetter = (blockIndex: Point3D) => Block;
 
-    /**
-     * @param blockIndex The world position of the block.
-     * @param type
-     */
-    public addBlock(blockIndex: Point3D, type: BlockType): void {
-        const blockPosition = multiply(BLOCK_SIZE, blockIndex);
-        const block = createBlock('', blockPosition, type);
 
-        const p = positionToChunkIndex(blockPosition);
-        let chunk = this.getChunk(positionToChunkIndex(p));
-        if (!chunk) {
-            chunk = this.createChunk(p);
-        }
-        chunk.blocks = setBlock(block, chunk.blocks);
-    }
+export interface Terrain extends GameObject {
+    chunks: collection3d<Chunk>;
+    setBlock: blockSetter;
+    getBlock: blockGetter;
+}
 
-    public getBlock(worldPosition: Point3D): Block {
-        const blockPosition = multiply(BLOCK_SIZE, worldPosition);
-        const chunkIndex = chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition);
-        const chunk = this.getChunk(chunkIndex);
 
-        if (chunk) {
-            return createBlockSelector(chunk)(worldPosition) || createBlock('', worldPosition, BlockType.AIR);
-        }
-        return null;
-    }
+export function createBlockSetter(chunks: collection3d<Chunk>, gameObjects: GameObjectRepository): blockSetter {
+    return function(index, type): Block {
+        if (isIntegerPoint3D(index)) {
+            const chunkIndex = chunkIndexFromBlockIndex(index);
+            let chunk = getPointInCollection3D(chunkIndex, chunks);
+            // Create chunk if not exist
+            if (!chunk) {
+                chunk = createChunk(
+                    `chunk-${chunkIndex.x}.${chunkIndex.y}.${chunkIndex.z}`,
+                    multiply(CHUNK_SIZE * BLOCK_SIZE, chunkIndex),
+                );
+                setPointInCollection3D(chunkIndex, chunks, chunk);
 
-    public hasBlock(blockIndex: Point3D): boolean {
-        const chunkIndex = multiply(CHUNK_SIZE * BLOCK_SIZE, blockIndex);
-        const chunk = this.getChunk(chunkIndex);
-        if (chunk) {
-            return !!createBlockSelector(chunk)(blockIndex);
-        }
-        return null;
-    }
-
-    public hasChunk(chunkIndex: Point3D): boolean {
-        return this.scene.gameObjects.hasGameObject(getChunkId(chunkIndex));
-    }
-
-    public removeBlock(blockIndex: Point3D): void {
-        let chunk = this.getChunk(blockIndex);
-        if (chunk) {
-            // chunk.removeBlock(blockIndex);
-        }
-    }
-
-    public getChunk(chunkPosition: Point3D): Chunk | null {
-        const chunkId = getChunkId(chunkPosition);
-        if (this.scene.hasGameObject(chunkId)) {
-            return this.scene.getGameObjectById(chunkId) as Chunk;
-        }
-        return null;
-    }
-
-    public createChunk(index: Point3D): Chunk {
-        const chunkPosition = multiply(CHUNK_SIZE * BLOCK_SIZE, index);
-
-        const chunk = createChunk(getChunkId(index), chunkPosition, this);
-
-        this.scene.setGameObject(chunk);
-        this.scene.activateGameObject(chunk.id);
-
-        console.log(`Created Chunk with id: ${getChunkId(chunk.position)} for position: ${chunk.chunkIndex.point}`);
-
-        return chunk;
-    }
-
-    public raycast(start: Point3D, direction: Point3D): Block | null {
-        const block = this.getBlock(start);
-
-        if (block) {
-            if (block.type !== BlockType.AIR) {
-                return block;
+                // Register the new chunk
+                gameObjects.setGameObject(chunk);
+                gameObjects.activateGameObject(chunk.id);
             }
-        } else {
-            return null;
+            const block = createBlock(null, multiply(BLOCK_SIZE, index), type);
+            chunk.setBlock(block);
+            return block;
         }
+        return null;
+    };
+}
 
-        return this.raycast(addPos(start, direction), direction);
-    }
+export function createBlockGetter(chunks: collection3d<Chunk>, gameObjects: GameObjectRepository): blockGetter {
+    return function (index): Block {
+        if (isIntegerPoint3D(index)) {
+            const chunkIndex = convertblockIndexToChunkIndex(index);
+            let chunk = getPointInCollection3D(chunkIndex, chunks);
+            // Create chunk if not exist
+            if (!chunk) {
+                return null;
+            }
+            return chunk.getBlock(index);;
+        }
+        return null;
+    };
+}
 
-    public update(delta: number): void {
-        // @TODO
-    }
+export function createTerrain(id: string, gameObjects: GameObjectRepository): Terrain {
+    const chunks = createCollection3D<Chunk>(WORLD_SIZE);
+    return {
+        id: id,
+        position: createPoint(),
+        chunks: chunks,
+        components: [updateTerrain.name],
+        setBlock: createBlockSetter(chunks, gameObjects),
+        getBlock: createBlockGetter(chunks, gameObjects)
+    };
 }

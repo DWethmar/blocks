@@ -5,5 +5,5 @@ export interface Point3D {
 }
 
 export function createPoint(x?: number, y?: number, z?: number): Point3D {
-    return { x: x || 0, y: y || 0, z: z || 0 };
+    return { x: !!x ? x : 0, y: !!y ? y : 0, z: !!z ? z : 0 };
 }

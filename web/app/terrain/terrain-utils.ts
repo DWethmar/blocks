@@ -16,50 +16,50 @@ export function createTerrainNoise(terrain: Terrain, type1: BlockType, type2: Bl
             value *= 256 / 28;
             const z = Math.ceil(value);
 
-            terrain.addBlock(addPos(start, createPoint(x, y, z)), type1);
+            terrain.setBlock(addPos(start, createPoint(x, y, z)), type1);
             for (let zz = z - 1; zz > 0; zz--) {
-                terrain.addBlock(addPos(start, createPoint(x, y, zz)), type2);
+                terrain.setBlock(addPos(start, createPoint(x, y, zz)), type2);
             }
         }
     }
 }
 
 export function createArch(terrain: Terrain, type: BlockType, start: Point3D): void {
-    terrain.addBlock(addPos(start, createPoint(0, 0, 0)), type);
-    terrain.addBlock(addPos(start, createPoint(0, 0, 1)), type);
-    terrain.addBlock(addPos(start, createPoint(0, 0, 2)), type);
-    terrain.addBlock(addPos(start, createPoint(0, 0, 3)), type);
+    terrain.setBlock(addPos(start, createPoint(0, 0, 0)), type);
+    terrain.setBlock(addPos(start, createPoint(0, 0, 1)), type);
+    terrain.setBlock(addPos(start, createPoint(0, 0, 2)), type);
+    terrain.setBlock(addPos(start, createPoint(0, 0, 3)), type);
 
-    terrain.addBlock(addPos(start, createPoint(0, 0, 4)), type);
-    terrain.addBlock(addPos(start, createPoint(1, 0, 5)), type);
-    terrain.addBlock(addPos(start, createPoint(2, 0, 6)), type);
-    terrain.addBlock(addPos(start, createPoint(3, 0, 6)), type);
-    terrain.addBlock(addPos(start, createPoint(4, 0, 6)), type);
-    terrain.addBlock(addPos(start, createPoint(5, 0, 5)), type);
-    terrain.addBlock(addPos(start, createPoint(6, 0, 4)), type);
+    terrain.setBlock(addPos(start, createPoint(0, 0, 4)), type);
+    terrain.setBlock(addPos(start, createPoint(1, 0, 5)), type);
+    terrain.setBlock(addPos(start, createPoint(2, 0, 6)), type);
+    terrain.setBlock(addPos(start, createPoint(3, 0, 6)), type);
+    terrain.setBlock(addPos(start, createPoint(4, 0, 6)), type);
+    terrain.setBlock(addPos(start, createPoint(5, 0, 5)), type);
+    terrain.setBlock(addPos(start, createPoint(6, 0, 4)), type);
 
-    terrain.addBlock(addPos(start, createPoint(6, 0, 0)), type);
-    terrain.addBlock(addPos(start, createPoint(6, 0, 1)), type);
-    terrain.addBlock(addPos(start, createPoint(6, 0, 2)), type);
-    terrain.addBlock(addPos(start, createPoint(6, 0, 3)), type);
+    terrain.setBlock(addPos(start, createPoint(6, 0, 0)), type);
+    terrain.setBlock(addPos(start, createPoint(6, 0, 1)), type);
+    terrain.setBlock(addPos(start, createPoint(6, 0, 2)), type);
+    terrain.setBlock(addPos(start, createPoint(6, 0, 3)), type);
 }
 
 export function createTower(terrain: Terrain, type: BlockType, start: Point3D): void {
     for (let z = 0; z < 20; z++) {
-        terrain.addBlock(addPos(start, createPoint(0, 0, z)), type);
+        terrain.setBlock(addPos(start, createPoint(0, 0, z)), type);
     }
 }
 
 export function createBar(terrain: Terrain, type: BlockType, start: Point3D): void {
     for (let x = 0; x < 20; x++) {
-        terrain.addBlock(addPos(start, createPoint(x, 0, 0)), type);
+        terrain.setBlock(addPos(start, createPoint(x, 0, 0)), type);
     }
 }
 
 export function createGround(terrain: Terrain, type: BlockType, start: Point3D): void {
     for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let y = 0; y < CHUNK_SIZE; y++) {
-            terrain.addBlock(addPos(start, createPoint(x, y, 0)), type);
+            terrain.setBlock(addPos(start, createPoint(x, y, 0)), type);
         }
     }
 }
@@ -67,7 +67,7 @@ export function createGround(terrain: Terrain, type: BlockType, start: Point3D):
 export function createCheckers(terrain: Terrain, type: BlockType, type2: BlockType, start: Point3D): void {
     for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let y = 0; y < CHUNK_SIZE; y++) {
-            terrain.addBlock(addPos(start, createPoint(x, y, 0)), (x + y) % 2 == 0 ? type : type2);
+            terrain.setBlock(addPos(start, createPoint(x, y, 0)), (x + y) % 2 == 0 ? type : type2);
         }
     }
 }

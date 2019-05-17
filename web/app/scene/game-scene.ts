@@ -1,42 +1,55 @@
 import * as PIXI from 'pixi.js';
 import { sortZYXAsc } from '../calc/sort';
-import { createArch, createCheckers, createTerrainNoise, createTower } from '../terrain/terrain-utils';
+import {
+    createArch,
+    createCheckers,
+    createTerrainNoise,
+    createTower,
+} from '../terrain/terrain-utils';
 import { BlockType } from '../block/block-type';
 import { Scene, LoadAssetParams } from './scene';
-import { Terrain } from '../terrain/terrain';
-import { addPos, bresenham3D, getX, getY, getZ, minusPos } from '../position/point-utils';
+import { Terrain, updateTerrain, createTerrain } from '../terrain/terrain';
+import {
+    bresenham3D, addPos,
+} from '../position/point-utils';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
-import { Player } from '../player/player';
+import { Player, createPlayer } from '../player/player';
 import { Point3D, createPoint } from '../position/point';
-
+import { GameComponent } from '../game-component/game-component';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 var Viewport = require('pixi-viewport');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-import data from '../../assets/spritesheets/tiles-spritesheet.json';
-import image from '../../assets/spritesheets/tiles-spritesheet.png';
+// import data from '../../assets/spritesheets/tiles-spritesheet.json';
+// import image from '../../assets/spritesheets/tiles-spritesheet.png';
+import { updateChunk } from '../chunk/chunk';
 
 export class GameScene extends Scene {
     private terrain: Terrain;
-    private blockSelection: Point3D[];
+
+    // public stage: Viewport;
+
 
     public constructor(stage: PIXI.Container) {
         super();
 
-        this.loadAndRegisterAsset(
-            new Promise<LoadAssetParams>(
-                (resolve, reject): void => {
-                    const baseTexture = new PIXI.BaseTexture(image);
-                    const spritesheet = new PIXI.Spritesheet(baseTexture, data);
-                    spritesheet.parse(function(textures): void {
-                        resolve({
-                            name: 'spritesheet',
-                            asset: spritesheet,
-                        });
-                    });
-                },
-            ),
-        );
+        this.gameComponents.setGameComponent(updateChunk);
+        this.gameComponents.setGameComponent(updateTerrain);
+
+        // this.loadAndRegisterAsset(
+        //     new Promise<LoadAssetParams>(
+        //         (resolve, reject): void => {
+        //             const baseTexture = new PIXI.BaseTexture(image);
+        //             const spritesheet = new PIXI.Spritesheet(baseTexture, data);
+        //             spritesheet.parse(function(textures): void {
+        //                 resolve({
+        //                     name: 'spritesheet',
+        //                     asset: spritesheet,
+        //                 });
+        //             });
+        //         },
+        //     ),
+        // );
 
         this.stage = new Viewport({
             screenWidth: window.innerWidth,
@@ -46,7 +59,7 @@ export class GameScene extends Scene {
             // interaction: app.renderer.plugins.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
         });
 
-        // this.stage
+        // (this.stage as Viewport)
         //     .drag()
         //     .pinch()
         //     .wheel()
@@ -54,7 +67,7 @@ export class GameScene extends Scene {
 
         this.stage.sortableChildren = false;
 
-        this.terrain = new Terrain(this.stage, this);
+        this.terrain = createTerrain('terrain', this.gameObjects);
         this.gameObjects.setGameObject(this.terrain);
 
         createCheckers(this.terrain, BlockType.GRASS, BlockType.VOID, createPoint());
@@ -68,46 +81,75 @@ export class GameScene extends Scene {
                     this.terrain,
                     BlockType.GRASS,
                     BlockType.VOID,
-                    addPos(createPoint(CHUNK_SIZE, -1, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
+                    addPos(createPoint(CHUNK_SIZE, 0, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
                 );
                 createTerrainNoise(
                     this.terrain,
                     BlockType.GRASS,
                     BlockType.ROCK,
-                    addPos(createPoint(CHUNK_SIZE, -1, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
+                    addPos(createPoint(CHUNK_SIZE, 0, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
                 );
             }
         }
 
-        this.terrain.addBlock(createPoint(0, 0, 1), BlockType.ROCK);
-        this.terrain.addBlock(createPoint(1, 0, 1), BlockType.ROCK);
-        this.terrain.addBlock(createPoint(2, 0, 1), BlockType.ROCK);
-        this.terrain.addBlock(createPoint(3, 0, 1), BlockType.ROCK);
-        this.terrain.addBlock(createPoint(2, 0, 1), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(0, 0, 1), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(1, 0, 1), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(2, 0, 1), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(3, 0, 1), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(2, 0, 1), BlockType.ROCK);
 
-        this.terrain.addBlock(createPoint(8, 0, 1), BlockType.GRASS);
-        this.terrain.addBlock(createPoint(11, 0, 1), BlockType.GRASS);
-        this.terrain.addBlock(createPoint(CHUNK_SIZE, 0, 1), BlockType.VOID);
+        this.terrain.setBlock(createPoint(8, 0, 1), BlockType.GRASS);
+        this.terrain.setBlock(createPoint(11, 0, 1), BlockType.GRASS);
+        this.terrain.setBlock(createPoint(CHUNK_SIZE, 0, 1), BlockType.VOID);
 
-        this.gameObjects.setGameObject(new Player('zoink', this.viewport, createPoint(75, 10, 10)));
+        this.gameObjects.setGameObject(
+            createPlayer('zoink', createPoint(75, 10, 10)),
+        );
         this.gameObjects.activateGameObject('zoink');
 
         // Test Line
-        bresenham3D(1, 0, 10, 10, 0, 20).forEach(p => this.terrain.addBlock(p, BlockType.SELECTION));
+        // bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
+        //     this.terrain.setBlock(p, BlockType.SELECTION),
+        // );
+        // bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
+        //     this.terrain.setBlock(p, BlockType.SELECTION),
+        // );
+        stage.addChild(this.stage);
 
-        stage.addChild(this.viewport);
-        this.blockSelection = [];
+        console.log(this.gameObjects);
     }
 
     public update(delta: number): void {
+        this.delta = delta;
+
         this.gameObjects.getActiveGameObjects().forEach(
-            (g): void => {
-                g.update(delta);
+            (gameObject): void => {
+                gameObject.components &&
+                    gameObject.components
+                        .reduce((components, component) => {
+                            if (
+                                this.gameComponents.hasGameComponent(component)
+                            ) {
+                                components.push(
+                                    this.gameComponents.getGameComponentById(
+                                        component,
+                                    ),
+                                );
+                            } else {
+                                throw Error(
+                                    `Component ${component} does not exists on ${
+                                        gameObject.id
+                                    }`,
+                                );
+                            }
+                            return components;
+                        }, [])
+                        .forEach(component => component(gameObject, this));
             },
         );
 
         // Do own sorting
-        this.viewport.children.sort(
+        this.stage.children.sort(
             (a: PIXI.Container, b: PIXI.Container): number => {
                 const aZ = a.zIndex || 0;
                 const bZ = b.zIndex || 0;
@@ -119,12 +161,3 @@ export class GameScene extends Scene {
         );
     }
 }
-
-// function intersects(a: PIXI.Rectangle, b: PIXI.Rectangle) {
-//     return (
-//         ((a.x + a.width > b.x && a.x + a.width <= b.x + b.width) ||
-//             (b.x + b.width > a.x && b.x + b.width <= a.x + a.width)) &&
-//         ((a.y + a.height > b.y && a.y + a.height <= b.y + b.height) ||
-//             (b.y + b.height > a.y && b.y + b.height <= a.y + a.height))
-//     );
-// }

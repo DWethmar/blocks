@@ -4,8 +4,8 @@ import { GameObject } from '../game-object/game-object';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { BlockType } from './block-type';
 import { Point3D, createPoint } from '../position/point';
-import { Chunk, getBlock } from '../chunk/chunk';
-import { addPos } from '../position/point-utils';
+import { Chunk } from '../chunk/chunk';
+import { addPos, convertPositionToBlockIndex, convertBlockIndexToLocalChunkIndex } from '../position/point-utils';
 import { createLineGraphic } from '../graphics/line';
 import { Terrain } from '../terrain/terrain';
 import { Scene } from '../scene/scene';
@@ -19,18 +19,18 @@ export interface Block extends GameObject {
     views: PIXI.Container[];
 }
 
-function renderTop(blockIndex: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
-    const drawX = 0;
-    const drawY = BLOCK_SIZE;
+function renderTop(blockIndex: Point3D, localIndex: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
+    const drawX = localIndex.x * BLOCK_SIZE;
+    const drawY = localIndex.y * BLOCK_SIZE;
 
     const neighbors = {
-        front: terrain.hasBlock(addPos(blockIndex, createPoint(0, 1, 0))),
+        front: terrain.getBlock(addPos(blockIndex, createPoint(0, 1, 0))),
     };
 
     if (!neighbors.front) {
         let frontColor = null;
         // Front
-        switch (this.type) {
+        switch (type) {
             case BlockType.ROCK:
                 frontColor = 0x5a5a5a;
                 break;
@@ -52,9 +52,9 @@ function renderTop(blockIndex: Point3D, type: BlockType, terrain: Terrain): PIXI
     }
 }
 
-function renderBottom(position: Point3D, type: BlockType): PIXI.DisplayObject {
-    const drawX = 0;
-    const drawY = BLOCK_SIZE;
+function renderBottom(blockIndex: Point3D, localIndex: Point3D,  type: BlockType): PIXI.DisplayObject {
+    const drawX = localIndex.x * BLOCK_SIZE;
+    const drawY = localIndex.y * BLOCK_SIZE;
 
     let topColor = null;
     // Top
@@ -79,18 +79,18 @@ function renderBottom(position: Point3D, type: BlockType): PIXI.DisplayObject {
     return sprite;
 }
 
-function renderBlockOutline(position: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
-    const drawX = 0;
-    const drawY = BLOCK_SIZE;
+function renderBlockOutline(blockIndex: Point3D, localIndex: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
+    const drawX = localIndex.x * BLOCK_SIZE;
+    const drawY = localIndex.y * BLOCK_SIZE;
 
     const neighbors = {
-        left: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(-1, 0, 0))),
-        right: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(1, 0, 0))),
-        front: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 1, 0))),
-        top: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 0, 1))),
-        back: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, -1, 0))),
-        frontBottom: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 1, -1))),
-        bottom: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 0, -1))),
+        left: !terrain.getBlock(addPos(blockIndex, createPoint(-1, 0, 0))),
+        right: !terrain.getBlock(addPos(blockIndex, createPoint(1, 0, 0))),
+        front: !terrain.getBlock(addPos(blockIndex, createPoint(0, 1, 0))),
+        top: !terrain.getBlock(addPos(blockIndex, createPoint(0, 0, 1))),
+        back: !terrain.getBlock(addPos(blockIndex, createPoint(0, -1, 0))),
+        frontBottom: !terrain.getBlock(addPos(blockIndex, createPoint(0, 1, -1))),
+        bottom: !terrain.getBlock(addPos(blockIndex, createPoint(0, 0, -1))),
     };
 
     const linesContainer = new PIXI.Container();
@@ -130,17 +130,22 @@ function renderBlockOutline(position: Point3D, type: BlockType, terrain: Terrain
 
 export function renderBlockViews(position: Point3D, type: BlockType, terrain: Terrain): PIXI.Container[] {
     const views = [];
-    views.push(renderTop(position, type, terrain));
-    views.push(renderBottom(position, type));
-    views.push(renderBlockOutline(position, type, terrain));
-    return views;
+
+    const blockIndex = convertPositionToBlockIndex(position);
+    const localIndex = convertBlockIndexToLocalChunkIndex(blockIndex);
+
+    views.push(renderTop(blockIndex, localIndex, type, terrain));
+    views.push(renderBottom(blockIndex, localIndex, type));
+    views.push(renderBlockOutline(blockIndex, localIndex, type, terrain));
+    return views.filter(x => !!x);
 }
 
 export function createBlock(id: string, position: Point3D, type: BlockType): Block {
     return {
-        id: '',
+        id: id,
         position: position,
         type: type,
         views: [],
+        components: []
     };
 }

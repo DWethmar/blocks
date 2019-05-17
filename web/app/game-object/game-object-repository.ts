@@ -1,6 +1,7 @@
 import { GameObject } from './game-object';
 
 export class GameObjectRepository {
+
     public gameObjects: { [id: string]: GameObject };
     public activeGameObjects: Set<string>;
 
