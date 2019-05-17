@@ -10,13 +10,14 @@ import { createLineGraphic } from '../graphics/line';
 import { Terrain } from '../terrain/terrain';
 import { Scene } from '../scene/scene';
 
-export function isBlockTransparent(block: Block): boolean {
-    return block.type === BlockType.AIR;
+export function isBlockTransparent(type: BlockType): boolean {
+    return type === BlockType.AIR;
 }
 
 export interface Block extends GameObject {
     type: BlockType;
     views: PIXI.Container[];
+    transparent: boolean
 }
 
 function renderTop(blockIndex: Point3D, localIndex: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
@@ -144,6 +145,7 @@ export function createBlock(id: string, position: Point3D, type: BlockType): Blo
     return {
         id: id,
         position: position,
+        transparent: isBlockTransparent(type),
         type: type,
         views: [],
         components: []

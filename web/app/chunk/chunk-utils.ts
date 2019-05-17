@@ -22,7 +22,8 @@ export function isPositionWithinChunk(blockIndex: Point3D, chunk: Chunk): boolea
 
 export function isPosVisibleWithinChunk(blockIndex: Point3D, chunk: Chunk): boolean {
     if (isPositionWithinChunk(blockIndex, chunk)) {
-        if (!!chunk.getBlock(blockIndex)) {
+        const pos = chunk.getBlock(blockIndex);
+        if (!pos || pos.transparent) {
             return isPosVisibleWithinChunk(addPos(blockIndex, createPoint(0, 1, 1)), chunk);
         } else {
             return false;
@@ -34,8 +35,13 @@ export function isPosVisibleWithinChunk(blockIndex: Point3D, chunk: Chunk): bool
 export function getVisibleBlockIndexes(chunk: Chunk): Point3D[] {
     return Array.from(createCollection3DIterator(chunk.blocks))
         .filter(
-            (block: Block): boolean =>
-                isPosVisibleWithinChunk(addPos(convertPositionToBlockIndex(block.position), createPoint(0, 1, 1)), chunk),
+            (block: Block): boolean => {
+
+                const blockIndex = convertPositionToBlockIndex(block.position);
+                const maybeBlockingPosition = addPos(blockIndex, createPoint(0, 1, 1));
+
+                return isPosVisibleWithinChunk(maybeBlockingPosition, chunk);
+            }
         )
         .map((block: Block): Point3D => convertPositionToBlockIndex(block.position));
 }
