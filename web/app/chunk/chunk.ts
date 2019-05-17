@@ -1,45 +1,51 @@
 import * as PIXI from 'pixi.js';
 
 import { GameObject } from '../game-object/game-object';
-import { Block } from '../block/block';
+import { Block, renderBlockViews } from '../block/block';
 import { Point3D } from '../position/point';
 import { CHUNK_SIZE } from '../config';
 import { divideBy } from '../calc/calc';
-import { getVisibleBlocks } from './chunk-utils';
+import { getVisibleBlockIndexes } from './chunk-utils';
 import { sortZYXAsc } from '../calc/sort';
 import { floorPos } from '../position/point-utils';
+import { Terrain } from '../terrain/terrain';
+import { Scene } from '../scene/scene';
 
-export function getBlock(point: Point3D, blocks: Block[], chunkSize: number = CHUNK_SIZE): Block {
+export function getBlockFromBlockList(point: Point3D, blocks: Block[], chunkSize: number = CHUNK_SIZE): Block {
     return blocks[point.x + chunkSize * (point.y + chunkSize * point.z)];
 }
 
-export function setBlock(block: Block, blocks: Block[], chunkSize: number = CHUNK_SIZE): Block[] {
+export function setBlockInBlockList(block: Block, blocks: Block[], chunkSize: number = CHUNK_SIZE): Block[] {
     blocks[block.position.x + chunkSize * (block.position.y + chunkSize * block.position.z)] = block;
     return blocks;
 }
 
+export const createBlockSelector = (chunk: Chunk): ((blockIndex: Point3D) => Block) => (blockIndex: Point3D): Block =>
+    getBlockFromBlockList(blockIndex, chunk.blocks);
+
 export interface Chunk extends GameObject {
     blocks: Block[];
-    blocksToRender: string[];
+    blocksToRender: Point3D[];
+    views: PIXI.Container[];
+    terrain: Terrain;
+    hasChanged: boolean;
 }
 
-export function createChunk(id: string, position: Point3D): Chunk {
-    return {
-        id: id,
-        position: position,
-        blocks: [],
-        blocksToRender: [],
-        views: [],
-    };
-}
+export function updateChunk(chunk: Chunk, scene: Scene): void {
+    console.log(`Updating chunk: ${chunk.id}`);
 
-export function updateChunk(chunk: Chunk): void {
-    console.log(`Updating chunk: ${this.id}`);
+    if (!chunk.hasChanged) {
+        return;
+    }
 
-    chunk.blocksToRender = getVisibleBlocks(chunk);
+    const terrain = (scene.getGameObjectById('terrain') as unknown) as Terrain;
+
+    const getBlock = (p: Point3D): Block => getBlockFromBlockList(p, chunk.blocks);
+
+    chunk.blocksToRender = getVisibleBlockIndexes(chunk);
 
     // Sort
-    this.blocksToRender.sort(
+    chunk.blocksToRender.sort(
         (idA, idB): number => {
             return sortZYXAsc(this.blocks.get(idA).position, this.blocks.get(idB).position);
         },
@@ -47,9 +53,9 @@ export function updateChunk(chunk: Chunk): void {
 
     const blockLayers: PIXI.Container[] = [];
 
-    this.blocksToRender.forEach(
-        (id): void => {
-            const block = this.blocks.get(id);
+    chunk.blocksToRender.forEach(
+        (blockIndex): void => {
+            const block = getBlock(blockIndex);
 
             const index = block.position.y;
             let layer = null;
@@ -63,13 +69,13 @@ export function updateChunk(chunk: Chunk): void {
                 blockLayers[index] = layer;
             }
 
-            block.renderViews(this);
-            block.getViews().forEach(v => layer.addChild(v));
+            block.views = renderBlockViews(blockIndex, block.type, terrain);
+            block.views.forEach((v): void => layer.addChild(v));
         },
     );
 
     // Clear that shit.
-    this.layers.forEach((l): void => void l.removeChildren());
+    chunk.views.forEach((l): void => void l.removeChildren());
 
     blockLayers.forEach(
         (graphics, i): void => {
@@ -83,13 +89,27 @@ export function updateChunk(chunk: Chunk): void {
                 layer.zIndex = i;
                 layer.position.set(this.position.x, this.position.y);
                 layer.name = `ChunkLayer: ${this.position.x} ${this.position.y} ${this.position.z}`;
-                this.layers[i] = layer;
-                this.stage.addChild(layer);
+                chunk.views[i] = layer;
+                scene.stage.addChild(layer);
             }
             layer.addChild(graphics);
         },
     );
-    this.hasChanged = false;
+    chunk.hasChanged = false;
+}
+
+export function createChunk(id: string, position: Point3D, terrain: Terrain): Chunk {
+    return {
+        id: id,
+        position: position,
+        blocks: [],
+        blocksToRender: [],
+        views: [],
+        update: updateChunk,
+        setup: (): void => {},
+        terrain: terrain,
+        hasChanged: true,
+    };
 }
 
 export const chunkDivider = (size: number) => (point: Point3D) => floorPos(divideBy(size, point));

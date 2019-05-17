@@ -14,8 +14,8 @@ import { CHUNK_SIZE } from '../config';
 export function isPositionWithinChunk(pos: Point3D, chunk: Chunk): boolean {
     return isWithin(
         pos,
-        minusPos(chunk.blockIndex.point, createPoint(1, 1, 1)),
-        addPos(chunk.blockIndex.point, createPoint(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE)),
+        minusPos(positionToChunkIndex(chunk.position), createPoint(1, 1, 1)),
+        addPos(positionToChunkIndex(chunk.position), createPoint(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE)),
     );
 }
 
@@ -30,13 +30,13 @@ export function isPosVisibleWithinChunk(pos: Point3D, chunk: Chunk): boolean {
     return true;
 }
 
-export function getVisibleBlocks(chunk: Chunk): string[] {
-    return Object.entries(chunk.blocks)
+export function getVisibleBlockIndexes(chunk: Chunk): Point3D[] {
+    return chunk.blocks
         .filter(
-            ([id, block]: [string, Block]): boolean =>
+            (block: Block): boolean =>
                 isPosVisibleWithinChunk(addPos(positionToBlockIndex(block.position), createPoint(0, 1, 1)), chunk),
         )
-        .map(([id, block]) => id);
+        .map((block: Block): Point3D => positionToBlockIndex(block.position));
 }
 
 export function getChunkId(position: Point3D): string {

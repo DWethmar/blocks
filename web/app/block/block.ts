@@ -8,6 +8,7 @@ import { Chunk, getBlock } from '../chunk/chunk';
 import { addPos } from '../position/point-utils';
 import { createLineGraphic } from '../graphics/line';
 import { Terrain } from '../terrain/terrain';
+import { Scene } from '../scene/scene';
 
 export function isBlockTransparent(block: Block): boolean {
     return block.type === BlockType.AIR;
@@ -15,6 +16,7 @@ export function isBlockTransparent(block: Block): boolean {
 
 export interface Block extends GameObject {
     type: BlockType;
+    views: PIXI.Container[];
 }
 
 function renderTop(blockIndex: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
@@ -50,13 +52,13 @@ function renderTop(blockIndex: Point3D, type: BlockType, terrain: Terrain): PIXI
     }
 }
 
-function renderBottom(position: Point3D, type: BlockType, chunk: Chunk): PIXI.DisplayObject {
-    const drawX = position.x - chunk.position.x;
-    const drawY = position.y - chunk.position.y;
+function renderBottom(position: Point3D, type: BlockType): PIXI.DisplayObject {
+    const drawX = 0;
+    const drawY = BLOCK_SIZE;
 
     let topColor = null;
     // Top
-    switch (this.type) {
+    switch (type) {
         case BlockType.ROCK:
             topColor = 0xa5a5a5;
             break;
@@ -77,18 +79,18 @@ function renderBottom(position: Point3D, type: BlockType, chunk: Chunk): PIXI.Di
     return sprite;
 }
 
-function renderBlockOutline(position: Point3D, type: BlockType, chunk: Chunk): PIXI.DisplayObject {
+function renderBlockOutline(position: Point3D, type: BlockType, terrain: Terrain): PIXI.DisplayObject {
     const drawX = 0;
     const drawY = BLOCK_SIZE;
 
     const neighbors = {
-        left: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(-1, 0, 0))),
-        right: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(1, 0, 0))),
-        front: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 1, 0))),
-        top: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 0, 1))),
-        back: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, -1, 0))),
-        frontBottom: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 1, -1))),
-        bottom: !chunk.isEmpty(addPos(this.blockIndex.point, createPoint(0, 0, -1))),
+        left: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(-1, 0, 0))),
+        right: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(1, 0, 0))),
+        front: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 1, 0))),
+        top: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 0, 1))),
+        back: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, -1, 0))),
+        frontBottom: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 1, -1))),
+        bottom: !terrain.hasBlock(addPos(this.blockIndex.point, createPoint(0, 0, -1))),
     };
 
     const linesContainer = new PIXI.Container();
@@ -126,11 +128,11 @@ function renderBlockOutline(position: Point3D, type: BlockType, chunk: Chunk): P
     return linesContainer;
 }
 
-export function renderBlockViews(position: Point3D, type: BlockType, chunk: Chunk): PIXI.Container[] {
+export function renderBlockViews(position: Point3D, type: BlockType, terrain: Terrain): PIXI.Container[] {
     const views = [];
-    views.push(renderTop(position, type, chunk));
-    views.push(renderBottom(position, type, chunk));
-    views.push(renderBlockOutline(position, type, chunk));
+    views.push(renderTop(position, type, terrain));
+    views.push(renderBottom(position, type));
+    views.push(renderBlockOutline(position, type, terrain));
     return views;
 }
 
@@ -139,5 +141,6 @@ export function createBlock(id: string, position: Point3D, type: BlockType): Blo
         id: '',
         position: position,
         type: type,
+        views: [],
     };
 }

@@ -9,7 +9,7 @@ export class GameObjectRepository {
         this.activeGameObjects = new Set<string>();
     }
 
-    public getGameObject(id: string): GameObject {
+    public getGameObjectById(id: string): GameObject {
         if (this.hasGameObject(id)) {
             return this.gameObjects[id];
         }
@@ -37,6 +37,6 @@ export class GameObjectRepository {
     }
 
     public getActiveGameObjects(): GameObject[] {
-        return Array.from(this.activeGameObjects).map(id => this.gameObjects[id]);
+        return Array.from(this.activeGameObjects).map((id: string): GameObject => this.gameObjects[id]);
     }
 }

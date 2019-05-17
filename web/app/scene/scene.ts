@@ -5,15 +5,15 @@ export interface LoadAssetParams {
     asset: any;
 }
 
-export abstract class Scene {
-    public gameObjects: GameObjectRepository;
-
+export abstract class Scene extends GameObjectRepository {
     public assetsLoading = 0;
     public assetsLoaded = 0;
     public assets: { [key: string]: any };
 
+    public stage: PIXI.Container;
+
     public constructor() {
-        this.gameObjects = new GameObjectRepository();
+        super();
     }
 
     public loadAndRegisterAsset(load: Promise<LoadAssetParams>): void {

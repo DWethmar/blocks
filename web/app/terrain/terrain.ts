@@ -5,7 +5,7 @@ import { Point3D } from '../position/point';
 import { Block, createBlock } from '../block/block';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { multiply } from '../calc/calc';
-import { Chunk, chunkDivider, createChunk, setBlock, getBlock } from '../chunk/chunk';
+import { Chunk, chunkDivider, createChunk, setBlock, getBlock, createBlockSelector } from '../chunk/chunk';
 import { BlockType } from '../block/block-type';
 import { getChunkId } from '../chunk/chunk-utils';
 import { addPos, positionToChunkIndex } from '../position/point-utils';
@@ -39,10 +39,9 @@ export class Terrain {
         const blockPosition = multiply(BLOCK_SIZE, worldPosition);
         const chunkIndex = chunkDivider(CHUNK_SIZE * BLOCK_SIZE)(blockPosition);
         const chunk = this.getChunk(chunkIndex);
+
         if (chunk) {
-            return chunk.isEmpty(worldPosition)
-                ? chunk.getBlock(worldPosition)
-                : new Block({ id: '', type: BlockType.AIR, position: worldPosition });
+            return createBlockSelector(chunk)(worldPosition) || createBlock('', worldPosition, BlockType.AIR);
         }
         return null;
     }
@@ -51,7 +50,7 @@ export class Terrain {
         const chunkIndex = multiply(CHUNK_SIZE * BLOCK_SIZE, blockIndex);
         const chunk = this.getChunk(chunkIndex);
         if (chunk) {
-            return !!getBlock(blockIndex, chunk.blocks);
+            return !!createBlockSelector(chunk)(blockIndex);
         }
         return null;
     }
@@ -69,8 +68,8 @@ export class Terrain {
 
     public getChunk(chunkPosition: Point3D): Chunk | null {
         const chunkId = getChunkId(chunkPosition);
-        if (this.scene.gameObjects.hasGameObject(chunkId)) {
-            return this.scene.gameObjects.getGameObject(chunkId) as Chunk;
+        if (this.scene.hasGameObject(chunkId)) {
+            return this.scene.getGameObjectById(chunkId) as Chunk;
         }
         return null;
     }
@@ -78,14 +77,12 @@ export class Terrain {
     public createChunk(index: Point3D): Chunk {
         const chunkPosition = multiply(CHUNK_SIZE * BLOCK_SIZE, index);
 
-        const chunk = createChunk(getChunkId(index), chunkPosition);
+        const chunk = createChunk(getChunkId(index), chunkPosition, this);
 
-        this.scene.gameObjects.setGameObject(chunk);
-        this.scene.gameObjects.activateGameObject(chunk.id);
+        this.scene.setGameObject(chunk);
+        this.scene.activateGameObject(chunk.id);
 
-        console.log(
-            `Created Chunk with id: ${getChunkId(chunk.chunkIndex.point)} for position: ${chunk.chunkIndex.point}`,
-        );
+        console.log(`Created Chunk with id: ${getChunkId(chunk.position)} for position: ${chunk.chunkIndex.point}`);
 
         return chunk;
     }

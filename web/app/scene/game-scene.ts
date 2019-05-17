@@ -17,8 +17,6 @@ import data from '../../assets/spritesheets/tiles-spritesheet.json';
 import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
 export class GameScene extends Scene {
-    public readonly viewport: any;
-
     private terrain: Terrain;
     private blockSelection: Point3D[];
 
@@ -40,22 +38,23 @@ export class GameScene extends Scene {
             ),
         );
 
-        this.viewport = new Viewport({
+        this.stage = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,
             worldWidth: 1000,
             worldHeight: 1000,
             // interaction: app.renderer.plugins.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
         });
-        this.viewport
-            .drag()
-            .pinch()
-            .wheel()
-            .decelerate();
 
-        this.viewport.sortableChildren = false;
+        // this.stage
+        //     .drag()
+        //     .pinch()
+        //     .wheel()
+        //     .decelerate();
 
-        this.terrain = new Terrain(this.viewport, this);
+        this.stage.sortableChildren = false;
+
+        this.terrain = new Terrain(this.stage, this);
         this.gameObjects.setGameObject(this.terrain);
 
         createCheckers(this.terrain, BlockType.GRASS, BlockType.VOID, createPoint());
