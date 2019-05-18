@@ -4,7 +4,7 @@ import { Point3D, createPoint } from '../position/point';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { createCircleGraphic } from '../graphics/circle';
 import { multiply } from '../calc/calc';
-import { addPos, getX, getY } from '../position/point-utils';
+import { addPos} from '../position/point-utils';
 import { Scene } from '../scene/scene';
 
 export interface Player extends GameObject {
@@ -12,24 +12,42 @@ export interface Player extends GameObject {
     Radius: number;
     angle: number;
     center: Point3D;
+    view: PIXI.Container
 }
 
-function updatePlayer(player: GameObject, scene: Scene) {
-        this.angle += this.RotateSpeed * scene.delta;
+export function updatePlayer(player: Player, scene: Scene) {
 
-        const offset = multiply(this.Radius, createPoint(Math.sin(this.angle), Math.cos(this.angle), 0));
+    if (!player.view) {
+        player.view = new PIXI.Container();
+        player.view.name = 'Player';
 
-        const newPos = addPos(offset, this.center);
+        player.center = Object.assign({}, player.position);
 
-        this.position.x = getX(newPos);
-        this.position.y = getY(newPos);
+        player.view.x = player.position.x;
+        player.view.y = player.position.y - player.position.z;
 
-        const drawX = this.drawX;
-        const drawY = this.drawY;
+        player.view.addChild(createCircleGraphic(-2.5, -2.5, 5, 0x95f442));
 
-        this.playerView.x = drawX;
-        this.playerView.y = drawY;
-        this.playerView.zIndex = Math.ceil(this.position.y);
+        player.view.zIndex = Math.ceil(player.position.z);
+
+        scene.stage.addChild(player.view);
+    }
+
+    player.angle += player.RotateSpeed * scene.delta;
+
+    const offset = multiply(player.Radius, createPoint(Math.sin(player.angle), Math.cos(player.angle), 0));
+
+    const newPos = addPos(offset, player.center);
+
+    player.position.x = newPos.x
+    player.position.y = newPos.y
+
+    const drawX = player.position.x;
+    const drawY = player.position.y - player.position.z + BLOCK_SIZE * CHUNK_SIZE;
+
+    player.view.x = drawX;
+    player.view.y = drawY;
+    player.view.zIndex = Math.ceil(player.position.y);
 }
 
 export function createPlayer(id: string, position: Point3D): Player {
@@ -40,7 +58,8 @@ export function createPlayer(id: string, position: Point3D): Player {
         Radius: 30,
         angle: 0,
         center: position,
-        update: updatePlayer
+        components: [updatePlayer.name],
+        view: null
     }
 }
 

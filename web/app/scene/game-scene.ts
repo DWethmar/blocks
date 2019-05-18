@@ -13,7 +13,7 @@ import {
     bresenham3D, addPos,
 } from '../position/point-utils';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
-import { Player, createPlayer } from '../player/player';
+import { Player, createPlayer, updatePlayer } from '../player/player';
 import { Point3D, createPoint } from '../position/point';
 import { GameComponent } from '../game-component/game-component';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -35,6 +35,7 @@ export class GameScene extends Scene {
 
         this.gameComponents.setGameComponent(updateChunk);
         this.gameComponents.setGameComponent(updateTerrain);
+        this.gameComponents.setGameComponent(updatePlayer);
 
         // this.loadAndRegisterAsset(
         //     new Promise<LoadAssetParams>(
@@ -103,15 +104,15 @@ export class GameScene extends Scene {
         this.terrain.setBlock(createPoint(CHUNK_SIZE, 0, 1), BlockType.VOID);
 
         this.gameObjects.setGameObject(
-            createPlayer('zoink', createPoint(75, 10, 10)),
+            createPlayer('zoink', createPoint(75, 0, 10)),
         );
         this.gameObjects.activateGameObject('zoink');
 
         // Test Line
-        // bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
-        //     this.terrain.setBlock(p, BlockType.SELECTION),
-        // );
-        // bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
+        bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
+            this.terrain.setBlock(p, BlockType.SELECTION),
+        );
+        // bresenham3D(0, CHUNK_SIZE, 10, CHUNK_SIZE, 0, CHUNK_SIZE).forEach(p =>
         //     this.terrain.setBlock(p, BlockType.SELECTION),
         // );
         stage.addChild(this.stage);
