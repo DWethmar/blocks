@@ -7,50 +7,32 @@ import {
     createTower,
 } from '../terrain/terrain-utils';
 import { BlockType } from '../block/block-type';
-import { Scene, LoadAssetParams } from './scene';
+import { Scene } from './scene';
 import { Terrain, updateTerrain, createTerrain } from '../terrain/terrain';
-import {
-    bresenham3D, addPos,
-} from '../position/point-utils';
+import { bresenham3D, addPos } from '../position/point-utils';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { Player, createPlayer, updatePlayer } from '../player/player';
 import { Point3D, createPoint } from '../position/point';
 import { GameComponent } from '../game-component/game-component';
+import { updateChunk } from '../chunk/chunk';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 var Viewport = require('pixi-viewport');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 // import data from '../../assets/spritesheets/tiles-spritesheet.json';
-// import image from '../../assets/spritesheets/tiles-spritesheet.png';
-import { updateChunk } from '../chunk/chunk';
+import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
 export class GameScene extends Scene {
     private terrain: Terrain;
 
     // public stage: Viewport;
 
-
     public constructor(stage: PIXI.Container) {
         super();
 
-        this.gameComponents.setGameComponent(updateChunk);
-        this.gameComponents.setGameComponent(updateTerrain);
-        this.gameComponents.setGameComponent(updatePlayer);
-
-        // this.loadAndRegisterAsset(
-        //     new Promise<LoadAssetParams>(
-        //         (resolve, reject): void => {
-        //             const baseTexture = new PIXI.BaseTexture(image);
-        //             const spritesheet = new PIXI.Spritesheet(baseTexture, data);
-        //             spritesheet.parse(function(textures): void {
-        //                 resolve({
-        //                     name: 'spritesheet',
-        //                     asset: spritesheet,
-        //                 });
-        //             });
-        //         },
-        //     ),
-        // );
+        this.gameComponents.provideGameComponent(updateChunk);
+        this.gameComponents.provideGameComponent(updateTerrain);
+        this.gameComponents.provideGameComponent(updatePlayer);
 
         this.stage = new Viewport({
             screenWidth: window.innerWidth,
@@ -71,7 +53,12 @@ export class GameScene extends Scene {
         this.terrain = createTerrain('terrain', this.gameObjects);
         this.gameObjects.setGameObject(this.terrain);
 
-        createCheckers(this.terrain, BlockType.GRASS, BlockType.VOID, createPoint());
+        createCheckers(
+            this.terrain,
+            BlockType.GRASS,
+            BlockType.VOID,
+            createPoint(),
+        );
         createTower(this.terrain, BlockType.ROCK, createPoint(17, 15, 1));
         createTower(this.terrain, BlockType.ROCK, createPoint(20, 18, 1));
         createArch(this.terrain, BlockType.ROCK, createPoint(6, 1, 1));
@@ -82,13 +69,19 @@ export class GameScene extends Scene {
                     this.terrain,
                     BlockType.GRASS,
                     BlockType.VOID,
-                    addPos(createPoint(CHUNK_SIZE, 0, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
+                    addPos(
+                        createPoint(CHUNK_SIZE, 0, 0),
+                        createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
+                    ),
                 );
                 createTerrainNoise(
                     this.terrain,
                     BlockType.GRASS,
                     BlockType.ROCK,
-                    addPos(createPoint(CHUNK_SIZE, 0, 0), createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0)),
+                    addPos(
+                        createPoint(CHUNK_SIZE, 0, 0),
+                        createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
+                    ),
                 );
             }
         }
