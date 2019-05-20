@@ -7,10 +7,20 @@ import { CHUNK_SIZE, WORLD_SIZE, BLOCK_SIZE } from '../config';
 import { divideBy } from '../calc/calc';
 import { getVisibleBlockIndexes } from './chunk-utils';
 import { sortZYXAsc } from '../calc/sort';
-import { floorPos, convertPositionToBlockIndex, convertBlockIndexToLocalChunkIndex } from '../position/point-utils';
+import {
+    floorPos,
+    convertPositionToBlockIndex,
+    convertBlockIndexToLocalChunkIndex,
+} from '../position/point-utils';
 import { Terrain } from '../terrain/terrain';
 import { Scene } from '../scene/scene';
-import { collection3d, createCollection3D, setPointInCollection3D, getPointInCollection3D, createCollection3DIterator } from '../collection/collection';
+import {
+    collection3d,
+    createCollection3D,
+    setPointInCollection3D,
+    getPointInCollection3D,
+    createCollection3DIterator,
+} from '../collection/collection';
 import { BlockType } from '../block/block-type';
 
 export interface Chunk extends GameObject {
@@ -19,28 +29,22 @@ export interface Chunk extends GameObject {
     views: PIXI.Container[];
     terrain: Terrain;
     hasChanged: boolean;
-    setBlock(block: Block): void
-    getBlock(blockIndex: Point3D): Block
+    setBlock(block: Block): void;
+    getBlock(blockIndex: Point3D): Block;
 }
 
-export function updateChunk(chunk: Chunk, scene: Scene): void {
-
+export function updateChunk(scene: Scene, chunk: Chunk): void {
     // Setup
     if (!chunk.terrain) {
-        chunk.terrain = scene.gameObjects.getGameObjectById('terrain') as Terrain;
+        chunk.terrain = scene.gameObjects.getGameObjectById(
+            'terrain',
+        ) as Terrain;
     }
 
     if (!chunk.hasChanged) {
         return;
     }
-
-    console.log(`Updating chunk: ${chunk.id}`);
-
-    // chunk.blocksToRender = Array.from(createCollection3DIterator(chunk.blocks)).map(x => convertPositionToBlockIndex(x.position)); // getVisibleBlockIndexes(chunk);
-
     chunk.blocksToRender = getVisibleBlockIndexes(chunk);
-
-
     // Sort
     chunk.blocksToRender.sort(
         (idA, idB): number => {
@@ -51,20 +55,22 @@ export function updateChunk(chunk: Chunk, scene: Scene): void {
     const blockLayers: PIXI.Container[] = [];
 
     // Clear that shit.
-    chunk.views.forEach((l): void => void l.destroy({ children: true}));
+    chunk.views.forEach((l): void => void l.destroy({ children: true }));
 
     chunk.blocksToRender.forEach(
         (blockIndex): void => {
             const block = chunk.getBlock(blockIndex);
 
             const index = block.position.y;
-            let layer = blockLayers[index]
+            let layer = blockLayers[index];
 
             if (!blockLayers[index]) {
                 layer = new PIXI.Container();
                 layer.sortableChildren = false;
                 layer.position.set(chunk.position.x, chunk.position.y);
-                layer.name = `BlockLayer: ${chunk.position.x} ${chunk.position.y} ${chunk.position.z}`;
+                layer.name = `BlockLayer: ${chunk.position.x} ${
+                    chunk.position.y
+                } ${chunk.position.z}`;
                 blockLayers[index] = layer;
 
                 chunk.views[index] = layer;
@@ -78,7 +84,10 @@ export function updateChunk(chunk: Chunk, scene: Scene): void {
             const localIndex = convertBlockIndexToLocalChunkIndex(blockIndex);
 
             const drawX = localIndex.x * BLOCK_SIZE;
-            const drawY = ((localIndex.y * BLOCK_SIZE) - (localIndex.z * BLOCK_SIZE)) + BLOCK_SIZE * CHUNK_SIZE;
+            const drawY =
+                localIndex.y * BLOCK_SIZE -
+                localIndex.z * BLOCK_SIZE +
+                BLOCK_SIZE * CHUNK_SIZE;
 
             let frontColor = null;
             // Front
@@ -142,11 +151,18 @@ export function createChunk(id: string, position: Point3D): Chunk {
         hasChanged: true,
         components: [updateChunk.name],
         setBlock: (block: Block): void => {
-            const point = convertBlockIndexToLocalChunkIndex(convertPositionToBlockIndex(block.position));
-            setPointInCollection3D(point, blocks, block)
+            const point = convertBlockIndexToLocalChunkIndex(
+                convertPositionToBlockIndex(block.position),
+            );
+            setPointInCollection3D(point, blocks, block);
         },
-        getBlock: (blockIndex: Point3D): Block => getPointInCollection3D<Block>(convertBlockIndexToLocalChunkIndex(blockIndex), blocks),
+        getBlock: (blockIndex: Point3D): Block =>
+            getPointInCollection3D<Block>(
+                convertBlockIndexToLocalChunkIndex(blockIndex),
+                blocks,
+            ),
     };
 }
 
-export const chunkDivider = (size: number) => (point: Point3D) => floorPos(divideBy(size, point));
+export const chunkDivider = (size: number) => (point: Point3D) =>
+    floorPos(divideBy(size, point));

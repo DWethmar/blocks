@@ -1,7 +1,6 @@
 import { GameComponent } from './game-component';
 
 export class GameComponentRepository {
-
     public gameComponents: { [name: string]: GameComponent };
 
     public constructor() {
@@ -15,7 +14,7 @@ export class GameComponentRepository {
         return null;
     }
 
-    public setGameComponent(gameComponent: GameComponent): void {
+    public provideGameComponent(gameComponent: GameComponent): void {
         this.gameComponents[gameComponent.name] = gameComponent;
     }
 
