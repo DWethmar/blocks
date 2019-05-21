@@ -1,6 +1,7 @@
 import { Point3D, createPoint } from '../position/point';
 import { CHUNK_SIZE } from '../config';
 import { BlockType } from './block-type';
+import { floorPos } from '../position/point-utils';
 
 export type blockRepository = Uint16Array;
 
@@ -20,10 +21,12 @@ export function createPointFromIndex(
     index: number,
     size = CHUNK_SIZE,
 ): Point3D {
-    return createPoint(
-        /** X */ index % size,
-        /** Y */ (index / size) % size,
-        /** Z */ index / (size * size),
+    return floorPos(
+        createPoint(
+            /** X */ index % size,
+            /** Y */ (index / size) % size,
+            /** Z */ index / (size * size),
+        ),
     );
 }
 

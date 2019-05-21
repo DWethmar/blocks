@@ -63,45 +63,37 @@ export class GameScene extends Scene {
         createTower(this.terrain, BlockType.ROCK, createPoint(20, 18, 1));
         createArch(this.terrain, BlockType.ROCK, createPoint(6, 1, 1));
 
-        createCheckers(
-            this.terrain,
-            BlockType.GRASS,
-            BlockType.VOID,
-            createPoint(CHUNK_SIZE, 0, 0),
+        [].fill(100).forEach(
+            (x: number): void => {
+                this.terrain.setBlock(
+                    createPoint(CHUNK_SIZE + x, 0, 0),
+                    BlockType.ROCK,
+                );
+            },
         );
 
-        for (let x = 0; x < 3; x++) {
-            for (let y = 0; y < 3; y++) {
-                createCheckers(
-                    this.terrain,
-                    BlockType.GRASS,
-                    BlockType.VOID,
-                    addPos(
-                        createPoint(CHUNK_SIZE, 0, 0),
-                        createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
-                    ),
-                );
-                createTerrainNoise(
-                    this.terrain,
-                    BlockType.GRASS,
-                    BlockType.ROCK,
-                    addPos(
-                        createPoint(CHUNK_SIZE, 0, 0),
-                        createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
-                    ),
-                );
-            }
-        }
-
-        this.terrain.setBlock(createPoint(0, 0, 0), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(1, 0, 0), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(0, 1, 0), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(1, 1, 0), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(1, 1, 1), BlockType.VOID);
-
-        this.terrain.setBlock(createPoint(8, 0, 1), BlockType.GRASS);
-        this.terrain.setBlock(createPoint(11, 0, 1), BlockType.GRASS);
-        this.terrain.setBlock(createPoint(CHUNK_SIZE, 0, 1), BlockType.VOID);
+        // for (let x = 0; x < 3; x++) {
+        //     for (let y = 0; y < 3; y++) {
+        //         createCheckers(
+        //             this.terrain,
+        //             BlockType.GRASS,
+        //             BlockType.VOID,
+        //             addPos(
+        //                 createPoint(CHUNK_SIZE, 0, 0),
+        //                 createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
+        //             ),
+        //         );
+        //         createTerrainNoise(
+        //             this.terrain,
+        //             BlockType.GRASS,
+        //             BlockType.ROCK,
+        //             addPos(
+        //                 createPoint(CHUNK_SIZE, 0, 0),
+        //                 createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
+        //             ),
+        //         );
+        //     }
+        // }
 
         this.gameObjects.setGameObject(
             createPlayer('zoink', createPoint(75, 0, 10)),
