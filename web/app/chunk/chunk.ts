@@ -4,8 +4,8 @@ import { GameObject } from '../game-object/game-object';
 import { Block, renderBlockViews } from '../block/block';
 import { Point3D } from '../position/point';
 import { CHUNK_SIZE, WORLD_SIZE, BLOCK_SIZE } from '../config';
-import { divideBy } from '../calc/calc';
-import { getVisibleBlockIndexes } from './chunk-utils';
+import { divideBy, multiply } from '../calc/calc';
+import { getVisibleBlocksIndexes, isPositionWithinChunk } from './chunk-utils';
 import { sortZYXAsc } from '../calc/sort';
 import {
     floorPos,
@@ -14,37 +14,45 @@ import {
 } from '../position/point-utils';
 import { Terrain } from '../terrain/terrain';
 import { Scene } from '../scene/scene';
-import {
-    collection3d,
-    createCollection3D,
-    setPointInCollection3D,
-    getPointInCollection3D,
-    createCollection3DIterator,
-} from '../collection/collection';
 import { BlockType } from '../block/block-type';
+import {
+    createBlockRepository,
+    blockRepository,
+    getPointInBlockRepository,
+} from '../block/block-repository';
+import { GameScene } from '../scene/game-scene';
 
 export interface Chunk extends GameObject {
-    blocks: collection3d<Block>;
+    blocks: blockRepository;
     blocksToRender: Point3D[];
     views: PIXI.Container[];
     terrain: Terrain;
     hasChanged: boolean;
-    setBlock(block: Block): void;
-    getBlock(blockIndex: Point3D): Block;
 }
 
-export function updateChunk(scene: Scene, chunk: Chunk): void {
-    // Setup
-    if (!chunk.terrain) {
-        chunk.terrain = scene.gameObjects.getGameObjectById(
-            'terrain',
-        ) as Terrain;
-    }
+function createBlockGetter(
+    chunk: Chunk,
+    terrain: Terrain,
+): (blockIndex: Point3D) => BlockType {
+    return function(blockIndex: Point3D) {
+        if (isPositionWithinChunk(blockIndex, chunk.position)) {
+            return getPointInBlockRepository(
+                convertBlockIndexToLocalChunkIndex(blockIndex),
+                chunk.blocks,
+            );
+        }
+        return terrain.getBlock(blockIndex);
+    };
+}
 
+export function updateChunk(scene: GameScene, chunk: Chunk): void {
     if (!chunk.hasChanged) {
         return;
     }
-    chunk.blocksToRender = getVisibleBlockIndexes(chunk);
+
+    const getBlock = createBlockGetter(chunk, scene.terrain);
+
+    chunk.blocksToRender = getVisibleBlocksIndexes(chunk);
     // Sort
     chunk.blocksToRender.sort(
         (idA, idB): number => {
@@ -59,9 +67,10 @@ export function updateChunk(scene: Scene, chunk: Chunk): void {
 
     chunk.blocksToRender.forEach(
         (blockIndex): void => {
-            const block = chunk.getBlock(blockIndex);
+            const blockType = getBlock(blockIndex);
+            const blockPosition = multiply(BLOCK_SIZE, blockIndex);
 
-            const index = block.position.y;
+            const index = blockPosition.y;
             let layer = blockLayers[index];
 
             if (!blockLayers[index]) {
@@ -77,10 +86,6 @@ export function updateChunk(scene: Scene, chunk: Chunk): void {
                 scene.stage.addChild(layer);
             }
 
-            // block.views.forEach((l): void => void l.destroy({ children: true}));
-            // block.views = renderBlockViews(blockIndex, block.type, chunk.terrain);
-            // layer.addChild(...block.views);
-
             const localIndex = convertBlockIndexToLocalChunkIndex(blockIndex);
 
             const drawX = localIndex.x * BLOCK_SIZE;
@@ -91,7 +96,7 @@ export function updateChunk(scene: Scene, chunk: Chunk): void {
 
             let frontColor = null;
             // Front
-            switch (block.type) {
+            switch (blockType) {
                 case BlockType.ROCK:
                     frontColor = 0x5a5a5a;
                     break;
@@ -113,7 +118,7 @@ export function updateChunk(scene: Scene, chunk: Chunk): void {
 
             let topColor = null;
             // Top
-            switch (block.type) {
+            switch (blockType) {
                 case BlockType.ROCK:
                     topColor = 0xa5a5a5;
                     break;
@@ -140,7 +145,7 @@ export function updateChunk(scene: Scene, chunk: Chunk): void {
 }
 
 export function createChunk(id: string, position: Point3D): Chunk {
-    const blocks = createCollection3D<Block>(CHUNK_SIZE);
+    const blocks = createBlockRepository();
     return {
         id: id,
         position: position,
@@ -150,17 +155,6 @@ export function createChunk(id: string, position: Point3D): Chunk {
         terrain: null,
         hasChanged: true,
         components: [updateChunk.name],
-        setBlock: (block: Block): void => {
-            const point = convertBlockIndexToLocalChunkIndex(
-                convertPositionToBlockIndex(block.position),
-            );
-            setPointInCollection3D(point, blocks, block);
-        },
-        getBlock: (blockIndex: Point3D): Block =>
-            getPointInCollection3D<Block>(
-                convertBlockIndexToLocalChunkIndex(blockIndex),
-                blocks,
-            ),
     };
 }
 

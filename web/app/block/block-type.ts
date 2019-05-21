@@ -1,7 +1,7 @@
 export enum BlockType {
-    AIR = 'air',
-    ROCK = 'rock',
-    GRASS = 'grass',
-    VOID = 'void',
-    SELECTION = 'selection',
+    AIR = 0,
+    ROCK = 1,
+    GRASS = 2,
+    VOID = 3,
+    SELECTION = 4,
 }

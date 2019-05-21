@@ -20,10 +20,10 @@ var Viewport = require('pixi-viewport');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 // import data from '../../assets/spritesheets/tiles-spritesheet.json';
-import image from '../../assets/spritesheets/tiles-spritesheet.png';
+// import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
 export class GameScene extends Scene {
-    private terrain: Terrain;
+    public terrain: Terrain;
 
     // public stage: Viewport;
 
@@ -63,6 +63,13 @@ export class GameScene extends Scene {
         createTower(this.terrain, BlockType.ROCK, createPoint(20, 18, 1));
         createArch(this.terrain, BlockType.ROCK, createPoint(6, 1, 1));
 
+        createCheckers(
+            this.terrain,
+            BlockType.GRASS,
+            BlockType.VOID,
+            createPoint(CHUNK_SIZE, 0, 0),
+        );
+
         for (let x = 0; x < 3; x++) {
             for (let y = 0; y < 3; y++) {
                 createCheckers(
@@ -86,11 +93,11 @@ export class GameScene extends Scene {
             }
         }
 
-        this.terrain.setBlock(createPoint(0, 0, 1), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(1, 0, 1), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(2, 0, 1), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(3, 0, 1), BlockType.ROCK);
-        this.terrain.setBlock(createPoint(2, 0, 1), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(0, 0, 0), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(1, 0, 0), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(0, 1, 0), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(1, 1, 0), BlockType.ROCK);
+        this.terrain.setBlock(createPoint(1, 1, 1), BlockType.VOID);
 
         this.terrain.setBlock(createPoint(8, 0, 1), BlockType.GRASS);
         this.terrain.setBlock(createPoint(11, 0, 1), BlockType.GRASS);
@@ -105,9 +112,6 @@ export class GameScene extends Scene {
         bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
             this.terrain.setBlock(p, BlockType.SELECTION),
         );
-        // bresenham3D(0, CHUNK_SIZE, 10, CHUNK_SIZE, 0, CHUNK_SIZE).forEach(p =>
-        //     this.terrain.setBlock(p, BlockType.SELECTION),
-        // );
         stage.addChild(this.stage);
 
         console.log(this.gameObjects);
@@ -138,7 +142,7 @@ export class GameScene extends Scene {
                             }
                             return components;
                         }, [])
-                        .forEach(component => component(gameObject, this));
+                        .forEach(component => component(this, gameObject));
             },
         );
 

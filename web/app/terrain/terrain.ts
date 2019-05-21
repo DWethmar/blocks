@@ -2,7 +2,6 @@ import * as PIXI from 'pixi.js';
 
 import { Scene } from '../scene/scene';
 import { Point3D, createPoint } from '../position/point';
-import { Block, createBlock } from '../block/block';
 import { BLOCK_SIZE, CHUNK_SIZE, WORLD_SIZE } from '../config';
 import { multiply } from '../calc/calc';
 import { Chunk, createChunk } from '../chunk/chunk';
@@ -10,7 +9,8 @@ import { BlockType } from '../block/block-type';
 import {
     isIntegerPoint3D,
     convertblockIndexToChunkIndex as chunkIndexFromBlockIndex,
-    convertblockIndexToChunkIndex,
+    convertblockIndexToChunkIndex as convertBlockIndexToChunkIndex,
+    convertBlockIndexToLocalChunkIndex,
 } from '../position/point-utils';
 import { GameObject } from '../game-object/game-object';
 import {
@@ -20,13 +20,17 @@ import {
     createCollection3D,
 } from '../collection/collection';
 import { GameObjectRepository } from '../game-object/game-object-repository';
+import {
+    getPointInBlockRepository,
+    setPointInBlockRepository,
+} from '../block/block-repository';
 
 export function updateTerrain(scene: Scene, terrain: Terrain): void {
     console.log('Nothing to do fml', terrain, scene);
 }
 
-export type blockSetter = (blockIndex: Point3D, type: BlockType) => Block;
-export type blockGetter = (blockIndex: Point3D) => Block;
+export type blockSetter = (blockIndex: Point3D, type: BlockType) => boolean;
+export type blockGetter = (blockIndex: Point3D) => BlockType;
 
 export interface Terrain extends GameObject {
     chunks: collection3d<Chunk>;
@@ -43,7 +47,7 @@ export function createBlockSetter(
     chunks: collection3d<Chunk>,
     gameObjects: GameObjectRepository,
 ): blockSetter {
-    return function(index, type): Block {
+    return function(index, type): boolean {
         if (isIntegerPoint3D(index)) {
             const chunkIndex = chunkIndexFromBlockIndex(index);
             let chunk = getPointInCollection3D(chunkIndex, chunks);
@@ -59,28 +63,28 @@ export function createBlockSetter(
                 gameObjects.setGameObject(chunk);
                 gameObjects.activateGameObject(chunk.id);
             }
-            const block = createBlock(null, multiply(BLOCK_SIZE, index), type);
-            chunk.setBlock(block);
-            return block;
+            setPointInBlockRepository(
+                convertBlockIndexToLocalChunkIndex(index),
+                chunk.blocks,
+                type,
+            );
         }
-        return null;
+        return true;
     };
 }
 
-export function createBlockGetter(
-    chunks: collection3d<Chunk>,
-    gameObjects: GameObjectRepository,
-): blockGetter {
-    return function(blockIndex): Block {
+export function createBlockGetter(chunks: collection3d<Chunk>): blockGetter {
+    return function(blockIndex): BlockType {
         if (isIntegerPoint3D(blockIndex)) {
-            const chunkIndex = convertblockIndexToChunkIndex(blockIndex);
+            const chunkIndex = convertBlockIndexToChunkIndex(blockIndex);
             let chunk = getPointInCollection3D(chunkIndex, chunks);
-            // Create chunk if not exist
             if (!chunk) {
-                // lookup other chunk
                 return null;
             }
-            return chunk.getBlock(blockIndex);
+            return getPointInBlockRepository(
+                convertBlockIndexToLocalChunkIndex(blockIndex),
+                chunk.blocks,
+            );
         }
         return null;
     };
@@ -97,6 +101,6 @@ export function createTerrain(
         chunks: chunks,
         components: [updateTerrain.name],
         setBlock: createBlockSetter(chunks, gameObjects),
-        getBlock: createBlockGetter(chunks, gameObjects),
+        getBlock: createBlockGetter(chunks),
     };
 }
