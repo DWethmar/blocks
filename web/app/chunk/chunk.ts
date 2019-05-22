@@ -16,8 +16,19 @@ import {
     createBlockRepository,
     blockRepository,
     getBlock,
+    iterateBlocks,
 } from '../block/block-repository';
 import { GameScene } from '../scene/game-scene';
+import {
+    grey,
+    green,
+    red,
+    pink,
+    greyDarken1,
+    greenDarken1,
+    pinkDarken1,
+    redDarken1,
+} from '../color/colors';
 
 export interface Chunk extends GameObject {
     blocks: blockRepository;
@@ -45,9 +56,17 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
     if (!chunk.hasChanged) {
         return;
     }
-
     const getBlock = createBlockGetter(chunk, scene.terrain);
-    const blocksToRender = getVisibleBlocksIndexes(chunk);
+    // const blocksToRender = getVisibleBlocksIndexes(chunk);
+
+    // Render all
+    const blocksToRender = Array.from(iterateBlocks(chunk.blocks))
+        .filter(
+            ([, blockType]: [Point3D, BlockType]) =>
+                blockType !== BlockType.AIR,
+        )
+        .map(([point, blockType]: [Point3D, BlockType]) => point);
+
     blocksToRender.sort(
         (idA, idB): number => {
             return sortZYXAsc(idA, idB);
@@ -62,6 +81,11 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
     blocksToRender.forEach(
         (blockIndex): void => {
             const blockType = getBlock(blockIndex);
+
+            if (blockType === BlockType.AIR) {
+                console.log('ja hier gaat iets fout...');
+            }
+
             const blockPosition = multiply(BLOCK_SIZE, blockIndex);
 
             const index = blockPosition.y;
@@ -92,16 +116,16 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
             // Front
             switch (blockType) {
                 case BlockType.ROCK:
-                    frontColor = 0x5a5a5a;
+                    frontColor = grey;
                     break;
                 case BlockType.GRASS:
-                    frontColor = 0x795128;
+                    frontColor = green;
                     break;
                 case BlockType.SELECTION:
-                    frontColor = 0xff4d4d;
+                    frontColor = red;
                     break;
                 default:
-                    frontColor = 0x9e34a1;
+                    frontColor = pink;
                     break;
             }
             const spriteFront = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -114,16 +138,16 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
             // Top
             switch (blockType) {
                 case BlockType.ROCK:
-                    topColor = 0xa5a5a5;
+                    topColor = greyDarken1;
                     break;
                 case BlockType.GRASS:
-                    topColor = 0x008000;
+                    topColor = greenDarken1;
                     break;
                 case BlockType.SELECTION:
-                    topColor = 0xe60000;
+                    topColor = redDarken1;
                     break;
                 default:
-                    topColor = 0xff00d1;
+                    topColor = pinkDarken1;
                     break;
             }
             const spriteTop = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -142,7 +166,7 @@ export function createChunk(id: string, position: Point3D): Chunk {
     return {
         id: id,
         position: position,
-        blocks: createBlockRepository(),
+        blocks: createBlockRepository(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE),
         views: [],
         terrain: null,
         hasChanged: true,

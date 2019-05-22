@@ -1,4 +1,6 @@
+import '@babel/polyfill';
 import * as PIXI from 'pixi.js';
+
 import { Game } from './game/game';
 import { Ticker } from 'pixi.js';
 import { version } from './version';
@@ -28,7 +30,9 @@ const ticker = new Ticker();
 ticker.add(
     (delta: number): void => {
         game.update(delta);
-        document.title = `${process.env.TITLE} ${version} FPS:${Math.floor(app.ticker.FPS)}`;
+        document.title = `${process.env.TITLE} ${version} FPS:${Math.floor(
+            app.ticker.FPS,
+        )}`;
     },
 );
 ticker.start();

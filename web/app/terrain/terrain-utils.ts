@@ -15,13 +15,14 @@ export function* createTerrainNoise(
 ): Iterable<[Point3D, BlockType]> {
     // NOISE
     noise.seed(Math.random());
-    for (var x = 0; x < width; x++) {
-        for (var y = 0; y < length; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < length; y++) {
             let value = Math.abs(noise.perlin2(x / 10, y / 10));
-            value *= 256 / 28;
-            const z = Math.ceil(value);
+            const z = Math.ceil(value * 4);
+
             yield [createPoint(x, y, z), type1];
-            for (let zz = z - 1; zz > 0; zz--) {
+
+            for (let zz = z - 1; zz >= 0; zz--) {
                 yield [createPoint(x, y, zz), type2];
             }
         }

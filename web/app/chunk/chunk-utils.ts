@@ -60,6 +60,11 @@ export function getVisibleBlocksIndexes(chunk: Chunk): Point3D[] {
         .reduce<Point3D[]>(
             (blockIndexes, [blockIndex, blockType]: [Point3D, BlockType]) => {
                 const nextBlockIndex = addPos(blockIndex, createPoint(0, 1, 1));
+
+                // if (blockIndex.x === 25) {
+                //     console.log('skdj');
+                // }
+
                 if (isPosVisibleWithinChunk(nextBlockIndex, chunk)) {
                     blockIndexes.push(blockIndex);
                 }

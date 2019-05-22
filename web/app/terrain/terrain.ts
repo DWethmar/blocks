@@ -44,9 +44,9 @@ export function createBlockSetter(
     chunks: chunkRepository,
     gameObjects: GameObjectRepository,
 ): blockSetter {
-    return function(index, type): boolean {
-        if (isIntegerPoint3D(index)) {
-            const chunkIndex = chunkIndexFromBlockIndex(index);
+    return function(blockIndex, type): boolean {
+        if (isIntegerPoint3D(blockIndex)) {
+            const chunkIndex = chunkIndexFromBlockIndex(blockIndex);
             let chunk = getChunk(chunkIndex, chunks);
             // Create chunk if not exist
             if (!chunk) {
@@ -61,7 +61,7 @@ export function createBlockSetter(
                 gameObjects.activate(chunk.id);
             }
             setBlock(
-                convertBlockIndexToLocalChunkIndex(index),
+                convertBlockIndexToLocalChunkIndex(blockIndex),
                 chunk.blocks,
                 type,
             );
