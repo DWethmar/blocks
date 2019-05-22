@@ -6,6 +6,7 @@ import { createCircleGraphic } from '../graphics/circle';
 import { multiply } from '../calc/calc';
 import { addPos } from '../position/point-utils';
 import { Scene } from '../scene/scene';
+import { getDrawPosition } from '../game-object/game-object-utils';
 
 export interface Player extends GameObject {
     RotateSpeed: number;
@@ -22,12 +23,14 @@ export function updatePlayer(scene: Scene, player: Player): void {
 
         player.center = Object.assign({}, player.position);
 
-        player.view.x = player.position.x;
-        player.view.y = player.position.y - player.position.z;
+        const [drawX, drawY] = getDrawPosition(player.position);
+
+        player.view.x = drawX;
+        player.view.y = drawY;
 
         player.view.addChild(createCircleGraphic(-2.5, -2.5, 5, 0x95f442));
 
-        player.view.zIndex = Math.ceil(player.position.z);
+        player.view.zIndex = Math.ceil(player.position.y);
 
         scene.stage.addChild(player.view);
     }

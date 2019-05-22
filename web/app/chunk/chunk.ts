@@ -33,6 +33,7 @@ import {
     pinkDarken1,
     redDarken1,
 } from '../color/colors';
+import { getDrawPosition } from '../game-object/game-object-utils';
 
 export interface Chunk extends GameObject {
     blocks: blockRepository;
@@ -102,63 +103,41 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
                 scene.stage.addChild(layer);
             }
 
-            const drawX = localIndex.x * BLOCK_SIZE;
-            const drawY =
-                localIndex.y * BLOCK_SIZE -
-                localIndex.z * BLOCK_SIZE +
-                BLOCK_SIZE * CHUNK_SIZE;
+            const [drawX, drawY] = getDrawPosition(blockPosition);
 
-            const sprite = new PIXI.Sprite(
-                scene.assets.spritesheet.textures['rock_top_left_edge'],
-            );
-            sprite.width = BLOCK_SIZE;
-            sprite.height = BLOCK_SIZE * 2;
-            sprite.position.set(drawX, drawY);
-            layer.addChild(sprite);
+            if (blockType === BlockType.GRASS) {
+                const spriteTop = new PIXI.Sprite(
+                    scene.assets.spritesheet.textures['grass_top'],
+                );
+                spriteTop.width = BLOCK_SIZE;
+                spriteTop.height = BLOCK_SIZE;
+                spriteTop.position.set(drawX, drawY - BLOCK_SIZE);
+                layer.addChild(spriteTop);
 
-            // let frontColor = null;
-            // // Front
-            // switch (blockType) {
-            //     case BlockType.ROCK:
-            //         frontColor = grey;
-            //         break;
-            //     case BlockType.GRASS:
-            //         frontColor = green;
-            //         break;
-            //     case BlockType.SELECTION:
-            //         frontColor = red;
-            //         break;
-            //     default:
-            //         frontColor = pink;
-            //         break;
-            // }
-            // const spriteFront = new PIXI.Sprite(PIXI.Texture.WHITE);
-            // spriteFront.tint = frontColor;
-            // spriteFront.width = spriteFront.height = BLOCK_SIZE;
-            // spriteFront.position.set(drawX, drawY);
-            // layer.addChild(spriteFront);
+                const spriteFront = new PIXI.Sprite(
+                    scene.assets.spritesheet.textures['grass_front'],
+                );
+                spriteFront.width = BLOCK_SIZE;
+                spriteFront.height = BLOCK_SIZE;
+                spriteFront.position.set(drawX, drawY);
+                layer.addChild(spriteFront);
+            } else {
+                const spriteTop = new PIXI.Sprite(
+                    scene.assets.spritesheet.textures['rock_top'],
+                );
+                spriteTop.width = BLOCK_SIZE;
+                spriteTop.height = BLOCK_SIZE;
+                spriteTop.position.set(drawX, drawY - BLOCK_SIZE);
+                layer.addChild(spriteTop);
 
-            // let topColor = null;
-            // // Top
-            // switch (blockType) {
-            //     case BlockType.ROCK:
-            //         topColor = greyDarken1;
-            //         break;
-            //     case BlockType.GRASS:
-            //         topColor = greenDarken1;
-            //         break;
-            //     case BlockType.SELECTION:
-            //         topColor = redDarken1;
-            //         break;
-            //     default:
-            //         topColor = pinkDarken1;
-            //         break;
-            // }
-            // const spriteTop = new PIXI.Sprite(PIXI.Texture.WHITE);
-            // spriteTop.tint = topColor;
-            // spriteTop.width = spriteTop.height = BLOCK_SIZE;
-            // spriteTop.position.set(drawX, drawY - BLOCK_SIZE);
-            // layer.addChild(spriteTop);
+                const spriteFront = new PIXI.Sprite(
+                    scene.assets.spritesheet.textures['rock_front'],
+                );
+                spriteFront.width = BLOCK_SIZE;
+                spriteFront.height = BLOCK_SIZE;
+                spriteFront.position.set(drawX, drawY);
+                layer.addChild(spriteFront);
+            }
         },
     );
 
