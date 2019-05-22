@@ -3,12 +3,16 @@ import * as PIXI from 'pixi.js';
 import { GameObject } from '../game-object/game-object';
 import { Point3D } from '../position/point';
 import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
-import { divideBy, multiply } from '../calc/calc';
-import { getVisibleBlocksIndexes, isPositionWithinChunk } from './chunk-utils';
+import { multiply } from '../calc/calc';
+import {
+    isPositionWithinChunk,
+    getVisibleBlocksIndexes as calculateVisibleBlocksIndexes,
+} from './chunk-utils';
 import { sortZYXAsc } from '../calc/sort';
 import {
-    floorPos,
-    convertBlockIndexToLocalChunkIndex,
+    convertWorldIndexToLocalIndex,
+    convertPositionToChunkIndex,
+    addPos,
 } from '../position/point-utils';
 import { Terrain } from '../terrain/terrain';
 import { BlockType } from '../block/block-type';
@@ -40,15 +44,13 @@ export interface Chunk extends GameObject {
 function createBlockGetter(
     chunk: Chunk,
     terrain: Terrain,
-): (blockIndex: Point3D) => BlockType {
-    return function(blockIndex: Point3D) {
-        if (isPositionWithinChunk(blockIndex, chunk.position)) {
-            return getBlock(
-                convertBlockIndexToLocalChunkIndex(blockIndex),
-                chunk.blocks,
-            );
+): (localIndex: Point3D) => BlockType {
+    return function(localIndex: Point3D) {
+        const chunkIndex = convertPositionToChunkIndex(chunk.position);
+        if (isPositionWithinChunk(localIndex, chunkIndex)) {
+            return getBlock(localIndex, chunk.blocks);
         }
-        return terrain.getBlock(blockIndex);
+        return null;
     };
 }
 
@@ -56,16 +58,16 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
     if (!chunk.hasChanged) {
         return;
     }
-    const getBlock = createBlockGetter(chunk, scene.terrain);
-    // const blocksToRender = getVisibleBlocksIndexes(chunk);
+    // Calculate which blocks are visible.
+    const blocksToRender = calculateVisibleBlocksIndexes(chunk);
 
-    // Render all
-    const blocksToRender = Array.from(iterateBlocks(chunk.blocks))
-        .filter(
-            ([, blockType]: [Point3D, BlockType]) =>
-                blockType !== BlockType.AIR,
-        )
-        .map(([point, blockType]: [Point3D, BlockType]) => point);
+    // | Render all blocks from this chunk |
+    // const blocksToRender = Array.from(iterateBlocks(chunk.blocks))
+    //     .filter(
+    //         ([, blockType]: [Point3D, BlockType]) =>
+    //             blockType !== BlockType.AIR,
+    //     )
+    //     .map(([point, blockType]: [Point3D, BlockType]) => point);
 
     blocksToRender.sort(
         (idA, idB): number => {
@@ -79,14 +81,10 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
     chunk.views.forEach((l): void => void l.destroy({ children: true }));
 
     blocksToRender.forEach(
-        (blockIndex): void => {
-            const blockType = getBlock(blockIndex);
+        (localIndex): void => {
+            const blockType = getBlock(localIndex, chunk.blocks);
 
-            if (blockType === BlockType.AIR) {
-                console.log('ja hier gaat iets fout...');
-            }
-
-            const blockPosition = multiply(BLOCK_SIZE, blockIndex);
+            const blockPosition = multiply(BLOCK_SIZE, localIndex);
 
             const index = blockPosition.y;
             let layer = blockLayers[index];
@@ -103,8 +101,6 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
                 chunk.views[index] = layer;
                 scene.stage.addChild(layer);
             }
-
-            const localIndex = convertBlockIndexToLocalChunkIndex(blockIndex);
 
             const drawX = localIndex.x * BLOCK_SIZE;
             const drawY =

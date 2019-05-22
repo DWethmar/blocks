@@ -19,20 +19,20 @@ export function createBlockRepository(
 }
 
 export function getBlock(
-    blockIndex: Point3D,
+    localIndex: Point3D,
     collection: blockRepository,
 ): BlockType {
-    return collection[blockIndex.x][blockIndex.y][blockIndex.z];
+    return collection[localIndex.x][localIndex.y][localIndex.z];
 }
 
 export function setBlock(
-    blockIndex: Point3D,
+    localIndex: Point3D,
     collection: blockRepository,
     type: BlockType,
 ): boolean {
     if (true) {
         // TODO Check if in chunk.
-        collection[blockIndex.x][blockIndex.y][blockIndex.z] = type;
+        collection[localIndex.x][localIndex.y][localIndex.z] = type;
         return true;
     }
     return false;
@@ -41,9 +41,6 @@ export function setBlock(
 export function* iterateBlocks(
     collection: blockRepository,
 ): Iterable<[Point3D, BlockType]> {
-    yield [createPoint(), BlockType.VOID];
-    yield [createPoint(), BlockType.VOID];
-
     for (let x = 0; x < collection.length; x++) {
         for (let y = 0; y < collection[x].length; y++) {
             for (let z = 0; z < collection[x][y].length; z++) {

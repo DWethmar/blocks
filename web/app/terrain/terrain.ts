@@ -8,9 +8,9 @@ import { createChunk } from '../chunk/chunk';
 import { BlockType } from '../block/block-type';
 import {
     isIntegerPoint3D,
-    convertBlockIndexToChunkIndex as chunkIndexFromBlockIndex,
-    convertBlockIndexToChunkIndex,
-    convertBlockIndexToLocalChunkIndex,
+    convertWorldIndexToChunkIndex as chunkIndexFromBlockIndex,
+    convertWorldIndexToChunkIndex,
+    convertWorldIndexToLocalIndex,
 } from '../position/point-utils';
 import { GameObject } from '../game-object/game-object';
 import { GameObjectRepository } from '../game-object/game-object-repository';
@@ -61,7 +61,7 @@ export function createBlockSetter(
                 gameObjects.activate(chunk.id);
             }
             setBlock(
-                convertBlockIndexToLocalChunkIndex(blockIndex),
+                convertWorldIndexToLocalIndex(blockIndex),
                 chunk.blocks,
                 type,
             );
@@ -73,13 +73,13 @@ export function createBlockSetter(
 export function createBlockGetter(chunks: chunkRepository): blockGetter {
     return function(blockIndex): BlockType {
         if (isIntegerPoint3D(blockIndex)) {
-            const chunkIndex = convertBlockIndexToChunkIndex(blockIndex);
+            const chunkIndex = convertWorldIndexToChunkIndex(blockIndex);
             let chunk = getChunk(chunkIndex, chunks);
             if (!chunk) {
                 return null;
             }
             return getBlock(
-                convertBlockIndexToLocalChunkIndex(blockIndex),
+                convertWorldIndexToLocalIndex(blockIndex),
                 chunk.blocks,
             );
         }

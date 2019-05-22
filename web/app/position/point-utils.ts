@@ -54,12 +54,12 @@ export function positionId(c: Point3D): string {
     return `${c.x}.${c.y}.${c.z}`;
 }
 
-export function convertBlockIndexToChunkIndex(index: Point3D): Point3D {
+export function convertWorldIndexToChunkIndex(worldIndex: Point3D): Point3D {
     return floorPos(
         createPoint(
-            index.x / CHUNK_SIZE,
-            index.y / CHUNK_SIZE,
-            index.z / CHUNK_SIZE,
+            worldIndex.x / CHUNK_SIZE,
+            worldIndex.y / CHUNK_SIZE,
+            worldIndex.z / CHUNK_SIZE,
         ),
     );
 }
@@ -74,7 +74,7 @@ export function convertPositionToChunkIndex(position: Point3D): Point3D {
     );
 }
 
-export function convertPositionToBlockIndex(position: Point3D): Point3D {
+export function convertPositionToWorldIndex(position: Point3D): Point3D {
     return floorPos(
         createPoint(
             position.x / BLOCK_SIZE,
@@ -84,11 +84,11 @@ export function convertPositionToBlockIndex(position: Point3D): Point3D {
     );
 }
 
-export function convertBlockIndexToLocalChunkIndex(blockIndex: Point3D) {
+export function convertWorldIndexToLocalIndex(worldIndex: Point3D): Point3D {
     return createPoint(
-        blockIndex.x % CHUNK_SIZE,
-        blockIndex.y % CHUNK_SIZE,
-        blockIndex.z % CHUNK_SIZE,
+        worldIndex.x % CHUNK_SIZE,
+        worldIndex.y % CHUNK_SIZE,
+        worldIndex.z % CHUNK_SIZE,
     );
 }
 

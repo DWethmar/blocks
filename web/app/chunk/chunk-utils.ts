@@ -5,8 +5,6 @@ import {
     minusPos,
     positionId,
     convertPositionToChunkIndex,
-    convertBlockIndexToLocalChunkIndex,
-    floorPos,
 } from '../position/point-utils';
 import { Point3D, createPoint } from '../position/point';
 import { CHUNK_SIZE } from '../config';
@@ -15,11 +13,11 @@ import { isBlockTransparent } from '../block/block';
 import { BlockType } from '../block/block-type';
 
 export function isPositionWithinChunk(
-    blockIndex: Point3D,
+    localIndex: Point3D,
     chunkIndex: Point3D,
 ): boolean {
     return isWithin(
-        blockIndex,
+        localIndex,
         minusPos(convertPositionToChunkIndex(chunkIndex), createPoint(1, 1, 1)),
         addPos(
             convertPositionToChunkIndex(chunkIndex),
@@ -29,19 +27,19 @@ export function isPositionWithinChunk(
 }
 
 export function isPosVisibleWithinChunk(
-    blockIndex: Point3D,
+    localIndex: Point3D,
     chunk: Chunk,
 ): boolean {
     if (
         isPositionWithinChunk(
-            blockIndex,
+            localIndex,
             convertPositionToChunkIndex(chunk.position),
         )
     ) {
-        const blockType = getBlock(blockIndex, chunk.blocks);
+        const blockType = getBlock(localIndex, chunk.blocks);
         if (!blockType || isBlockTransparent(blockType)) {
             return isPosVisibleWithinChunk(
-                addPos(blockIndex, createPoint(0, 1, 1)),
+                addPos(localIndex, createPoint(0, 1, 1)),
                 chunk,
             );
         } else {
@@ -58,17 +56,15 @@ export function getVisibleBlocksIndexes(chunk: Chunk): Point3D[] {
                 blockType !== BlockType.AIR,
         )
         .reduce<Point3D[]>(
-            (blockIndexes, [blockIndex, blockType]: [Point3D, BlockType]) => {
-                const nextBlockIndex = addPos(blockIndex, createPoint(0, 1, 1));
-
-                // if (blockIndex.x === 25) {
-                //     console.log('skdj');
-                // }
-
-                if (isPosVisibleWithinChunk(nextBlockIndex, chunk)) {
-                    blockIndexes.push(blockIndex);
+            (localIndexes, [localIndex, blockType]: [Point3D, BlockType]) => {
+                const nextIndexInChunk = addPos(
+                    localIndex,
+                    createPoint(0, 1, 1),
+                );
+                if (isPosVisibleWithinChunk(nextIndexInChunk, chunk)) {
+                    localIndexes.push(localIndex);
                 }
-                return blockIndexes;
+                return localIndexes;
             },
             [],
         );
