@@ -108,49 +108,57 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
                 localIndex.z * BLOCK_SIZE +
                 BLOCK_SIZE * CHUNK_SIZE;
 
-            let frontColor = null;
-            // Front
-            switch (blockType) {
-                case BlockType.ROCK:
-                    frontColor = grey;
-                    break;
-                case BlockType.GRASS:
-                    frontColor = green;
-                    break;
-                case BlockType.SELECTION:
-                    frontColor = red;
-                    break;
-                default:
-                    frontColor = pink;
-                    break;
-            }
-            const spriteFront = new PIXI.Sprite(PIXI.Texture.WHITE);
-            spriteFront.tint = frontColor;
-            spriteFront.width = spriteFront.height = BLOCK_SIZE;
-            spriteFront.position.set(drawX, drawY);
-            layer.addChild(spriteFront);
+            const sprite = new PIXI.Sprite(
+                scene.assets.spritesheet.textures['rock_top_left_edge'],
+            );
+            sprite.width = BLOCK_SIZE;
+            sprite.height = BLOCK_SIZE * 2;
+            sprite.position.set(drawX, drawY);
+            layer.addChild(sprite);
 
-            let topColor = null;
-            // Top
-            switch (blockType) {
-                case BlockType.ROCK:
-                    topColor = greyDarken1;
-                    break;
-                case BlockType.GRASS:
-                    topColor = greenDarken1;
-                    break;
-                case BlockType.SELECTION:
-                    topColor = redDarken1;
-                    break;
-                default:
-                    topColor = pinkDarken1;
-                    break;
-            }
-            const spriteTop = new PIXI.Sprite(PIXI.Texture.WHITE);
-            spriteTop.tint = topColor;
-            spriteTop.width = spriteTop.height = BLOCK_SIZE;
-            spriteTop.position.set(drawX, drawY - BLOCK_SIZE);
-            layer.addChild(spriteTop);
+            // let frontColor = null;
+            // // Front
+            // switch (blockType) {
+            //     case BlockType.ROCK:
+            //         frontColor = grey;
+            //         break;
+            //     case BlockType.GRASS:
+            //         frontColor = green;
+            //         break;
+            //     case BlockType.SELECTION:
+            //         frontColor = red;
+            //         break;
+            //     default:
+            //         frontColor = pink;
+            //         break;
+            // }
+            // const spriteFront = new PIXI.Sprite(PIXI.Texture.WHITE);
+            // spriteFront.tint = frontColor;
+            // spriteFront.width = spriteFront.height = BLOCK_SIZE;
+            // spriteFront.position.set(drawX, drawY);
+            // layer.addChild(spriteFront);
+
+            // let topColor = null;
+            // // Top
+            // switch (blockType) {
+            //     case BlockType.ROCK:
+            //         topColor = greyDarken1;
+            //         break;
+            //     case BlockType.GRASS:
+            //         topColor = greenDarken1;
+            //         break;
+            //     case BlockType.SELECTION:
+            //         topColor = redDarken1;
+            //         break;
+            //     default:
+            //         topColor = pinkDarken1;
+            //         break;
+            // }
+            // const spriteTop = new PIXI.Sprite(PIXI.Texture.WHITE);
+            // spriteTop.tint = topColor;
+            // spriteTop.width = spriteTop.height = BLOCK_SIZE;
+            // spriteTop.position.set(drawX, drawY - BLOCK_SIZE);
+            // layer.addChild(spriteTop);
         },
     );
 

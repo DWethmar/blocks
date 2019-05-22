@@ -14,16 +14,12 @@ import { createPlayer, updatePlayer } from '../player/player';
 import { createPoint, Point3D } from '../position/point';
 import { updateChunk } from '../chunk/chunk';
 import { CHUNK_SIZE } from '../config';
-import {
-    createBlockRepository,
-    iterateBlocks,
-} from '../block/block-repository';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 var Viewport = require('pixi-viewport');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-// import data from '../../assets/spritesheets/tiles-spritesheet.json';
-// import image from '../../assets/spritesheets/tiles-spritesheet.png';
+import data from '../../assets/spritesheets/tiles-spritesheet.json';
+import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
 export class GameScene extends Scene {
     public terrain: Terrain;
@@ -32,10 +28,6 @@ export class GameScene extends Scene {
 
     public constructor(app: PIXI.Application) {
         super();
-
-        this.gameComponents.provide(updateChunk);
-        this.gameComponents.provide(updateTerrain);
-        this.gameComponents.provide(updatePlayer);
 
         this.stage = new Viewport({
             screenWidth: window.innerWidth,
@@ -51,6 +43,18 @@ export class GameScene extends Scene {
             .wheel()
             .decelerate();
 
+        this.init();
+
+        app.stage.addChild(this.stage);
+    }
+
+    private async init(): Promise<void> {
+        await this.assets.loadSpriteSheet(data, image);
+
+        this.gameComponents.provide(updateChunk);
+        this.gameComponents.provide(updateTerrain);
+        this.gameComponents.provide(updatePlayer);
+
         this.stage.sortableChildren = false; // we are going to do our own sorting.
         // player
         this.gameObjects.add(createPlayer('zoink', createPoint(75, 0, 10)));
@@ -58,13 +62,6 @@ export class GameScene extends Scene {
         // terrain
         this.terrain = createTerrain('terrain', this.gameObjects);
         this.gameObjects.add(this.terrain);
-
-        // bresenham3D(0, 0, 0, 300, 0, 0).forEach((pos, i) =>
-        //     this.terrain.setBlock(
-        //         addPos(pos, createPoint(0, 0, 3)),
-        //         i % CHUNK_SIZE > 0 ? BlockType.SELECTION : BlockType.VOID,
-        //     ),
-        // );
 
         createTower(this.terrain, BlockType.ROCK, createPoint(17, 15, 1));
         createTower(this.terrain, BlockType.ROCK, createPoint(20, 18, 1));
@@ -86,8 +83,8 @@ export class GameScene extends Scene {
             createTerrainNoise(
                 BlockType.GRASS,
                 BlockType.ROCK,
-                CHUNK_SIZE,
-                CHUNK_SIZE,
+                CHUNK_SIZE * 3,
+                CHUNK_SIZE * 3,
             ),
         ).forEach(
             ([pos, type]: [Point3D, BlockType]) =>
@@ -97,24 +94,10 @@ export class GameScene extends Scene {
                 ),
         );
 
-        // const z = createBlockRepository(CHUNK_SIZE, CHUNK_SIZE, 1);
-        // for (let [pos, _] of iterateBlocks(z)) {
-        //     this.terrain.setBlock(
-        //         addPos(pos, createPoint(CHUNK_SIZE + 5, 0, 0)),
-        //         BlockType.GRASS,
-        //     );
-
-        //     this.terrain.setBlock(
-        //         addPos(pos, createPoint(0, 0, 0)),
-        //         BlockType.ROCK,
-        //     );
-        // }
-
         // Test Line
-        // bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
-        //     this.terrain.setBlock(p, BlockType.SELECTION),
-        // );
-        app.stage.addChild(this.stage);
+        bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
+            this.terrain.setBlock(p, BlockType.SELECTION),
+        );
     }
 
     public update(delta: number): void {
