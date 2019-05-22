@@ -10,11 +10,10 @@ import { BlockType } from '../block/block-type';
 import { Scene } from './scene';
 import { Terrain, updateTerrain, createTerrain } from '../terrain/terrain';
 import { bresenham3D, addPos } from '../position/point-utils';
-import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
-import { Player, createPlayer, updatePlayer } from '../player/player';
-import { Point3D, createPoint } from '../position/point';
-import { GameComponent } from '../game-component/game-component';
+import { createPlayer, updatePlayer } from '../player/player';
+import { createPoint, Point3D } from '../position/point';
 import { updateChunk } from '../chunk/chunk';
+import { CHUNK_SIZE } from '../config';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 var Viewport = require('pixi-viewport');
 
@@ -30,9 +29,9 @@ export class GameScene extends Scene {
     public constructor(stage: PIXI.Container) {
         super();
 
-        this.gameComponents.provideGameComponent(updateChunk);
-        this.gameComponents.provideGameComponent(updateTerrain);
-        this.gameComponents.provideGameComponent(updatePlayer);
+        this.gameComponents.provide(updateChunk);
+        this.gameComponents.provide(updateTerrain);
+        this.gameComponents.provide(updatePlayer);
 
         this.stage = new Viewport({
             screenWidth: window.innerWidth,
@@ -63,37 +62,38 @@ export class GameScene extends Scene {
         createTower(this.terrain, BlockType.ROCK, createPoint(20, 18, 1));
         createArch(this.terrain, BlockType.ROCK, createPoint(6, 1, 1));
 
-        [].fill(100).forEach(
-            (x: number): void => {
-                this.terrain.setBlock(
-                    createPoint(CHUNK_SIZE + x, 0, 0),
-                    BlockType.ROCK,
-                );
-            },
+        let i = 0;
+        while (i < 300) {
+            this.terrain.setBlock(createPoint(i, 0, 0), BlockType.ROCK);
+            i++;
+        }
+
+        Array.from(
+            createCheckers(
+                BlockType.GRASS,
+                BlockType.VOID,
+                CHUNK_SIZE,
+                CHUNK_SIZE,
+            ),
+        ).forEach(
+            ([pos, type]: [Point3D, BlockType]) =>
+                void this.terrain.setBlock(pos, type),
         );
 
-        // for (let x = 0; x < 3; x++) {
-        //     for (let y = 0; y < 3; y++) {
-        //         createCheckers(
-        //             this.terrain,
-        //             BlockType.GRASS,
-        //             BlockType.VOID,
-        //             addPos(
-        //                 createPoint(CHUNK_SIZE, 0, 0),
-        //                 createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
-        //             ),
-        //         );
-        //         createTerrainNoise(
-        //             this.terrain,
-        //             BlockType.GRASS,
-        //             BlockType.ROCK,
-        //             addPos(
-        //                 createPoint(CHUNK_SIZE, 0, 0),
-        //                 createPoint(CHUNK_SIZE * x, CHUNK_SIZE * y, 0),
-        //             ),
-        //         );
-        //     }
-        // }
+        Array.from(
+            createTerrainNoise(
+                BlockType.GRASS,
+                BlockType.VOID,
+                CHUNK_SIZE,
+                CHUNK_SIZE,
+            ),
+        ).forEach(
+            ([pos, type]: [Point3D, BlockType]) =>
+                void this.terrain.setBlock(
+                    addPos(pos, createPoint(CHUNK_SIZE + 1, 0, -1)),
+                    type,
+                ),
+        );
 
         this.gameObjects.setGameObject(
             createPlayer('zoink', createPoint(75, 0, 10)),
@@ -112,31 +112,22 @@ export class GameScene extends Scene {
     public update(delta: number): void {
         this.delta = delta;
 
-        this.gameObjects.getActiveGameObjects().forEach(
-            (gameObject): void => {
-                gameObject.components &&
-                    gameObject.components
-                        .reduce((components, component) => {
-                            if (
-                                this.gameComponents.hasGameComponent(component)
-                            ) {
-                                components.push(
-                                    this.gameComponents.getGameComponentById(
-                                        component,
-                                    ),
-                                );
-                            } else {
-                                throw Error(
-                                    `Component ${component} does not exists on ${
-                                        gameObject.id
-                                    }`,
-                                );
-                            }
-                            return components;
-                        }, [])
-                        .forEach(component => component(this, gameObject));
-            },
-        );
+        for (const gameObject of this.gameObjects.getActiveGameObjects()) {
+            gameObject.components
+                .reduce((components, component) => {
+                    if (this.gameComponents.has(component)) {
+                        components.push(this.gameComponents.getById(component));
+                    } else {
+                        throw Error(
+                            `Component ${component} does not exists on ${
+                                gameObject.id
+                            }`,
+                        );
+                    }
+                    return components;
+                }, [])
+                .forEach(component => component(this, gameObject));
+        }
 
         // Do own sorting
         this.stage.children.sort(

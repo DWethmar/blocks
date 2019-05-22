@@ -1,24 +1,21 @@
 import * as PIXI from 'pixi.js';
 
 import { GameObject } from '../game-object/game-object';
-import { Block, renderBlockViews } from '../block/block';
 import { Point3D } from '../position/point';
-import { CHUNK_SIZE, WORLD_SIZE, BLOCK_SIZE } from '../config';
+import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
 import { divideBy, multiply } from '../calc/calc';
 import { getVisibleBlocksIndexes, isPositionWithinChunk } from './chunk-utils';
 import { sortZYXAsc } from '../calc/sort';
 import {
     floorPos,
-    convertPositionToBlockIndex,
     convertBlockIndexToLocalChunkIndex,
 } from '../position/point-utils';
 import { Terrain } from '../terrain/terrain';
-import { Scene } from '../scene/scene';
 import { BlockType } from '../block/block-type';
 import {
     createBlockRepository,
     blockRepository,
-    getPointInBlockRepository,
+    getBlock,
 } from '../block/block-repository';
 import { GameScene } from '../scene/game-scene';
 
@@ -36,7 +33,7 @@ function createBlockGetter(
 ): (blockIndex: Point3D) => BlockType {
     return function(blockIndex: Point3D) {
         if (isPositionWithinChunk(blockIndex, chunk.position)) {
-            return getPointInBlockRepository(
+            return getBlock(
                 convertBlockIndexToLocalChunkIndex(blockIndex),
                 chunk.blocks,
             );
@@ -51,9 +48,7 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
     }
 
     const getBlock = createBlockGetter(chunk, scene.terrain);
-
     chunk.blocksToRender = getVisibleBlocksIndexes(chunk);
-    // Sort
     chunk.blocksToRender.sort(
         (idA, idB): number => {
             return sortZYXAsc(idA, idB);
@@ -157,6 +152,3 @@ export function createChunk(id: string, position: Point3D): Chunk {
         components: [updateChunk.name],
     };
 }
-
-export const chunkDivider = (size: number) => (point: Point3D) =>
-    floorPos(divideBy(size, point));

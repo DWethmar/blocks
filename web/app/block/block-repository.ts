@@ -30,7 +30,7 @@ export function createPointFromIndex(
     );
 }
 
-export function getPointInBlockRepository(
+export function getBlock(
     point: Point3D,
     collection: blockRepository,
     size = CHUNK_SIZE,
@@ -40,7 +40,7 @@ export function getPointInBlockRepository(
     );
 }
 
-export function setPointInBlockRepository(
+export function setBlock(
     point: Point3D,
     collection: blockRepository,
     type: BlockType,

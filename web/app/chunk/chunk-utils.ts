@@ -10,10 +10,7 @@ import {
 } from '../position/point-utils';
 import { Point3D, createPoint } from '../position/point';
 import { CHUNK_SIZE } from '../config';
-import {
-    createPointFromIndex,
-    getPointInBlockRepository,
-} from '../block/block-repository';
+import { createPointFromIndex, getBlock } from '../block/block-repository';
 import { isBlockTransparent } from '../block/block';
 import { BlockType } from '../block/block-type';
 
@@ -41,7 +38,7 @@ export function isPosVisibleWithinChunk(
             convertPositionToChunkIndex(chunk.position),
         )
     ) {
-        const blockType = getPointInBlockRepository(
+        const blockType = getBlock(
             convertBlockIndexToLocalChunkIndex(blockIndex),
             chunk.blocks,
         );
@@ -62,7 +59,7 @@ export function getVisibleBlocksIndexes(chunk: Chunk): Point3D[] {
         if (c === BlockType.AIR) {
             return s;
         }
-        const blockIndex = floorPos(createPointFromIndex(i));
+        const blockIndex = createPointFromIndex(i);
         const pos = addPos(blockIndex, createPoint(0, 1, 1));
         if (isPosVisibleWithinChunk(pos, chunk)) {
             s.push(floorPos(createPointFromIndex(i)));
@@ -71,6 +68,6 @@ export function getVisibleBlocksIndexes(chunk: Chunk): Point3D[] {
     }, []);
 }
 
-export function getChunkId(position: Point3D): string {
-    return `chunk-${positionId(convertPositionToChunkIndex(position))}`;
+export function getChunkId(chunkIndex: Point3D): string {
+    return `chunk-${positionId(chunkIndex)}`;
 }

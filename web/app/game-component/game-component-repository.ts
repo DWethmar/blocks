@@ -7,18 +7,18 @@ export class GameComponentRepository {
         this.gameComponents = {};
     }
 
-    public getGameComponentById(id: string): GameComponent {
-        if (this.hasGameComponent(id)) {
+    public getById(id: string): GameComponent {
+        if (this.has(id)) {
             return this.gameComponents[id];
         }
         return null;
     }
 
-    public provideGameComponent(gameComponent: GameComponent): void {
+    public provide(gameComponent: GameComponent): void {
         this.gameComponents[gameComponent.name] = gameComponent;
     }
 
-    public hasGameComponent(name: string): boolean {
+    public has(name: string): boolean {
         return this.gameComponents.hasOwnProperty(name);
     }
 }
