@@ -1,7 +1,6 @@
 import { GameObject } from './game-object';
 
 export class GameObjectRepository {
-
     public gameObjects: { [id: string]: GameObject };
     public activeGameObjects: Set<string>;
 
@@ -10,34 +9,36 @@ export class GameObjectRepository {
         this.activeGameObjects = new Set<string>();
     }
 
-    public getGameObjectById(id: string): GameObject {
-        if (this.hasGameObject(id)) {
+    public getById(id: string): GameObject {
+        if (this.has(id)) {
             return this.gameObjects[id];
         }
         return null;
     }
 
-    public setGameObject(gameObject: GameObject): void {
+    public add(gameObject: GameObject): void {
         this.gameObjects[gameObject.id] = gameObject;
     }
 
-    public hasGameObject(id: string): boolean {
+    public has(id: string): boolean {
         return this.gameObjects.hasOwnProperty(id);
     }
 
-    public activateGameObject(id: string): void {
+    public activate(id: string): void {
         this.activeGameObjects.add(id);
     }
 
-    public deactivateGameObject(id: string): boolean {
+    public deactivate(id: string): boolean {
         return this.activeGameObjects.delete(id);
     }
 
-    public isGameObjectActive(id: string): boolean {
+    public isActive(id: string): boolean {
         return this.activeGameObjects.has(id);
     }
 
-    public getActiveGameObjects(): GameObject[] {
-        return Array.from(this.activeGameObjects).map((id: string): GameObject => this.gameObjects[id]);
+    public getActive(): GameObject[] {
+        return Array.from(this.activeGameObjects).map(
+            (id: string): GameObject => this.gameObjects[id],
+        );
     }
 }

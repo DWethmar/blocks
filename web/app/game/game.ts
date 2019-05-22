@@ -11,7 +11,7 @@ export class Game {
         this.app = app;
         this.stage = new PIXI.Container();
         this.app.stage.addChild(this.stage);
-        this.scene = new GameScene(this.stage);
+        this.scene = new GameScene(app);
     }
 
     public update(delta: number): void {

@@ -21,7 +21,6 @@ import { GameScene } from '../scene/game-scene';
 
 export interface Chunk extends GameObject {
     blocks: blockRepository;
-    blocksToRender: Point3D[];
     views: PIXI.Container[];
     terrain: Terrain;
     hasChanged: boolean;
@@ -48,8 +47,8 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
     }
 
     const getBlock = createBlockGetter(chunk, scene.terrain);
-    chunk.blocksToRender = getVisibleBlocksIndexes(chunk);
-    chunk.blocksToRender.sort(
+    const blocksToRender = getVisibleBlocksIndexes(chunk);
+    blocksToRender.sort(
         (idA, idB): number => {
             return sortZYXAsc(idA, idB);
         },
@@ -60,7 +59,7 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
     // Clear that shit.
     chunk.views.forEach((l): void => void l.destroy({ children: true }));
 
-    chunk.blocksToRender.forEach(
+    blocksToRender.forEach(
         (blockIndex): void => {
             const blockType = getBlock(blockIndex);
             const blockPosition = multiply(BLOCK_SIZE, blockIndex);
@@ -140,12 +139,10 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
 }
 
 export function createChunk(id: string, position: Point3D): Chunk {
-    const blocks = createBlockRepository();
     return {
         id: id,
         position: position,
-        blocks: blocks,
-        blocksToRender: [],
+        blocks: createBlockRepository(),
         views: [],
         terrain: null,
         hasChanged: true,

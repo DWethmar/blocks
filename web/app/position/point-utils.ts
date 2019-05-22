@@ -5,7 +5,11 @@ export const getX = (a: Point3D): number => a.x;
 export const getY = (a: Point3D): number => a.y;
 export const getZ = (a: Point3D): number => a.z;
 
-export function isWithin(target: Point3D, start: Point3D, end: Point3D): boolean {
+export function isWithin(
+    target: Point3D,
+    start: Point3D,
+    end: Point3D,
+): boolean {
     return [
         target.x > start.x && target.x < end.x,
         target.y > start.y && target.y < end.y,
@@ -30,7 +34,9 @@ export function minusPos(a: Point3D, b: Point3D): Point3D {
 }
 
 export function isIntegerPoint3D(point: Point3D): boolean {
-    return [point.x, point.y, point.z].every((axis): boolean => Number.isInteger(axis));
+    return [point.x, point.y, point.z].every(
+        (axis): boolean => Number.isInteger(axis),
+    );
 }
 
 export function floorPos(point: Point3D): Point3D {
@@ -48,28 +54,34 @@ export function positionId(c: Point3D): string {
     return `${c.x}.${c.y}.${c.z}`;
 }
 
-export function convertblockIndexToChunkIndex(index: Point3D): Point3D {
-    return floorPos(createPoint(
-        index.x / CHUNK_SIZE,
-        index.y / CHUNK_SIZE,
-        index.z / CHUNK_SIZE,
-    ));
+export function convertBlockIndexToChunkIndex(index: Point3D): Point3D {
+    return floorPos(
+        createPoint(
+            index.x / CHUNK_SIZE,
+            index.y / CHUNK_SIZE,
+            index.z / CHUNK_SIZE,
+        ),
+    );
 }
 
 export function convertPositionToChunkIndex(position: Point3D): Point3D {
-    return floorPos(createPoint(
-      position.x / (BLOCK_SIZE * CHUNK_SIZE),
-      position.y / (BLOCK_SIZE * CHUNK_SIZE),
-      position.z / (BLOCK_SIZE * CHUNK_SIZE),
-    ))
+    return floorPos(
+        createPoint(
+            position.x / (BLOCK_SIZE * CHUNK_SIZE),
+            position.y / (BLOCK_SIZE * CHUNK_SIZE),
+            position.z / (BLOCK_SIZE * CHUNK_SIZE),
+        ),
+    );
 }
 
 export function convertPositionToBlockIndex(position: Point3D): Point3D {
-    return floorPos(createPoint(
-      position.x / BLOCK_SIZE,
-      position.y / BLOCK_SIZE,
-      position.z / BLOCK_SIZE,
-    ))
+    return floorPos(
+        createPoint(
+            position.x / BLOCK_SIZE,
+            position.y / BLOCK_SIZE,
+            position.z / BLOCK_SIZE,
+        ),
+    );
 }
 
 export function convertBlockIndexToLocalChunkIndex(blockIndex: Point3D) {
@@ -81,7 +93,14 @@ export function convertBlockIndexToLocalChunkIndex(blockIndex: Point3D) {
 }
 
 // https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
-export function bresenham3D(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Point3D[] {
+export function bresenham3D(
+    x1: number,
+    y1: number,
+    z1: number,
+    x2: number,
+    y2: number,
+    z2: number,
+): Point3D[] {
     const listOfPoints: Point3D[] = [];
     listOfPoints.push({ x: x1, y: y1, z: z1 });
     let dx = Math.abs(x2 - x1);

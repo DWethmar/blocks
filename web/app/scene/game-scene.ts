@@ -26,7 +26,7 @@ export class GameScene extends Scene {
 
     // public stage: Viewport;
 
-    public constructor(stage: PIXI.Container) {
+    public constructor(app: PIXI.Application) {
         super();
 
         this.gameComponents.provide(updateChunk);
@@ -38,26 +38,20 @@ export class GameScene extends Scene {
             screenHeight: window.innerHeight,
             worldWidth: 1000,
             worldHeight: 1000,
-            // interaction: app.renderer.plugins.interaction // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
+            interaction: app.renderer.plugins.interaction, // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
         });
 
-        // (this.stage as Viewport)
-        //     .drag()
-        //     .pinch()
-        //     .wheel()
-        //     .decelerate();
+        (this.stage as any)
+            .drag()
+            .pinch()
+            .wheel()
+            .decelerate();
 
-        this.stage.sortableChildren = false;
+        this.stage.sortableChildren = false; // we are going to do our own sorting.
 
         this.terrain = createTerrain('terrain', this.gameObjects);
-        this.gameObjects.setGameObject(this.terrain);
+        this.gameObjects.add(this.terrain);
 
-        createCheckers(
-            this.terrain,
-            BlockType.GRASS,
-            BlockType.VOID,
-            createPoint(),
-        );
         createTower(this.terrain, BlockType.ROCK, createPoint(17, 15, 1));
         createTower(this.terrain, BlockType.ROCK, createPoint(20, 18, 1));
         createArch(this.terrain, BlockType.ROCK, createPoint(6, 1, 1));
@@ -95,16 +89,14 @@ export class GameScene extends Scene {
                 ),
         );
 
-        this.gameObjects.setGameObject(
-            createPlayer('zoink', createPoint(75, 0, 10)),
-        );
-        this.gameObjects.activateGameObject('zoink');
+        this.gameObjects.add(createPlayer('zoink', createPoint(75, 0, 10)));
+        this.gameObjects.activate('zoink');
 
         // Test Line
         bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
             this.terrain.setBlock(p, BlockType.SELECTION),
         );
-        stage.addChild(this.stage);
+        app.stage.addChild(this.stage);
 
         console.log(this.gameObjects);
     }
@@ -112,7 +104,7 @@ export class GameScene extends Scene {
     public update(delta: number): void {
         this.delta = delta;
 
-        for (const gameObject of this.gameObjects.getActiveGameObjects()) {
+        for (const gameObject of this.gameObjects.getActive()) {
             gameObject.components
                 .reduce((components, component) => {
                     if (this.gameComponents.has(component)) {

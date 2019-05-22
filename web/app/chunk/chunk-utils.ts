@@ -10,7 +10,7 @@ import {
 } from '../position/point-utils';
 import { Point3D, createPoint } from '../position/point';
 import { CHUNK_SIZE } from '../config';
-import { createPointFromIndex, getBlock } from '../block/block-repository';
+import { iterateBlocks, getBlock } from '../block/block-repository';
 import { isBlockTransparent } from '../block/block';
 import { BlockType } from '../block/block-type';
 
@@ -38,11 +38,8 @@ export function isPosVisibleWithinChunk(
             convertPositionToChunkIndex(chunk.position),
         )
     ) {
-        const blockType = getBlock(
-            convertBlockIndexToLocalChunkIndex(blockIndex),
-            chunk.blocks,
-        );
-        if (isBlockTransparent(blockType)) {
+        const blockType = getBlock(blockIndex, chunk.blocks);
+        if (!blockType || isBlockTransparent(blockType)) {
             return isPosVisibleWithinChunk(
                 addPos(blockIndex, createPoint(0, 1, 1)),
                 chunk,
@@ -55,17 +52,21 @@ export function isPosVisibleWithinChunk(
 }
 
 export function getVisibleBlocksIndexes(chunk: Chunk): Point3D[] {
-    return chunk.blocks.reduce<Point3D[]>((s, c, i) => {
-        if (c === BlockType.AIR) {
-            return s;
-        }
-        const blockIndex = createPointFromIndex(i);
-        const pos = addPos(blockIndex, createPoint(0, 1, 1));
-        if (isPosVisibleWithinChunk(pos, chunk)) {
-            s.push(floorPos(createPointFromIndex(i)));
-        }
-        return s;
-    }, []);
+    return Array.from(iterateBlocks(chunk.blocks))
+        .filter(
+            ([, blockType]: [Point3D, BlockType]) =>
+                blockType !== BlockType.AIR,
+        )
+        .reduce<Point3D[]>(
+            (blockIndexes, [blockIndex, blockType]: [Point3D, BlockType]) => {
+                const nextBlockIndex = addPos(blockIndex, createPoint(0, 1, 1));
+                if (isPosVisibleWithinChunk(nextBlockIndex, chunk)) {
+                    blockIndexes.push(blockIndex);
+                }
+                return blockIndexes;
+            },
+            [],
+        );
 }
 
 export function getChunkId(chunkIndex: Point3D): string {

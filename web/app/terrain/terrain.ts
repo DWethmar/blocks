@@ -8,8 +8,8 @@ import { createChunk } from '../chunk/chunk';
 import { BlockType } from '../block/block-type';
 import {
     isIntegerPoint3D,
-    convertblockIndexToChunkIndex as chunkIndexFromBlockIndex,
-    convertblockIndexToChunkIndex as convertBlockIndexToChunkIndex,
+    convertBlockIndexToChunkIndex as chunkIndexFromBlockIndex,
+    convertBlockIndexToChunkIndex,
     convertBlockIndexToLocalChunkIndex,
 } from '../position/point-utils';
 import { GameObject } from '../game-object/game-object';
@@ -57,8 +57,8 @@ export function createBlockSetter(
                 setChunk(chunk, chunks);
 
                 // Register the new chunk
-                gameObjects.setGameObject(chunk);
-                gameObjects.activateGameObject(chunk.id);
+                gameObjects.add(chunk);
+                gameObjects.activate(chunk.id);
             }
             setBlock(
                 convertBlockIndexToLocalChunkIndex(index),
