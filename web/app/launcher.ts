@@ -11,10 +11,12 @@ const viewPort = { width: 750, height: 500 };
 
 let app = new PIXI.Application(viewPort);
 
-if (process.env.NODE_ENV === 'development') {
-    // Only runs in development and will be stripped from production build.
-    document.body.appendChild(app.view);
-}
+// if (process.env.NODE_ENV === 'development') {
+//     // Only runs in development and will be stripped from production build.
+//     document.body.appendChild(app.view);
+// }
+
+document.body.appendChild(app.view);
 
 function setup(): void {
     console.log('Setup');
