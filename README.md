@@ -2,6 +2,8 @@
 
 - use yarn instead of npm
 
+
+
 ## Wasm
 
 Build wasm
@@ -14,6 +16,4 @@ Get wasm_exec
 
 
 // TODO
-https://www.devdungeon.com/content/working-images-go
-https://github.com/avelino/awesome-go
-https://blog.golang.org/go-image-package
+https://blog.logrocket.com/setting-up-a-monorepo-with-lerna-for-a-typescript-project-b6a81fe8e4f8
