@@ -2,6 +2,9 @@
 const Ammo = require('ammo.js');
 
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
+import { updateBall } from '../ball/ball';
+import { createPoint } from '../position/point';
+import { GameObject } from '../game-object/game-object';
 
 // https://github.com/kripken/ammo.js/blob/master/examples/hello_world.js
 // physics
@@ -26,11 +29,15 @@ const groundShape = new Ammo.btBoxShape(
         BLOCK_SIZE * CHUNK_SIZE,
     ),
 );
-export const bodies = [];
+export const physicsObjects: {
+    transform?: any;
+    body: any;
+    gameObject?: GameObject;
+}[] = [];
 const groundTransform = new Ammo.btTransform();
 
 groundTransform.setIdentity();
-groundTransform.setOrigin(new Ammo.btVector3(0, -56, 0));
+groundTransform.setOrigin(new Ammo.btVector3(0, 0, 0));
 
 // Make ground
 (function() {
@@ -52,7 +59,28 @@ groundTransform.setOrigin(new Ammo.btVector3(0, -56, 0));
     const body = new Ammo.btRigidBody(rbInfo);
 
     dynamicsWorld.addRigidBody(body);
-    bodies.push(body);
+    physicsObjects.push({
+        body: body,
+        transform: groundTransform,
+    });
 })();
-
 // physics
+
+const updatePhysics = (): void => {
+    dynamicsWorld.stepSimulation(1 / 60, 10);
+    physicsObjects.forEach(function(body) {
+        if (body.body.getMotionState()) {
+            body.body.getMotionState().getWorldTransform(body.transform);
+
+            if (body.gameObject) {
+                body.gameObject.position = createPoint(
+                    body.transform.getOrigin().x(),
+                    body.transform.getOrigin().z(),
+                    body.transform.getOrigin().y(),
+                );
+            }
+        }
+    });
+};
+
+export default updatePhysics;

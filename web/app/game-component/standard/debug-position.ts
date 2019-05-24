@@ -17,7 +17,7 @@ export function debugPosition(scene: Scene, gameObject: GameObject): void {
     debugPositionView = (gameObject as any).debugPositionView;
     const [drawX, drawY, zIndex] = getDrawPosition(gameObject.position);
     debugPositionView.position.set(drawX, drawY);
-    debugPositionView.zIndex = zIndex;
+    debugPositionView.zIndex = zIndex + 999999;
     debugPositionView.text = `x${gameObject.position.x.toFixed(
         2,
     )}y${gameObject.position.y.toFixed(2)}z${gameObject.position.z.toFixed(2)}`;

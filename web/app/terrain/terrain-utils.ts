@@ -18,7 +18,7 @@ export function* createTerrainNoise(
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < length; y++) {
             let value = Math.abs(noise.perlin2(x / 10, y / 10));
-            const z = Math.ceil(value * 4);
+            const z = Math.ceil(value * 6);
 
             yield [createPoint(x, y, z), type1];
 
@@ -53,13 +53,12 @@ export function createArch(
     terrain.setBlock(addPos(start, createPoint(6, 0, 3)), type);
 }
 
-export function createTower(
-    terrain: Terrain,
+export function* createTower(
     type: BlockType,
-    start: Point3D,
-): void {
-    for (let z = 0; z < 20; z++) {
-        terrain.setBlock(addPos(start, createPoint(0, 0, z)), type);
+    height: number,
+): Iterable<[Point3D, BlockType]> {
+    for (let z = 0; z < height; z++) {
+        yield [createPoint(0, 0, z), type];
     }
 }
 

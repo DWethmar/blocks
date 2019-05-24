@@ -5,9 +5,17 @@ export function divideBy(divisor: number, point: Point3D): Point3D {
 }
 
 export function add(addition: number, point: Point3D): Point3D {
-    return createPoint(point.x + addition, point.y + addition, point.z + addition);
+    return createPoint(
+        point.x + addition,
+        point.y + addition,
+        point.z + addition,
+    );
 }
 
 export function multiply(multiplication: number, point: Point3D): Point3D {
-    return createPoint(point.x * multiplication, point.y * multiplication, point.z * multiplication);
+    return createPoint(
+        point.x * multiplication,
+        point.y * multiplication,
+        point.z * multiplication,
+    );
 }

@@ -5,8 +5,9 @@ import { createCircleGraphic } from '../graphics/circle';
 import { Scene } from '../scene/scene';
 import { getDrawPosition } from '../game-object/game-object-utils';
 import { pink } from '../color/colors';
-import { dynamicsWorld, bodies } from '../physics/physics';
+import { dynamicsWorld, physicsObjects } from '../physics/physics';
 import { debugPosition } from '../game-component/standard/debug-position';
+import { GameComponent } from '../game-component/game-component';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Ammo = require('ammo.js');
@@ -33,70 +34,19 @@ export function updateBall(scene: Scene, ball: Ball): void {
         ball.view.y = drawY;
 
         ball.view.addChild(createCircleGraphic(-2.5, -2.5, 5, pink));
-
         ball.view.zIndex = Math.ceil(ball.position.y);
-
         scene.stage.addChild(ball.view);
     }
-
-    if (!ball.physics.trans) {
-        ball.physics.trans = new Ammo.btTransform(); // taking this out of the loop below us reduces the leaking
-
-        const colShape = new Ammo.btSphereShape(1);
-        const startTransform = new Ammo.btTransform();
-
-        startTransform.setIdentity();
-
-        const mass = 1;
-        const isDynamic = true; // mass !== 0;
-        const localInertia = new Ammo.btVector3(0, 0, 0);
-
-        if (isDynamic) {
-            colShape.calculateLocalInertia(mass, localInertia);
-        }
-
-        startTransform.setOrigin(
-            new Ammo.btVector3(
-                ball.position.x,
-                ball.position.z,
-                ball.position.y,
-            ),
-        );
-
-        const myMotionState = new Ammo.btDefaultMotionState(startTransform);
-        const rbInfo = new Ammo.btRigidBodyConstructionInfo(
-            mass,
-            myMotionState,
-            colShape,
-            localInertia,
-        );
-        const body = new Ammo.btRigidBody(rbInfo);
-
-        dynamicsWorld.addRigidBody(body);
-        bodies.push(body);
-    }
-
-    // physics
-    dynamicsWorld.stepSimulation(1 / 60, 10);
-
-    bodies.forEach(function(body) {
-        if (body.getMotionState()) {
-            body.getMotionState().getWorldTransform(ball.physics.trans);
-            ball.position = createPoint(
-                ball.physics.trans.getOrigin().x(),
-                ball.physics.trans.getOrigin().z(),
-                ball.physics.trans.getOrigin().y(),
-            );
-        }
-    });
-    // physics
-
     const [drawX, drawY, zIndex] = getDrawPosition(ball.position);
     ball.view.position.set(drawX, drawY);
     ball.view.zIndex = zIndex;
 }
 
-export function createBall(id: string, position: Point3D): Ball {
+export function createBall(
+    id: string,
+    position: Point3D,
+    components: GameComponent[],
+): Ball {
     return {
         id: id,
         position: position,
@@ -104,7 +54,7 @@ export function createBall(id: string, position: Point3D): Ball {
         Radius: 30,
         angle: 0,
         center: position,
-        components: [updateBall.name, debugPosition.name],
+        components: components.map(c => c.name),
         view: null,
         physics: {},
     };
