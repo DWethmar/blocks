@@ -25,6 +25,8 @@ app.loader.load(setup);
 
 let game: Game = new Game(app);
 
+const ball = game.scene.gameObjects.getById('ball');
+
 // setup ticker
 const ticker = new Ticker();
 ticker.add(

@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+
 import { sortZYXAsc } from '../calc/sort';
 import {
     createArch,
@@ -13,13 +14,16 @@ import { bresenham3D, addPos } from '../position/point-utils';
 import { createPlayer, updatePlayer } from '../player/player';
 import { createPoint, Point3D } from '../position/point';
 import { updateChunk } from '../chunk/chunk';
-import { CHUNK_SIZE } from '../config';
+import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-var Viewport = require('pixi-viewport');
+const Viewport = require('pixi-viewport');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import data from '../../assets/spritesheets/tiles-spritesheet.json';
 import image from '../../assets/spritesheets/tiles-spritesheet.png';
+import { updateBall, createBall } from '../ball/ball';
+import { debugPosition } from '../game-component/standard/debug-position';
 
 export class GameScene extends Scene {
     public terrain: Terrain;
@@ -43,6 +47,23 @@ export class GameScene extends Scene {
             .wheel()
             .decelerate();
 
+        // player
+        this.gameObjects.add(createPlayer('zoink', createPoint(75, 0, 10)));
+        this.gameObjects.activate('zoink');
+
+        // Ball
+        this.gameObjects.add(
+            createBall(
+                'ball',
+                createPoint(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE * 5),
+            ),
+        );
+        this.gameObjects.activate('ball');
+
+        // terrain
+        this.terrain = createTerrain('terrain', this.gameObjects);
+        this.gameObjects.add(this.terrain);
+
         this.init();
 
         app.stage.addChild(this.stage);
@@ -54,14 +75,10 @@ export class GameScene extends Scene {
         this.gameComponents.provide(updateChunk);
         this.gameComponents.provide(updateTerrain);
         this.gameComponents.provide(updatePlayer);
+        this.gameComponents.provide(updateBall);
+        this.gameComponents.provide(debugPosition);
 
         this.stage.sortableChildren = false; // we are going to do our own sorting.
-        // player
-        this.gameObjects.add(createPlayer('zoink', createPoint(75, 0, 10)));
-        this.gameObjects.activate('zoink');
-        // terrain
-        this.terrain = createTerrain('terrain', this.gameObjects);
-        this.gameObjects.add(this.terrain);
 
         createTower(this.terrain, BlockType.ROCK, createPoint(17, 15, 1));
         createTower(this.terrain, BlockType.ROCK, createPoint(20, 18, 1));

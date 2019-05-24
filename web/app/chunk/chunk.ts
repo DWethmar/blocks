@@ -87,23 +87,29 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
 
             const blockPosition = multiply(BLOCK_SIZE, localIndex);
 
+            const [drawX, drawY, zIndex] = getDrawPosition(chunk.position);
+            // Ball.view.position.set(drawX, drawY);
+            // Ball.view.zIndex = zIndex;
+
             const index = blockPosition.y;
             let layer = blockLayers[index];
 
             if (!blockLayers[index]) {
                 layer = new PIXI.Container();
                 layer.sortableChildren = false;
-                layer.position.set(chunk.position.x, chunk.position.y);
+                layer.position.set(drawX, drawY - CHUNK_SIZE * BLOCK_SIZE);
                 layer.name = `BlockLayer: ${chunk.position.x} ${
                     chunk.position.y
                 } ${chunk.position.z}`;
+                layer.zIndex = index + zIndex;
+
                 blockLayers[index] = layer;
 
                 chunk.views[index] = layer;
                 scene.stage.addChild(layer);
             }
 
-            const [drawX, drawY] = getDrawPosition(blockPosition);
+            const [bDrawX, bDrawY] = getDrawPosition(blockPosition);
 
             if (blockType === BlockType.GRASS) {
                 const spriteTop = new PIXI.Sprite(
@@ -111,7 +117,7 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
                 );
                 spriteTop.width = BLOCK_SIZE;
                 spriteTop.height = BLOCK_SIZE;
-                spriteTop.position.set(drawX, drawY - BLOCK_SIZE);
+                spriteTop.position.set(bDrawX, bDrawY - BLOCK_SIZE);
                 layer.addChild(spriteTop);
 
                 const spriteFront = new PIXI.Sprite(
@@ -119,7 +125,7 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
                 );
                 spriteFront.width = BLOCK_SIZE;
                 spriteFront.height = BLOCK_SIZE;
-                spriteFront.position.set(drawX, drawY);
+                spriteFront.position.set(bDrawX, bDrawY);
                 layer.addChild(spriteFront);
             } else {
                 const spriteTop = new PIXI.Sprite(
@@ -127,7 +133,7 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
                 );
                 spriteTop.width = BLOCK_SIZE;
                 spriteTop.height = BLOCK_SIZE;
-                spriteTop.position.set(drawX, drawY - BLOCK_SIZE);
+                spriteTop.position.set(bDrawX, bDrawY - BLOCK_SIZE);
                 layer.addChild(spriteTop);
 
                 const spriteFront = new PIXI.Sprite(
@@ -135,7 +141,7 @@ export function updateChunk(scene: GameScene, chunk: Chunk): void {
                 );
                 spriteFront.width = BLOCK_SIZE;
                 spriteFront.height = BLOCK_SIZE;
-                spriteFront.position.set(drawX, drawY);
+                spriteFront.position.set(bDrawX, bDrawY);
                 layer.addChild(spriteFront);
             }
         },

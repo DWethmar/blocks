@@ -7,6 +7,7 @@ import { multiply } from '../calc/calc';
 import { addPos } from '../position/point-utils';
 import { Scene } from '../scene/scene';
 import { getDrawPosition } from '../game-object/game-object-utils';
+import { debugPosition } from '../game-component/standard/debug-position';
 
 export interface Player extends GameObject {
     RotateSpeed: number;
@@ -64,7 +65,7 @@ export function createPlayer(id: string, position: Point3D): Player {
         Radius: 30,
         angle: 0,
         center: position,
-        components: [updatePlayer.name],
+        components: [updatePlayer.name, debugPosition.name],
         view: null,
     };
 }

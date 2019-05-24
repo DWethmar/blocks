@@ -5,7 +5,7 @@ import { GameScene } from '../scene/game-scene';
 export class Game {
     private readonly app: PIXI.Application;
     private readonly stage: PIXI.Container;
-    private scene: Scene;
+    public scene: Scene;
 
     public constructor(app: PIXI.Application) {
         this.app = app;
