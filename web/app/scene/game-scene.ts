@@ -71,7 +71,7 @@ export class GameScene extends Scene {
                 createBall(
                     'balls' + i,
                     addPos(
-                        createPoint(75, 75, 0),
+                        createPoint(50, 75, 0),
                         createPoint(
                             BLOCK_SIZE + (boink ? 1 : -1),
                             BLOCK_SIZE + (boink ? -1 : 1),
@@ -130,7 +130,7 @@ export class GameScene extends Scene {
         for (let y = startY; y < startY + CHUNK_SIZE; y++) {
             const id = `ball-z-index-test-${y}`;
             this.gameObjects.add(
-                createBall(id, createPoint(0, y * BLOCK_SIZE, BLOCK_SIZE * 2), [
+                createBall(id, createPoint(0, y * BLOCK_SIZE, BLOCK_SIZE * 5), [
                     horizontalMovement,
                     updateBall,
                     debugPosition,
