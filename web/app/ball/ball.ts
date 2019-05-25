@@ -1,16 +1,10 @@
 import * as PIXI from 'pixi.js';
-import { GameObject } from '../game-object/game-object';
-import { Point3D, createPoint } from '../position/point';
-import { createCircleGraphic } from '../graphics/circle';
-import { Scene } from '../scene/scene';
-import { getDrawPosition } from '../game-object/game-object-utils';
-import { pink } from '../color/colors';
-import { dynamicsWorld, physicsObjects } from '../physics/physics';
-import { debugPosition } from '../game-component/standard/debug-position';
-import { GameComponent } from '../game-component/game-component';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Ammo = require('ammo.js');
+import { GameObject, Point3D, Scene, GameComponent } from '@blocks/core';
+import { getDrawPosition } from '../utils/game-object-utils';
+import { createCircleGraphic } from '../graphics/circle';
+import { pink } from '../color/colors';
+import { GameScene } from '../scene/game-scene';
 
 export interface Ball extends GameObject {
     RotateSpeed: number;
@@ -21,7 +15,7 @@ export interface Ball extends GameObject {
     physics: { [id: string]: any };
 }
 
-export function updateBall(scene: Scene, ball: Ball): void {
+export function updateBall(scene: GameScene, ball: Ball): void {
     if (!ball.view) {
         ball.view = new PIXI.Container();
         ball.view.name = 'Ball';

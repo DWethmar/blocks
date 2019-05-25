@@ -1,4 +1,4 @@
-import { Point3D, createPoint } from '../position/point';
+import { Point3D, createPoint } from '@blocks/core';
 import { BlockType } from './block-type';
 
 export type blockRepository = BlockType[][][];

@@ -1,16 +1,11 @@
+import { Point3D, createPoint, isWithin, minusPos, addPos, positionId  } from '@blocks/core';
+
 import { Chunk } from './chunk';
-import {
-    addPos,
-    isWithin,
-    minusPos,
-    positionId,
-    convertPositionToChunkIndex,
-} from '../position/point-utils';
-import { Point3D, createPoint } from '../position/point';
 import { CHUNK_SIZE } from '../config';
-import { iterateBlocks, getBlock } from '../block/block-repository';
+import { getBlock, iterateBlocks } from '../block/block-repository';
 import { isBlockTransparent } from '../block/block';
 import { BlockType } from '../block/block-type';
+import { convertPositionToChunkIndex } from '../terrain/index-utils';
 
 export function isPositionWithinChunk(
     localIndex: Point3D,
@@ -49,7 +44,7 @@ export function isPosVisibleWithinChunk(
     return true;
 }
 
-export function getVisibleBlocksIndexes(chunk: Chunk): Point3D[] {
+export function calculateVisibleBlocksIndexes(chunk: Chunk): Point3D[] {
     return Array.from(iterateBlocks(chunk.blocks))
         .filter(
             ([, blockType]: [Point3D, BlockType]) =>

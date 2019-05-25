@@ -2,9 +2,7 @@
 const Ammo = require('ammo.js');
 
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
-import { updateBall } from '../ball/ball';
-import { createPoint } from '../position/point';
-import { GameObject } from '../game-object/game-object';
+import { GameObject, createPoint } from '@blocks/core';
 
 // https://github.com/kripken/ammo.js/blob/master/examples/hello_world.js
 // physics

@@ -1,39 +1,13 @@
 import * as PIXI from 'pixi.js';
 
-import { GameObject } from '../game-object/game-object';
-import { Point3D } from '../position/point';
-import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
-import { multiply } from '../calc/calc';
-import {
-    isPositionWithinChunk,
-    getVisibleBlocksIndexes as calculateVisibleBlocksIndexes,
-} from './chunk-utils';
-import { sortZYXAsc } from '../calc/sort';
-import {
-    convertWorldIndexToLocalIndex,
-    convertPositionToChunkIndex,
-    addPos,
-} from '../position/point-utils';
+import { GameObject, Point3D, convertPositionToChunkIndex, sortZYXAsc, multiply } from '@blocks/core';
+import { blockRepository, getBlock, createBlockRepository } from '../block/block-repository';
 import { Terrain } from '../terrain/terrain';
 import { BlockType } from '../block/block-type';
-import {
-    createBlockRepository,
-    blockRepository,
-    getBlock,
-    iterateBlocks,
-} from '../block/block-repository';
+import { isPositionWithinChunk, calculateVisibleBlocksIndexes } from './chunk-utils';
 import { GameScene } from '../scene/game-scene';
-import {
-    grey,
-    green,
-    red,
-    pink,
-    greyDarken1,
-    greenDarken1,
-    pinkDarken1,
-    redDarken1,
-} from '../color/colors';
-import { getDrawPosition } from '../game-object/game-object-utils';
+import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
+import { getDrawPosition } from '../utils/game-object-utils';
 
 export interface Chunk extends GameObject {
     blocks: blockRepository;

@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+
 import { LightenDarkenColor } from '../color/color';
 
 export function createCircleGraphic(

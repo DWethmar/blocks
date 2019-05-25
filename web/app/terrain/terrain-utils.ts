@@ -1,9 +1,9 @@
+import { addPos, Point3D, createPoint } from '@blocks/core';
+
 import { CHUNK_SIZE } from '../config';
 import '../../vendor/noisejs/perlin.js';
 import { BlockType } from '../block/block-type';
-import { addPos } from '../position/point-utils';
 import { Terrain } from './terrain';
-import { Point3D, createPoint } from '../position/point';
 
 declare var noise;
 

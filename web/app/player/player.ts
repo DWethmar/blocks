@@ -1,13 +1,11 @@
 import * as PIXI from 'pixi.js';
-import { GameObject } from '../game-object/game-object';
-import { Point3D, createPoint } from '../position/point';
-import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
+import { GameObject, Point3D, Scene, multiply, createPoint, addPos } from '@blocks/core';
+
+import { getDrawPosition } from '../utils/game-object-utils';
 import { createCircleGraphic } from '../graphics/circle';
-import { multiply } from '../calc/calc';
-import { addPos } from '../position/point-utils';
-import { Scene } from '../scene/scene';
-import { getDrawPosition } from '../game-object/game-object-utils';
-import { debugPosition } from '../game-component/standard/debug-position';
+import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
+import { debugPosition } from '../components/standard/debug-position';
+import { GameScene } from '../scene/game-scene';
 
 export interface Player extends GameObject {
     RotateSpeed: number;
@@ -17,7 +15,7 @@ export interface Player extends GameObject {
     view: PIXI.Container;
 }
 
-export function updatePlayer(scene: Scene, player: Player): void {
+export function updatePlayer(scene: GameScene, player: Player): void {
     if (!player.view) {
         player.view = new PIXI.Container();
         player.view.name = 'Player';

@@ -1,26 +1,18 @@
 import * as PIXI from 'pixi.js';
 
-import { Scene } from '../scene/scene';
-import { Point3D, createPoint } from '../position/point';
-import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
-import { multiply } from '../calc/calc';
-import { createChunk } from '../chunk/chunk';
-import { BlockType } from '../block/block-type';
-import {
-    isIntegerPoint3D,
-    convertWorldIndexToChunkIndex as chunkIndexFromBlockIndex,
-    convertWorldIndexToChunkIndex,
-    convertWorldIndexToLocalIndex,
-} from '../position/point-utils';
-import { GameObject } from '../game-object/game-object';
-import { GameObjectRepository } from '../game-object/game-object-repository';
-import { getBlock, setBlock } from '../block/block-repository';
 import {
     chunkRepository,
     getChunk,
     setChunk,
     createChunkRepository,
 } from '../chunk/chunk-repository';
+import { Scene, Point3D, GameObject, GameObjectRepository, multiply, createPoint } from '@blocks/core';
+import { BlockType } from '../block/block-type';
+import { isIntegerPoint3D } from '@blocks/core';
+import { createChunk } from '../chunk/chunk';
+import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
+import { setBlock, getBlock } from '../block/block-repository';
+import { convertWorldIndexToLocalIndex, convertWorldIndexToChunkIndex } from './index-utils';
 
 export function updateTerrain(scene: Scene, terrain: Terrain): void {
     console.log('Nothing to do fml', terrain, scene);

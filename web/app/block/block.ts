@@ -1,8 +1,7 @@
 import * as PIXI from 'pixi.js';
 
-import { GameObject } from '../game-object/game-object';
+import { GameObject, Point3D } from '@blocks/core';
 import { BlockType } from './block-type';
-import { Point3D } from '../position/point';
 
 export function isBlockTransparent(type: BlockType): boolean {
     return type === BlockType.AIR;

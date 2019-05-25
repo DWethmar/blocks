@@ -1,6 +1,8 @@
 import * as PIXI from 'pixi.js';
 
-import { sortZYXAsc } from '../calc/sort';
+import { sortZYXAsc, bresenham3D, addPos, createPoint, Point3D } from '@blocks/core';
+import { Scene } from '@blocks/core';
+
 import {
     createArch,
     createCheckers,
@@ -8,11 +10,8 @@ import {
     createTower,
 } from '../terrain/terrain-utils';
 import { BlockType } from '../block/block-type';
-import { Scene } from './scene';
 import { Terrain, updateTerrain, createTerrain } from '../terrain/terrain';
-import { bresenham3D, addPos } from '../position/point-utils';
 import { createPlayer, updatePlayer } from '../player/player';
-import { createPoint, Point3D } from '../position/point';
 import { updateChunk } from '../chunk/chunk';
 import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
 
@@ -24,19 +23,26 @@ import data from '../../assets/spritesheets/tiles-spritesheet.json';
 import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
 import { updateBall, createBall } from '../ball/ball';
-import { debugPosition } from '../game-component/standard/debug-position';
+import { debugPosition } from '../components/standard/debug-position';
 import updatePhysics from '../physics/physics';
-import { horizontalMovement } from '../game-component/standard/horizontal-movement';
+import { horizontalMovement } from '../components/standard/horizontal-movement';
 import { ballPhysics } from '../ball/components/ball-physics';
+import { AssetRepository } from '../assets/asset-repository';
 
 export class GameScene extends Scene {
+
+    public stage: PIXI.Container;
+
     public terrain: Terrain;
+
+    public assets: AssetRepository;
 
     // public stage: Viewport;
 
     public constructor(app: PIXI.Application) {
         super();
 
+        this.assets = new AssetRepository();
         this.stage = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,

@@ -1,9 +1,9 @@
 import '@babel/polyfill';
 import * as PIXI from 'pixi.js';
 
-import { Game } from './game/game';
+import { Game } from '@blocks/core';
 import { Ticker } from 'pixi.js';
-import { version } from './version';
+import { GameScene } from './scene/game-scene';
 
 // import "./wasm";
 
@@ -25,7 +25,8 @@ function setup(): void {
 app.renderer.backgroundColor = 0xf5f5f5;
 app.loader.load(setup);
 
-let game: Game = new Game(app);
+const game: Game = new Game();
+game.scene = new GameScene(app);
 
 const ball = game.scene.gameObjects.getById('ball');
 
@@ -34,7 +35,7 @@ const ticker = new Ticker();
 ticker.add(
     (delta: number): void => {
         game.update(delta);
-        document.title = `${process.env.TITLE} ${version} FPS:${Math.floor(
+        document.title = `${process.env.TITLE} FPS:${Math.floor(
             app.ticker.FPS,
         )}`;
     },

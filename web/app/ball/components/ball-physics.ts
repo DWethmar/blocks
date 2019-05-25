@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 
-import { Scene } from '../../scene/scene';
+import { Scene } from '@blocks/core';
 import { dynamicsWorld, physicsObjects } from '../../physics/physics';
 import { Ball } from '../ball';
 
