@@ -11,7 +11,7 @@ export const version = '${version}';
 `;
 
 if (version) {
-    fs.writeFile('./app/version.ts', data, err => {
+    fs.writeFile('./src/version.ts', data, err => {
         if (err) {
             console.log(err);
             return;

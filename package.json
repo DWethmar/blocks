@@ -5,6 +5,7 @@
     "lerna": "^3.14.1"
   },
   "scripts": {
-    "start": "npm start --prefix packages/web"
+    "start": "npm start --prefix packages/web",
+    "build": "npm run build --prefix packages/web"
   }
 }
