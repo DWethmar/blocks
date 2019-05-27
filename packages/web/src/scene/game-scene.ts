@@ -24,7 +24,7 @@ import image from '../../assets/spritesheets/tiles-spritesheet.png';
 import { updateBall, createBall } from '../ball/ball';
 import { debugPosition } from '../components/standard/debug-position';
 import updatePhysics from '../physics/physics';
-import { horizontalMovement } from '../components/standard/horizontal-movement';
+import { horizontalMovement } from '../components/standard/ping-pong';
 import { ballPhysics } from '../ball/components/ball-physics';
 import { AssetRepository } from '../assets/asset-repository';
 
@@ -55,6 +55,12 @@ export class GameScene extends Scene {
             .drag()
             .pinch()
             .wheel()
+            .clampZoom({
+                minWidth: 100,
+                minHeight: 100,
+                maxWidth: 2000,
+                maxHeight: 2000,
+            })
             .decelerate();
 
         this.gameComponents.provide(updateChunk);
@@ -132,17 +138,16 @@ export class GameScene extends Scene {
             },
         );
 
-        for (let y = startY; y < startY + CHUNK_SIZE; y++) {
-            const id = `ball-z-index-test-${y}`;
-            this.gameObjects.add(
-                createBall(id, createPoint(0, y * BLOCK_SIZE, BLOCK_SIZE * 5), [
-                    horizontalMovement,
-                    updateBall,
-                    debugPosition,
-                ]),
-            );
-            this.gameObjects.activate(id);
-        }
+        let y = 2;
+        const id = `ball-z-index-test-${y}`;
+        this.gameObjects.add(
+            createBall(id, createPoint(0, y * (BLOCK_SIZE * CHUNK_SIZE), BLOCK_SIZE * 1), [
+                horizontalMovement,
+                updateBall,
+                debugPosition,
+            ]),
+        );
+        this.gameObjects.activate(id);
     }
 
     private async init(): Promise<void> {

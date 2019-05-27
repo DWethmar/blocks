@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 
-import { GameObject, Point3D, convertPositionToChunkIndex, sortZYXAsc, multiply } from '@blocks/core';
+import { GameObject, Point3D, sortZYXAsc, multiply } from '@blocks/core';
 import { blockRepository, getBlock, createBlockRepository } from '../block/block-repository';
 import { Terrain } from '../terrain/terrain';
 import { BlockType } from '../block/block-type';
@@ -8,6 +8,7 @@ import { isPositionWithinChunk, calculateVisibleBlocksIndexes } from './chunk-ut
 import { GameScene } from '../scene/game-scene';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { getDrawPosition } from '../utils/game-object-utils';
+import { convertPositionToChunkIndex } from '../terrain/index-utils';
 
 export interface Chunk extends GameObject {
     blocks: blockRepository;

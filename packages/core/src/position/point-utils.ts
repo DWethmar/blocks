@@ -17,19 +17,19 @@ export function isWithin(
 }
 
 export function addPos(a: Point3D, b: Point3D): Point3D {
-    return {
-        x: a.x + b.x,
-        y: a.y + b.y,
-        z: a.z + b.z,
-    };
+    return createPoint(
+        a.x + b.x,
+        a.y + b.y,
+        a.z + b.z,
+    )
 }
 
 export function minusPos(a: Point3D, b: Point3D): Point3D {
-    return {
-        x: a.x - b.x,
-        y: a.y - b.y,
-        z: a.z - b.z,
-    };
+    return createPoint(
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z,
+    )
 }
 
 export function isIntegerPoint3D(point: Point3D): boolean {

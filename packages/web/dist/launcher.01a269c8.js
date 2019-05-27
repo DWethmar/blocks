@@ -43171,9 +43171,11 @@ var config_1 = require("../config");
 
 var game_object_utils_1 = require("../utils/game-object-utils");
 
+var index_utils_1 = require("../terrain/index-utils");
+
 function createBlockGetter(chunk, terrain) {
   return function (localIndex) {
-    var chunkIndex = core_1.convertPositionToChunkIndex(chunk.position);
+    var chunkIndex = index_utils_1.convertPositionToChunkIndex(chunk.position);
 
     if (chunk_utils_1.isPositionWithinChunk(localIndex, chunkIndex)) {
       return block_repository_1.getBlock(localIndex, chunk.blocks);
@@ -43279,7 +43281,7 @@ function createChunk(id, position) {
 }
 
 exports.createChunk = createChunk;
-},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","@blocks/core":"node_modules/@blocks/core/lib/index.js","../block/block-repository":"src/block/block-repository.ts","../block/block-type":"src/block/block-type.ts","./chunk-utils":"src/chunk/chunk-utils.ts","../config":"src/config.ts","../utils/game-object-utils":"src/utils/game-object-utils.ts"}],"src/terrain/terrain.ts":[function(require,module,exports) {
+},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","@blocks/core":"node_modules/@blocks/core/lib/index.js","../block/block-repository":"src/block/block-repository.ts","../block/block-type":"src/block/block-type.ts","./chunk-utils":"src/chunk/chunk-utils.ts","../config":"src/config.ts","../utils/game-object-utils":"src/utils/game-object-utils.ts","../terrain/index-utils":"src/terrain/index-utils.ts"}],"src/terrain/terrain.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -43430,9 +43432,11 @@ function debugPosition(scene, gameObject) {
 
   if (!gameObject.debugPositionView) {
     gameObject.debugPositionView = new PIXI.Text('~', {
-      fontFamily: 'Consolas',
-      fontSize: 12,
-      fill: 0xff1010
+      fontFamily: 'Ariel',
+      fontSize: 14,
+      fill: 0xff1010,
+      stroke: '#000',
+      strokeThickness: 2
     });
     scene.stage.addChild(gameObject.debugPositionView);
   }
@@ -43446,7 +43450,7 @@ function debugPosition(scene, gameObject) {
 
   debugPositionView.position.set(drawX, drawY);
   debugPositionView.zIndex = zIndex + 999999;
-  debugPositionView.text = "x" + gameObject.position.x.toFixed(2) + "y" + gameObject.position.y.toFixed(2) + "z" + gameObject.position.z.toFixed(2);
+  debugPositionView.text = "X:" + gameObject.position.x.toFixed(2) + "Y:" + gameObject.position.y.toFixed(2) + "Z:" + gameObject.position.z.toFixed(2);
 }
 
 exports.debugPosition = debugPosition;
@@ -48112,8 +48116,6 @@ exports.__esModule = true;
 
 var core_1 = require("@blocks/core");
 
-var config_1 = require("../../config");
-
 function horizontalMovement(scene, gameObject) {
   if (!gameObject.horizontalMovement) {
     gameObject.horizontalMovement = {};
@@ -48126,25 +48128,27 @@ function horizontalMovement(scene, gameObject) {
   var start = gameObject.horizontalMovement.start;
   var right = gameObject.horizontalMovement.right;
 
-  if (current.x > start.x + config_1.BLOCK_SIZE * config_1.CHUNK_SIZE && right) {
-    gameObject.horizontalMovement.right = false;
+  if (current.x > start.x + 3 && right) {
+    right = false;
   } else {
     if (current.x < start.x && !right) {
-      gameObject.horizontalMovement.right = true;
+      right = true;
     }
   }
 
   if (right) {
-    current.x += 2 * scene.delta;
+    current.x += 1;
+    gameObject.position = core_1.addPos(gameObject.position, current);
   } else {
-    current.x -= 2 * scene.delta;
+    current.x -= 1;
+    gameObject.position = core_1.minusPos(gameObject.position, current);
   }
 
-  gameObject.position = core_1.addPos(gameObject.position, current);
+  gameObject.horizontalMovement.right = right;
 }
 
 exports.horizontalMovement = horizontalMovement;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","../../config":"src/config.ts"}],"src/ball/components/ball-physics.ts":[function(require,module,exports) {
+},{"@blocks/core":"node_modules/@blocks/core/lib/index.js"}],"src/ball/components/ball-physics.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -48448,7 +48452,12 @@ function (_super) {
     });
     _this.stage.sortableChildren = false; // we are going to do our own sorting.
 
-    _this.stage.drag().pinch().wheel().decelerate();
+    _this.stage.drag().pinch().wheel().clampZoom({
+      minWidth: 100,
+      minHeight: 100,
+      maxWidth: 2000,
+      maxHeight: 2000
+    }).decelerate();
 
     _this.gameComponents.provide(chunk_1.updateChunk);
 
@@ -48509,12 +48518,10 @@ function (_super) {
         void _this.terrain.setBlock(core_1.addPos(core_1.createPoint(startX, startY), core_1.addPos(core_1.createPoint(x, x, 0), pos)), type);
       }
     });
-
-    for (var y = startY; y < startY + config_1.CHUNK_SIZE; y++) {
-      var id = "ball-z-index-test-" + y;
-      this.gameObjects.add(ball_1.createBall(id, core_1.createPoint(0, y * config_1.BLOCK_SIZE, config_1.BLOCK_SIZE * 5), [horizontal_movement_1.horizontalMovement, ball_1.updateBall, debug_position_1.debugPosition]));
-      this.gameObjects.activate(id);
-    }
+    var y = 2;
+    var id = "ball-z-index-test-" + y;
+    this.gameObjects.add(ball_1.createBall(id, core_1.createPoint(0, y * (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), config_1.BLOCK_SIZE * 1), [horizontal_movement_1.horizontalMovement, ball_1.updateBall, debug_position_1.debugPosition]));
+    this.gameObjects.activate(id);
   };
 
   GameScene.prototype.init = function () {
@@ -48675,7 +48682,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33713" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33917" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
