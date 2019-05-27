@@ -5,8 +5,8 @@
   "author": "DWethmar <denniswethmar@gmail.com>",
   "homepage": "https://github.com/DWethmar/blocks#readme",
   "license": "ISC",
-  "main": "lib/core.js",
-  "typings": "lib/core.d.ts",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -27,5 +27,8 @@
   },
   "dependencies": {
     "typescript": "^3.4.5"
-  }
+  },
+  "browserslist": [
+    "last 1 chrome versions"
+  ]
 }
