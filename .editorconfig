@@ -2,10 +2,10 @@ root = true
 
 # matches all files
 [*]
-indent_style = tab
+indent_style = space
 indent_size = 4
 
-[{web,scripts}/**.{ts,json,js}]
+[{packages}/**.{ts,json,js}]
 end_of_line = crlf
 charset = utf-8
 trim_trailing_whitespace = true

@@ -1,4 +1,11 @@
-import { Point3D, createPoint, isWithin, minusPos, addPos, positionId  } from '@blocks/core';
+import {
+    Point3D,
+    createPoint,
+    isWithin,
+    minusPos,
+    addPos,
+    positionId,
+} from '@blocks/core';
 
 import { Chunk } from './chunk';
 import { CHUNK_SIZE } from '../config';

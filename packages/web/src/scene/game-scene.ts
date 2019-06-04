@@ -1,6 +1,13 @@
 import * as PIXI from 'pixi.js';
 
-import { Scene, sortZYXAsc, bresenham3D, addPos, createPoint, Point3D } from '@blocks/core';
+import {
+    Scene,
+    sortZYXAsc,
+    bresenham3D,
+    addPos,
+    createPoint,
+    Point3D,
+} from '@blocks/core';
 
 import {
     createArch,
@@ -29,7 +36,6 @@ import { ballPhysics } from '../ball/components/ball-physics';
 import { AssetRepository } from '../assets/asset-repository';
 
 export class GameScene extends Scene {
-
     public stage: PIXI.Container;
 
     public terrain: Terrain;
@@ -141,11 +147,11 @@ export class GameScene extends Scene {
         let y = 2;
         const id = `ball-z-index-test-${y}`;
         this.gameObjects.add(
-            createBall(id, createPoint(0, y * (BLOCK_SIZE * CHUNK_SIZE), BLOCK_SIZE * 1), [
-                horizontalMovement,
-                updateBall,
-                debugPosition,
-            ]),
+            createBall(
+                id,
+                createPoint(0, y * (BLOCK_SIZE * CHUNK_SIZE), BLOCK_SIZE * 1),
+                [horizontalMovement, updateBall, debugPosition],
+            ),
         );
         this.gameObjects.activate(id);
     }

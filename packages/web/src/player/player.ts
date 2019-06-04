@@ -1,9 +1,15 @@
 import * as PIXI from 'pixi.js';
-import { GameObject, Point3D, Scene, multiply, createPoint, addPos } from '@blocks/core';
+import {
+    GameObject,
+    Point3D,
+    Scene,
+    multiply,
+    createPoint,
+    addPos,
+} from '@blocks/core';
 
 import { getDrawPosition } from '../utils/game-object-utils';
 import { createCircleGraphic } from '../graphics/circle';
-import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { debugPosition } from '../components/standard/debug-position';
 import { GameScene } from '../scene/game-scene';
 
@@ -16,20 +22,20 @@ export interface Player extends GameObject {
 }
 
 export function updatePlayer(scene: GameScene, player: Player): void {
+    const [drawX, drawY, zIndex] = getDrawPosition(player.position);
+
     if (!player.view) {
         player.view = new PIXI.Container();
         player.view.name = 'Player';
 
         player.center = Object.assign({}, player.position);
 
-        const [drawX, drawY] = getDrawPosition(player.position);
-
         player.view.x = drawX;
         player.view.y = drawY;
 
         player.view.addChild(createCircleGraphic(-2.5, -2.5, 5, 0x95f442));
 
-        player.view.zIndex = Math.ceil(player.position.y);
+        player.view.zIndex = zIndex;
 
         scene.stage.addChild(player.view);
     }
@@ -46,13 +52,9 @@ export function updatePlayer(scene: GameScene, player: Player): void {
     player.position.x = newPos.x;
     player.position.y = newPos.y;
 
-    const drawX = player.position.x;
-    const drawY =
-        player.position.y - player.position.z + BLOCK_SIZE * CHUNK_SIZE;
-
     player.view.x = drawX;
     player.view.y = drawY;
-    player.view.zIndex = Math.ceil(player.position.y);
+    player.view.zIndex = zIndex;
 }
 
 export function createPlayer(id: string, position: Point3D): Player {

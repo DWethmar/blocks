@@ -16,22 +16,20 @@ export interface Ball extends GameObject {
 }
 
 export function updateBall(scene: GameScene, ball: Ball): void {
+    const [drawX, drawY, zIndex] = getDrawPosition(ball.position);
+
     if (!ball.view) {
         ball.view = new PIXI.Container();
         ball.view.name = 'Ball';
 
         ball.center = Object.assign({}, ball.position);
 
-        const [drawX, drawY] = getDrawPosition(ball.position);
-
         ball.view.x = drawX;
         ball.view.y = drawY;
 
         ball.view.addChild(createCircleGraphic(-2.5, -2.5, 5, pink));
-        ball.view.zIndex = Math.ceil(ball.position.y);
         scene.stage.addChild(ball.view);
     }
-    const [drawX, drawY, zIndex] = getDrawPosition(ball.position);
     ball.view.position.set(drawX, drawY);
     ball.view.zIndex = zIndex;
 }

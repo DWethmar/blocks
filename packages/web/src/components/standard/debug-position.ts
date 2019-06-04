@@ -12,15 +12,17 @@ export function debugPosition(scene: GameScene, gameObject: GameObject): void {
             fontSize: 14,
             fill: 0xff1010,
             stroke: '#000',
-            strokeThickness: 2
+            strokeThickness: 2,
         });
         scene.stage.addChild((gameObject as any).debugPositionView);
     }
     debugPositionView = (gameObject as any).debugPositionView;
-    const [drawX, drawY, zIndex] = getDrawPosition(gameObject.position);
+    const [drawX, drawY] = getDrawPosition(gameObject.position);
     debugPositionView.position.set(drawX, drawY);
-    debugPositionView.zIndex = zIndex + 999999;
+    debugPositionView.zIndex = gameObject.position.z + 999999;
     debugPositionView.text = `X:${gameObject.position.x.toFixed(
         2,
-    )}Y:${gameObject.position.y.toFixed(2)}Z:${gameObject.position.z.toFixed(2)}`;
+    )}Y:${gameObject.position.y.toFixed(2)}Z:${gameObject.position.z.toFixed(
+        2,
+    )}`;
 }

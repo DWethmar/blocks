@@ -41718,6 +41718,7 @@ exports.multiply = multiply;
 },{"../position/point":"node_modules/@blocks/core/lib/position/point.js"}],"node_modules/@blocks/core/lib/position/point-utils.js":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var point_1 = require("./point");
 exports.getX = function (a) { return a.x; };
 exports.getY = function (a) { return a.y; };
 exports.getZ = function (a) { return a.z; };
@@ -41730,19 +41731,11 @@ function isWithin(target, start, end) {
 }
 exports.isWithin = isWithin;
 function addPos(a, b) {
-    return {
-        x: a.x + b.x,
-        y: a.y + b.y,
-        z: a.z + b.z,
-    };
+    return point_1.createPoint(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 exports.addPos = addPos;
 function minusPos(a, b) {
-    return {
-        x: a.x - b.x,
-        y: a.y - b.y,
-        z: a.z - b.z,
-    };
+    return point_1.createPoint(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 exports.minusPos = minusPos;
 function isIntegerPoint3D(point) {
@@ -41853,7 +41846,7 @@ function bresenham3D(x1, y1, z1, x2, y2, z2) {
 }
 exports.bresenham3D = bresenham3D;
 
-},{}],"node_modules/@blocks/core/lib/calc/sort.js":[function(require,module,exports) {
+},{"./point":"node_modules/@blocks/core/lib/position/point.js"}],"node_modules/@blocks/core/lib/calc/sort.js":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var point_utils_1 = require("../position/point-utils");
@@ -43135,12 +43128,16 @@ exports.setChunk = setChunk;
 exports.__esModule = true;
 
 var config_1 = require("../config");
+/**
+ *
+ * @param position
+ */
+
 
 function getDrawPosition(position) {
   var drawX = position.x;
   var drawY = position.y - position.z + config_1.BLOCK_SIZE * config_1.CHUNK_SIZE;
-  var zIndex = position.y + position.z;
-  return [drawX, drawY, zIndex];
+  return [drawX, drawY, Math.ceil(position.y)];
 }
 
 exports.getDrawPosition = getDrawPosition;
@@ -43445,11 +43442,10 @@ function debugPosition(scene, gameObject) {
 
   var _a = game_object_utils_1.getDrawPosition(gameObject.position),
       drawX = _a[0],
-      drawY = _a[1],
-      zIndex = _a[2];
+      drawY = _a[1];
 
   debugPositionView.position.set(drawX, drawY);
-  debugPositionView.zIndex = zIndex + 999999;
+  debugPositionView.zIndex = gameObject.position.z + 999999;
   debugPositionView.text = "X:" + gameObject.position.x.toFixed(2) + "Y:" + gameObject.position.y.toFixed(2) + "Z:" + gameObject.position.z.toFixed(2);
 }
 
@@ -43475,24 +43471,22 @@ var game_object_utils_1 = require("../utils/game-object-utils");
 
 var circle_1 = require("../graphics/circle");
 
-var config_1 = require("../config");
-
 var debug_position_1 = require("../components/standard/debug-position");
 
 function updatePlayer(scene, player) {
+  var _a = game_object_utils_1.getDrawPosition(player.position),
+      drawX = _a[0],
+      drawY = _a[1],
+      zIndex = _a[2];
+
   if (!player.view) {
     player.view = new PIXI.Container();
     player.view.name = 'Player';
     player.center = Object.assign({}, player.position);
-
-    var _a = game_object_utils_1.getDrawPosition(player.position),
-        drawX_1 = _a[0],
-        drawY_1 = _a[1];
-
-    player.view.x = drawX_1;
-    player.view.y = drawY_1;
+    player.view.x = drawX;
+    player.view.y = drawY;
     player.view.addChild(circle_1.createCircleGraphic(-2.5, -2.5, 5, 0x95f442));
-    player.view.zIndex = Math.ceil(player.position.y);
+    player.view.zIndex = zIndex;
     scene.stage.addChild(player.view);
   }
 
@@ -43501,11 +43495,9 @@ function updatePlayer(scene, player) {
   var newPos = core_1.addPos(offset, player.center);
   player.position.x = newPos.x;
   player.position.y = newPos.y;
-  var drawX = player.position.x;
-  var drawY = player.position.y - player.position.z + config_1.BLOCK_SIZE * config_1.CHUNK_SIZE;
   player.view.x = drawX;
   player.view.y = drawY;
-  player.view.zIndex = Math.ceil(player.position.y);
+  player.view.zIndex = zIndex;
 }
 
 exports.updatePlayer = updatePlayer;
@@ -43524,7 +43516,7 @@ function createPlayer(id, position) {
 }
 
 exports.createPlayer = createPlayer;
-},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","@blocks/core":"node_modules/@blocks/core/lib/index.js","../utils/game-object-utils":"src/utils/game-object-utils.ts","../graphics/circle":"src/graphics/circle.ts","../config":"src/config.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts"}],"node_modules/penner/penner.js":[function(require,module,exports) {
+},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","@blocks/core":"node_modules/@blocks/core/lib/index.js","../utils/game-object-utils":"src/utils/game-object-utils.ts","../graphics/circle":"src/graphics/circle.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts"}],"node_modules/penner/penner.js":[function(require,module,exports) {
 var define;
 
 /*
@@ -47524,26 +47516,20 @@ var circle_1 = require("../graphics/circle");
 var colors_1 = require("../color/colors");
 
 function updateBall(scene, ball) {
+  var _a = game_object_utils_1.getDrawPosition(ball.position),
+      drawX = _a[0],
+      drawY = _a[1],
+      zIndex = _a[2];
+
   if (!ball.view) {
     ball.view = new PIXI.Container();
     ball.view.name = 'Ball';
     ball.center = Object.assign({}, ball.position);
-
-    var _a = game_object_utils_1.getDrawPosition(ball.position),
-        drawX_1 = _a[0],
-        drawY_1 = _a[1];
-
-    ball.view.x = drawX_1;
-    ball.view.y = drawY_1;
+    ball.view.x = drawX;
+    ball.view.y = drawY;
     ball.view.addChild(circle_1.createCircleGraphic(-2.5, -2.5, 5, colors_1.pink));
-    ball.view.zIndex = Math.ceil(ball.position.y);
     scene.stage.addChild(ball.view);
   }
-
-  var _b = game_object_utils_1.getDrawPosition(ball.position),
-      drawX = _b[0],
-      drawY = _b[1],
-      zIndex = _b[2];
 
   ball.view.position.set(drawX, drawY);
   ball.view.zIndex = zIndex;
@@ -48009,7 +47995,7 @@ var substr = 'ab'.substr(-1) === 'b'
 },{"process":"node_modules/process/browser.js"}],"node_modules/ammo.js/ammo.js":[function(require,module,exports) {
 var define;
 var process = require("process");
-var __dirname = "/home/dwethmar/Projects/blocks/packages/web/node_modules/ammo.js";
+var __dirname = "C:\\Users\\DennisW\\Projects\\blocks\\packages\\web\\node_modules\\ammo.js";
 var global = arguments[3];
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) define(factory);
@@ -48109,46 +48095,44 @@ var updatePhysics = function () {
 };
 
 exports["default"] = updatePhysics;
-},{"ammo.js":"node_modules/ammo.js/ammo.js","../config":"src/config.ts","@blocks/core":"node_modules/@blocks/core/lib/index.js"}],"src/components/standard/horizontal-movement.ts":[function(require,module,exports) {
+},{"ammo.js":"node_modules/ammo.js/ammo.js","../config":"src/config.ts","@blocks/core":"node_modules/@blocks/core/lib/index.js"}],"src/components/standard/ping-pong.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
-
-var core_1 = require("@blocks/core");
+var left = 0;
+var right = 100;
+var start = 'ping';
 
 function horizontalMovement(scene, gameObject) {
   if (!gameObject.horizontalMovement) {
     gameObject.horizontalMovement = {};
-    gameObject.horizontalMovement.current = core_1.createPoint();
-    gameObject.horizontalMovement.start = core_1.createPoint();
-    gameObject.horizontalMovement.right = true;
+    gameObject.horizontalMovement.ping = 'ping';
+    gameObject.horizontalMovement.start = gameObject.position.x;
   }
 
-  var current = gameObject.horizontalMovement.current;
   var start = gameObject.horizontalMovement.start;
+  var ping = gameObject.horizontalMovement.ping;
   var right = gameObject.horizontalMovement.right;
 
-  if (current.x > start.x + 3 && right) {
-    right = false;
+  if (gameObject.position.x > start + left && ping === 'ping') {
+    ping = 'pong';
   } else {
-    if (current.x < start.x && !right) {
-      right = true;
+    if (gameObject.position.x < start && ping === 'pong') {
+      ping = 'ping';
     }
   }
 
   if (right) {
-    current.x += 1;
-    gameObject.position = core_1.addPos(gameObject.position, current);
+    gameObject.position.x += 1;
   } else {
-    current.x -= 1;
-    gameObject.position = core_1.minusPos(gameObject.position, current);
+    gameObject.position.x -= 1;
   }
 
-  gameObject.horizontalMovement.right = right;
+  gameObject.horizontalMovement.ping = ping;
 }
 
 exports.horizontalMovement = horizontalMovement;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js"}],"src/ball/components/ball-physics.ts":[function(require,module,exports) {
+},{}],"src/ball/components/ball-physics.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -48427,7 +48411,7 @@ var debug_position_1 = require("../components/standard/debug-position");
 
 var physics_1 = __importDefault(require("../physics/physics"));
 
-var horizontal_movement_1 = require("../components/standard/horizontal-movement");
+var ping_pong_1 = require("../components/standard/ping-pong");
 
 var ball_physics_1 = require("../ball/components/ball-physics");
 
@@ -48469,7 +48453,7 @@ function (_super) {
 
     _this.gameComponents.provide(debug_position_1.debugPosition);
 
-    _this.gameComponents.provide(horizontal_movement_1.horizontalMovement);
+    _this.gameComponents.provide(ping_pong_1.horizontalMovement);
 
     _this.gameComponents.provide(ball_physics_1.ballPhysics); // player
 
@@ -48520,7 +48504,7 @@ function (_super) {
     });
     var y = 2;
     var id = "ball-z-index-test-" + y;
-    this.gameObjects.add(ball_1.createBall(id, core_1.createPoint(0, y * (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), config_1.BLOCK_SIZE * 1), [horizontal_movement_1.horizontalMovement, ball_1.updateBall, debug_position_1.debugPosition]));
+    this.gameObjects.add(ball_1.createBall(id, core_1.createPoint(0, y * (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), config_1.BLOCK_SIZE * 1), [ping_pong_1.horizontalMovement, ball_1.updateBall, debug_position_1.debugPosition]));
     this.gameObjects.activate(id);
   };
 
@@ -48605,7 +48589,7 @@ function (_super) {
 }(core_1.Scene);
 
 exports.GameScene = GameScene;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","../terrain/terrain-utils":"src/terrain/terrain-utils.ts","../block/block-type":"src/block/block-type.ts","../terrain/terrain":"src/terrain/terrain.ts","../player/player":"src/player/player.ts","../chunk/chunk":"src/chunk/chunk.ts","../config":"src/config.ts","pixi-viewport":"node_modules/pixi-viewport/dist/viewport.js","../../assets/spritesheets/tiles-spritesheet.json":"assets/spritesheets/tiles-spritesheet.json","../../assets/spritesheets/tiles-spritesheet.png":"assets/spritesheets/tiles-spritesheet.png","../ball/ball":"src/ball/ball.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts","../physics/physics":"src/physics/physics.ts","../components/standard/horizontal-movement":"src/components/standard/horizontal-movement.ts","../ball/components/ball-physics":"src/ball/components/ball-physics.ts","../assets/asset-repository":"src/assets/asset-repository.ts"}],"src/launcher.ts":[function(require,module,exports) {
+},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","../terrain/terrain-utils":"src/terrain/terrain-utils.ts","../block/block-type":"src/block/block-type.ts","../terrain/terrain":"src/terrain/terrain.ts","../player/player":"src/player/player.ts","../chunk/chunk":"src/chunk/chunk.ts","../config":"src/config.ts","pixi-viewport":"node_modules/pixi-viewport/dist/viewport.js","../../assets/spritesheets/tiles-spritesheet.json":"assets/spritesheets/tiles-spritesheet.json","../../assets/spritesheets/tiles-spritesheet.png":"assets/spritesheets/tiles-spritesheet.png","../ball/ball":"src/ball/ball.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts","../physics/physics":"src/physics/physics.ts","../components/standard/ping-pong":"src/components/standard/ping-pong.ts","../ball/components/ball-physics":"src/ball/components/ball-physics.ts","../assets/asset-repository":"src/assets/asset-repository.ts"}],"src/launcher.ts":[function(require,module,exports) {
 "use strict";
 
 var __importStar = this && this.__importStar || function (mod) {
@@ -48682,7 +48666,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33917" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64024" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
