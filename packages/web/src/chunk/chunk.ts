@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 
-import { GameObject, Point3D, sortZYXAsc, multiply } from '@blocks/core';
 import {
     blockRepository,
     getBlock,
@@ -8,33 +7,20 @@ import {
 } from '../block/block-repository';
 import { Terrain } from '../terrain/terrain';
 import { BlockType } from '../block/block-type';
-import {
-    isPositionWithinChunk,
-    calculateVisibleBlocksIndexes,
-} from './chunk-utils';
+import { calculateVisibleBlocksIndexes } from './chunk-utils';
 import { GameScene } from '../scene/game-scene';
 import { BLOCK_SIZE, CHUNK_SIZE } from '../config';
 import { getDrawPosition } from '../utils/game-object-utils';
-import { convertPositionToChunkIndex } from '../terrain/index-utils';
+import { GameObject } from '../game-object/game-object';
+import { sortZYXAsc } from '../calc/sort';
+import { multiply } from '../calc/calc';
+import { Point3D } from '../position/point';
 
 export interface Chunk extends GameObject {
     blocks: blockRepository;
     views: PIXI.Container[];
     terrain: Terrain;
     hasChanged: boolean;
-}
-
-function createBlockGetter(
-    chunk: Chunk,
-    terrain: Terrain,
-): (localIndex: Point3D) => BlockType {
-    return function(localIndex: Point3D) {
-        const chunkIndex = convertPositionToChunkIndex(chunk.position);
-        if (isPositionWithinChunk(localIndex, chunkIndex)) {
-            return getBlock(localIndex, chunk.blocks);
-        }
-        return null;
-    };
 }
 
 export function updateChunk(scene: GameScene, chunk: Chunk): void {

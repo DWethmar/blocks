@@ -41690,395 +41690,7 @@ var filters = {
   NoiseFilter: _filterNoise.NoiseFilter
 };
 exports.filters = filters;
-},{"@pixi/polyfill":"node_modules/@pixi/polyfill/lib/polyfill.es.js","@pixi/accessibility":"node_modules/@pixi/accessibility/lib/accessibility.es.js","@pixi/extract":"node_modules/@pixi/extract/lib/extract.es.js","@pixi/interaction":"node_modules/@pixi/interaction/lib/interaction.es.js","@pixi/prepare":"node_modules/@pixi/prepare/lib/prepare.es.js","@pixi/utils":"node_modules/@pixi/utils/lib/utils.es.js","@pixi/app":"node_modules/@pixi/app/lib/app.es.js","@pixi/core":"node_modules/@pixi/core/lib/core.es.js","@pixi/loaders":"node_modules/@pixi/loaders/lib/loaders.es.js","@pixi/particles":"node_modules/@pixi/particles/lib/particles.es.js","@pixi/spritesheet":"node_modules/@pixi/spritesheet/lib/spritesheet.es.js","@pixi/sprite-tiling":"node_modules/@pixi/sprite-tiling/lib/sprite-tiling.es.js","@pixi/text-bitmap":"node_modules/@pixi/text-bitmap/lib/text-bitmap.es.js","@pixi/ticker":"node_modules/@pixi/ticker/lib/ticker.es.js","@pixi/filter-alpha":"node_modules/@pixi/filter-alpha/lib/filter-alpha.es.js","@pixi/filter-blur":"node_modules/@pixi/filter-blur/lib/filter-blur.es.js","@pixi/filter-color-matrix":"node_modules/@pixi/filter-color-matrix/lib/filter-color-matrix.es.js","@pixi/filter-displacement":"node_modules/@pixi/filter-displacement/lib/filter-displacement.es.js","@pixi/filter-fxaa":"node_modules/@pixi/filter-fxaa/lib/filter-fxaa.es.js","@pixi/filter-noise":"node_modules/@pixi/filter-noise/lib/filter-noise.es.js","@pixi/mixin-cache-as-bitmap":"node_modules/@pixi/mixin-cache-as-bitmap/lib/mixin-cache-as-bitmap.es.js","@pixi/mixin-get-child-by-name":"node_modules/@pixi/mixin-get-child-by-name/lib/mixin-get-child-by-name.es.js","@pixi/mixin-get-global-position":"node_modules/@pixi/mixin-get-global-position/lib/mixin-get-global-position.es.js","@pixi/constants":"node_modules/@pixi/constants/lib/constants.es.js","@pixi/display":"node_modules/@pixi/display/lib/display.es.js","@pixi/graphics":"node_modules/@pixi/graphics/lib/graphics.es.js","@pixi/math":"node_modules/@pixi/math/lib/math.es.js","@pixi/mesh":"node_modules/@pixi/mesh/lib/mesh.es.js","@pixi/mesh-extras":"node_modules/@pixi/mesh-extras/lib/mesh-extras.es.js","@pixi/runner":"node_modules/@pixi/runner/lib/runner.es.js","@pixi/sprite":"node_modules/@pixi/sprite/lib/sprite.es.js","@pixi/sprite-animated":"node_modules/@pixi/sprite-animated/lib/sprite-animated.es.js","@pixi/text":"node_modules/@pixi/text/lib/text.es.js","@pixi/settings":"node_modules/@pixi/settings/lib/settings.es.js"}],"node_modules/@blocks/core/lib/position/point.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-function createPoint(x, y, z) {
-    return { x: !!x ? x : 0, y: !!y ? y : 0, z: !!z ? z : 0 };
-}
-exports.createPoint = createPoint;
-
-},{}],"node_modules/@blocks/core/lib/calc/calc.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var point_1 = require("../position/point");
-function divideBy(divisor, point) {
-    return point_1.createPoint(point.x / divisor, point.y / divisor, point.z / divisor);
-}
-exports.divideBy = divideBy;
-function add(addition, point) {
-    return point_1.createPoint(point.x + addition, point.y + addition, point.z + addition);
-}
-exports.add = add;
-function multiply(multiplication, point) {
-    return point_1.createPoint(point.x * multiplication, point.y * multiplication, point.z * multiplication);
-}
-exports.multiply = multiply;
-
-},{"../position/point":"node_modules/@blocks/core/lib/position/point.js"}],"node_modules/@blocks/core/lib/position/point-utils.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var point_1 = require("./point");
-exports.getX = function (a) { return a.x; };
-exports.getY = function (a) { return a.y; };
-exports.getZ = function (a) { return a.z; };
-function isWithin(target, start, end) {
-    return [
-        target.x > start.x && target.x < end.x,
-        target.y > start.y && target.y < end.y,
-        target.z > start.z && target.z < end.z,
-    ].every(function (x) { return !!x; });
-}
-exports.isWithin = isWithin;
-function addPos(a, b) {
-    return point_1.createPoint(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-exports.addPos = addPos;
-function minusPos(a, b) {
-    return point_1.createPoint(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-exports.minusPos = minusPos;
-function isIntegerPoint3D(point) {
-    return [point.x, point.y, point.z].every(function (axis) { return Number.isInteger(axis); });
-}
-exports.isIntegerPoint3D = isIntegerPoint3D;
-function floorPos(point) {
-    point.x = Math.floor(point.x);
-    point.y = Math.floor(point.y);
-    point.z = Math.floor(point.z);
-    return point;
-}
-exports.floorPos = floorPos;
-function isEqual(a, b) {
-    return exports.getX(a) === exports.getX(b) && exports.getY(a) === exports.getY(b) && exports.getZ(a) === exports.getZ(b);
-}
-exports.isEqual = isEqual;
-function positionId(c) {
-    return c.x + "." + c.y + "." + c.z;
-}
-exports.positionId = positionId;
-function bresenham3D(x1, y1, z1, x2, y2, z2) {
-    var listOfPoints = [];
-    listOfPoints.push({ x: x1, y: y1, z: z1 });
-    var dx = Math.abs(x2 - x1);
-    var dy = Math.abs(y2 - y1);
-    var dz = Math.abs(z2 - z1);
-    var xs = 0;
-    var ys = 0;
-    var zs = 0;
-    if (x2 > x1) {
-        xs = 1;
-    }
-    else {
-        xs = -1;
-    }
-    if (y2 > y1) {
-        ys = 1;
-    }
-    else {
-        ys = -1;
-    }
-    if (z2 > z1) {
-        zs = 1;
-    }
-    else {
-        zs = -1;
-    }
-    var p1 = 0;
-    var p2 = 0;
-    if (dx >= dy && dx >= dz) {
-        p1 = 2 * dy - dx;
-        p2 = 2 * dz - dx;
-        while (x1 != x2) {
-            x1 += xs;
-            if (p1 >= 0) {
-                y1 += ys;
-                p1 -= 2 * dx;
-            }
-            if (p2 >= 0) {
-                z1 += zs;
-                p2 -= 2 * dx;
-            }
-            p1 += 2 * dy;
-            p2 += 2 * dz;
-            listOfPoints.push({ x: x1, y: y1, z: z1 });
-        }
-    }
-    else {
-        if (dy >= dx && dy >= dz) {
-            p1 = 2 * dx - dy;
-            p2 = 2 * dz - dy;
-            while (y1 != y2) {
-                y1 += ys;
-                if (p1 >= 0) {
-                    x1 += xs;
-                    p1 -= 2 * dy;
-                }
-                if (p2 >= 0) {
-                    z1 += zs;
-                    p2 -= 2 * dy;
-                }
-                p1 += 2 * dx;
-                p2 += 2 * dz;
-                listOfPoints.push({ x: x1, y: y1, z: z1 });
-            }
-        }
-        else {
-            p1 = 2 * dy - dz;
-            p2 = 2 * dx - dz;
-            while (z1 != z2) {
-                z1 += zs;
-                if (p1 >= 0) {
-                    y1 += ys;
-                    p1 -= 2 * dz;
-                }
-                if (p2 >= 0) {
-                    x1 += xs;
-                    p2 -= 2 * dz;
-                }
-                p1 += 2 * dy;
-                p2 += 2 * dx;
-                listOfPoints.push({ x: x1, y: y1, z: z1 });
-            }
-        }
-    }
-    return listOfPoints;
-}
-exports.bresenham3D = bresenham3D;
-
-},{"./point":"node_modules/@blocks/core/lib/position/point.js"}],"node_modules/@blocks/core/lib/calc/sort.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var point_utils_1 = require("../position/point-utils");
-function sortZYXAsc(a, b) {
-    if (point_utils_1.getZ(a) < point_utils_1.getZ(b))
-        return -1;
-    if (point_utils_1.getZ(a) > point_utils_1.getZ(b))
-        return 1;
-    if (point_utils_1.getY(a) < point_utils_1.getY(b))
-        return -1;
-    if (point_utils_1.getY(a) > point_utils_1.getY(b))
-        return 1;
-    if (point_utils_1.getX(a) < point_utils_1.getX(b))
-        return -1;
-    if (point_utils_1.getX(a) > point_utils_1.getX(b))
-        return 1;
-    return 0;
-}
-exports.sortZYXAsc = sortZYXAsc;
-function sortYZXAsc(a, b) {
-    if (point_utils_1.getY(a) < point_utils_1.getY(b))
-        return -1;
-    if (point_utils_1.getY(a) > point_utils_1.getY(b))
-        return 1;
-    if (point_utils_1.getZ(a) < point_utils_1.getZ(b))
-        return -1;
-    if (point_utils_1.getZ(a) > point_utils_1.getZ(b))
-        return 1;
-    if (point_utils_1.getX(a) < point_utils_1.getX(b))
-        return -1;
-    if (point_utils_1.getX(a) > point_utils_1.getX(b))
-        return 1;
-    return 0;
-}
-exports.sortYZXAsc = sortYZXAsc;
-
-},{"../position/point-utils":"node_modules/@blocks/core/lib/position/point-utils.js"}],"node_modules/@blocks/core/lib/collection/collection.js":[function(require,module,exports) {
-"use strict";
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var point_1 = require("../position/point");
-function createCollection3D(size) {
-    return Array(size)
-        .fill(null)
-        .map(function () {
-        return Array(size)
-            .fill(null)
-            .map(function () { return Array(size).fill(null); });
-    });
-}
-exports.createCollection3D = createCollection3D;
-function getPointInCollection3D(point, collection) {
-    if (collection[point.x] && collection[point.x][point.y] && collection[point.x][point.y][point.z]) {
-        return collection[point.x][point.y][point.z];
-    }
-    return null;
-}
-exports.getPointInCollection3D = getPointInCollection3D;
-function setPointInCollection3D(point, collection, value) {
-    collection[point.x][point.y][point.z] = value;
-    return true;
-}
-exports.setPointInCollection3D = setPointInCollection3D;
-function createCollection3DIterator(collection) {
-    var x, y, z, block;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                x = 0;
-                _a.label = 1;
-            case 1:
-                if (!(x < collection.length)) return [3, 8];
-                y = 0;
-                _a.label = 2;
-            case 2:
-                if (!(y < collection[0].length)) return [3, 7];
-                z = 0;
-                _a.label = 3;
-            case 3:
-                if (!(z < collection[0][0].length)) return [3, 6];
-                block = getPointInCollection3D(point_1.createPoint(x, y, z), collection);
-                if (!block) return [3, 5];
-                return [4, block];
-            case 4:
-                _a.sent();
-                _a.label = 5;
-            case 5:
-                z++;
-                return [3, 3];
-            case 6:
-                y++;
-                return [3, 2];
-            case 7:
-                x++;
-                return [3, 1];
-            case 8: return [2];
-        }
-    });
-}
-exports.createCollection3DIterator = createCollection3DIterator;
-
-},{"../position/point":"node_modules/@blocks/core/lib/position/point.js"}],"node_modules/@blocks/core/lib/game/game.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Game = (function () {
-    function Game() {
-    }
-    Game.prototype.update = function (delta) {
-        this.scene.update(delta);
-    };
-    return Game;
-}());
-exports.Game = Game;
-
-},{}],"node_modules/@blocks/core/lib/game-component/game-component-repository.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var GameComponentRepository = (function () {
-    function GameComponentRepository() {
-        this.gameComponents = {};
-    }
-    GameComponentRepository.prototype.getById = function (id) {
-        if (this.has(id)) {
-            return this.gameComponents[id];
-        }
-        return null;
-    };
-    GameComponentRepository.prototype.provide = function (gameComponent) {
-        this.gameComponents[gameComponent.name] = gameComponent;
-    };
-    GameComponentRepository.prototype.has = function (name) {
-        return this.gameComponents.hasOwnProperty(name);
-    };
-    return GameComponentRepository;
-}());
-exports.GameComponentRepository = GameComponentRepository;
-
-},{}],"node_modules/@blocks/core/lib/game-object/game-object-repository.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var GameObjectRepository = (function () {
-    function GameObjectRepository() {
-        this.gameObjects = {};
-        this.activeGameObjects = new Set();
-    }
-    GameObjectRepository.prototype.getById = function (id) {
-        if (this.has(id)) {
-            return this.gameObjects[id];
-        }
-        return null;
-    };
-    GameObjectRepository.prototype.add = function (gameObject) {
-        this.gameObjects[gameObject.id] = gameObject;
-    };
-    GameObjectRepository.prototype.has = function (id) {
-        return this.gameObjects.hasOwnProperty(id);
-    };
-    GameObjectRepository.prototype.activate = function (id) {
-        this.activeGameObjects.add(id);
-    };
-    GameObjectRepository.prototype.deactivate = function (id) {
-        return this.activeGameObjects.delete(id);
-    };
-    GameObjectRepository.prototype.isActive = function (id) {
-        return this.activeGameObjects.has(id);
-    };
-    GameObjectRepository.prototype.getActive = function () {
-        var _this = this;
-        return Array.from(this.activeGameObjects).map(function (id) { return _this.gameObjects[id]; });
-    };
-    return GameObjectRepository;
-}());
-exports.GameObjectRepository = GameObjectRepository;
-
-},{}],"node_modules/@blocks/core/lib/scene/scene.js":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var game_object_repository_1 = require("../game-object/game-object-repository");
-var game_component_repository_1 = require("../game-component/game-component-repository");
-var Scene = (function () {
-    function Scene() {
-        this.delta = 0;
-        this.gameComponents = new game_component_repository_1.GameComponentRepository();
-        this.gameObjects = new game_object_repository_1.GameObjectRepository();
-    }
-    return Scene;
-}());
-exports.Scene = Scene;
-
-},{"../game-object/game-object-repository":"node_modules/@blocks/core/lib/game-object/game-object-repository.js","../game-component/game-component-repository":"node_modules/@blocks/core/lib/game-component/game-component-repository.js"}],"node_modules/@blocks/core/lib/index.js":[function(require,module,exports) {
-"use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./calc/calc"));
-__export(require("./calc/sort"));
-__export(require("./collection/collection"));
-__export(require("./game/game"));
-__export(require("./game-component/game-component-repository"));
-__export(require("./game-object/game-object-repository"));
-__export(require("./position/point-utils"));
-__export(require("./position/point"));
-__export(require("./scene/scene"));
-
-},{"./calc/calc":"node_modules/@blocks/core/lib/calc/calc.js","./calc/sort":"node_modules/@blocks/core/lib/calc/sort.js","./collection/collection":"node_modules/@blocks/core/lib/collection/collection.js","./game/game":"node_modules/@blocks/core/lib/game/game.js","./game-component/game-component-repository":"node_modules/@blocks/core/lib/game-component/game-component-repository.js","./game-object/game-object-repository":"node_modules/@blocks/core/lib/game-object/game-object-repository.js","./position/point-utils":"node_modules/@blocks/core/lib/position/point-utils.js","./position/point":"node_modules/@blocks/core/lib/position/point.js","./scene/scene":"node_modules/@blocks/core/lib/scene/scene.js"}],"src/config.ts":[function(require,module,exports) {
+},{"@pixi/polyfill":"node_modules/@pixi/polyfill/lib/polyfill.es.js","@pixi/accessibility":"node_modules/@pixi/accessibility/lib/accessibility.es.js","@pixi/extract":"node_modules/@pixi/extract/lib/extract.es.js","@pixi/interaction":"node_modules/@pixi/interaction/lib/interaction.es.js","@pixi/prepare":"node_modules/@pixi/prepare/lib/prepare.es.js","@pixi/utils":"node_modules/@pixi/utils/lib/utils.es.js","@pixi/app":"node_modules/@pixi/app/lib/app.es.js","@pixi/core":"node_modules/@pixi/core/lib/core.es.js","@pixi/loaders":"node_modules/@pixi/loaders/lib/loaders.es.js","@pixi/particles":"node_modules/@pixi/particles/lib/particles.es.js","@pixi/spritesheet":"node_modules/@pixi/spritesheet/lib/spritesheet.es.js","@pixi/sprite-tiling":"node_modules/@pixi/sprite-tiling/lib/sprite-tiling.es.js","@pixi/text-bitmap":"node_modules/@pixi/text-bitmap/lib/text-bitmap.es.js","@pixi/ticker":"node_modules/@pixi/ticker/lib/ticker.es.js","@pixi/filter-alpha":"node_modules/@pixi/filter-alpha/lib/filter-alpha.es.js","@pixi/filter-blur":"node_modules/@pixi/filter-blur/lib/filter-blur.es.js","@pixi/filter-color-matrix":"node_modules/@pixi/filter-color-matrix/lib/filter-color-matrix.es.js","@pixi/filter-displacement":"node_modules/@pixi/filter-displacement/lib/filter-displacement.es.js","@pixi/filter-fxaa":"node_modules/@pixi/filter-fxaa/lib/filter-fxaa.es.js","@pixi/filter-noise":"node_modules/@pixi/filter-noise/lib/filter-noise.es.js","@pixi/mixin-cache-as-bitmap":"node_modules/@pixi/mixin-cache-as-bitmap/lib/mixin-cache-as-bitmap.es.js","@pixi/mixin-get-child-by-name":"node_modules/@pixi/mixin-get-child-by-name/lib/mixin-get-child-by-name.es.js","@pixi/mixin-get-global-position":"node_modules/@pixi/mixin-get-global-position/lib/mixin-get-global-position.es.js","@pixi/constants":"node_modules/@pixi/constants/lib/constants.es.js","@pixi/display":"node_modules/@pixi/display/lib/display.es.js","@pixi/graphics":"node_modules/@pixi/graphics/lib/graphics.es.js","@pixi/math":"node_modules/@pixi/math/lib/math.es.js","@pixi/mesh":"node_modules/@pixi/mesh/lib/mesh.es.js","@pixi/mesh-extras":"node_modules/@pixi/mesh-extras/lib/mesh-extras.es.js","@pixi/runner":"node_modules/@pixi/runner/lib/runner.es.js","@pixi/sprite":"node_modules/@pixi/sprite/lib/sprite.es.js","@pixi/sprite-animated":"node_modules/@pixi/sprite-animated/lib/sprite-animated.es.js","@pixi/text":"node_modules/@pixi/text/lib/text.es.js","@pixi/settings":"node_modules/@pixi/settings/lib/settings.es.js"}],"src/config.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -42436,7 +42048,211 @@ var global = arguments[3];
     return lerp(lerp(lerp(n000, n100, u), lerp(n001, n101, u), w), lerp(lerp(n010, n110, u), lerp(n011, n111, u), w), v);
   };
 })(window);
-},{}],"src/terrain/terrain-utils.ts":[function(require,module,exports) {
+},{}],"src/position/point.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+function createPoint(x, y, z) {
+  return {
+    x: !!x ? x : 0,
+    y: !!y ? y : 0,
+    z: !!z ? z : 0
+  };
+}
+
+exports.createPoint = createPoint;
+},{}],"src/position/point-utils.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+var point_1 = require("./point");
+
+exports.getX = function (a) {
+  return a.x;
+};
+
+exports.getY = function (a) {
+  return a.y;
+};
+
+exports.getZ = function (a) {
+  return a.z;
+};
+
+function isWithin(target, start, end) {
+  return [target.x > start.x && target.x < end.x, target.y > start.y && target.y < end.y, target.z > start.z && target.z < end.z].every(function (x) {
+    return !!x;
+  });
+}
+
+exports.isWithin = isWithin;
+
+function addPos(a, b) {
+  return point_1.createPoint(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+exports.addPos = addPos;
+
+function minusPos(a, b) {
+  return point_1.createPoint(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+exports.minusPos = minusPos;
+
+function isIntegerPoint3D(point) {
+  return [point.x, point.y, point.z].every(function (axis) {
+    return Number.isInteger(axis);
+  });
+}
+
+exports.isIntegerPoint3D = isIntegerPoint3D;
+
+function floorPos(point) {
+  point.x = Math.floor(point.x);
+  point.y = Math.floor(point.y);
+  point.z = Math.floor(point.z);
+  return point;
+}
+
+exports.floorPos = floorPos;
+
+function isEqual(a, b) {
+  return exports.getX(a) === exports.getX(b) && exports.getY(a) === exports.getY(b) && exports.getZ(a) === exports.getZ(b);
+}
+
+exports.isEqual = isEqual;
+
+function positionId(c) {
+  return c.x + "." + c.y + "." + c.z;
+}
+
+exports.positionId = positionId; // https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
+
+function bresenham3D(x1, y1, z1, x2, y2, z2) {
+  var listOfPoints = [];
+  listOfPoints.push({
+    x: x1,
+    y: y1,
+    z: z1
+  });
+  var dx = Math.abs(x2 - x1);
+  var dy = Math.abs(y2 - y1);
+  var dz = Math.abs(z2 - z1);
+  var xs = 0; // init
+
+  var ys = 0; // init
+
+  var zs = 0; // init
+
+  if (x2 > x1) {
+    xs = 1;
+  } else {
+    xs = -1;
+  }
+
+  if (y2 > y1) {
+    ys = 1;
+  } else {
+    ys = -1;
+  }
+
+  if (z2 > z1) {
+    zs = 1;
+  } else {
+    zs = -1;
+  }
+
+  var p1 = 0;
+  var p2 = 0; // Driving axis is X - axis
+
+  if (dx >= dy && dx >= dz) {
+    p1 = 2 * dy - dx;
+    p2 = 2 * dz - dx;
+
+    while (x1 != x2) {
+      x1 += xs;
+
+      if (p1 >= 0) {
+        y1 += ys;
+        p1 -= 2 * dx;
+      }
+
+      if (p2 >= 0) {
+        z1 += zs;
+        p2 -= 2 * dx;
+      }
+
+      p1 += 2 * dy;
+      p2 += 2 * dz;
+      listOfPoints.push({
+        x: x1,
+        y: y1,
+        z: z1
+      });
+    }
+  } else {
+    // Driving axis is Y-axis
+    if (dy >= dx && dy >= dz) {
+      p1 = 2 * dx - dy;
+      p2 = 2 * dz - dy;
+
+      while (y1 != y2) {
+        y1 += ys;
+
+        if (p1 >= 0) {
+          x1 += xs;
+          p1 -= 2 * dy;
+        }
+
+        if (p2 >= 0) {
+          z1 += zs;
+          p2 -= 2 * dy;
+        }
+
+        p1 += 2 * dx;
+        p2 += 2 * dz;
+        listOfPoints.push({
+          x: x1,
+          y: y1,
+          z: z1
+        });
+      }
+    } else {
+      // # Driving axis is Z-axis
+      p1 = 2 * dy - dz;
+      p2 = 2 * dx - dz;
+
+      while (z1 != z2) {
+        z1 += zs;
+
+        if (p1 >= 0) {
+          y1 += ys;
+          p1 -= 2 * dz;
+        }
+
+        if (p2 >= 0) {
+          x1 += xs;
+          p2 -= 2 * dz;
+        }
+
+        p1 += 2 * dy;
+        p2 += 2 * dx;
+        listOfPoints.push({
+          x: x1,
+          y: y1,
+          z: z1
+        });
+      }
+    }
+  }
+
+  return listOfPoints;
+}
+
+exports.bresenham3D = bresenham3D;
+},{"./point":"src/position/point.ts"}],"src/terrain/terrain-utils.ts":[function(require,module,exports) {
 "use strict";
 
 var __generator = this && this.__generator || function (thisArg, body) {
@@ -42550,11 +42366,13 @@ var __generator = this && this.__generator || function (thisArg, body) {
 
 exports.__esModule = true;
 
-var core_1 = require("@blocks/core");
-
 var config_1 = require("../config");
 
 require("../../vendor/noisejs/perlin.js");
+
+var point_1 = require("../position/point");
+
+var point_utils_1 = require("../position/point-utils");
 
 function createTerrainNoise(type1, type2, width, length) {
   var x, y, value, z, zz;
@@ -42581,7 +42399,7 @@ function createTerrainNoise(type1, type2, width, length) {
         z = Math.ceil(value * 6);
         return [4
         /*yield*/
-        , [core_1.createPoint(x, y, z), type1]];
+        , [point_1.createPoint(x, y, z), type1]];
 
       case 3:
         _a.sent();
@@ -42595,7 +42413,7 @@ function createTerrainNoise(type1, type2, width, length) {
         , 7];
         return [4
         /*yield*/
-        , [core_1.createPoint(x, y, zz), type2]];
+        , [point_1.createPoint(x, y, zz), type2]];
 
       case 5:
         _a.sent();
@@ -42631,21 +42449,21 @@ function createTerrainNoise(type1, type2, width, length) {
 exports.createTerrainNoise = createTerrainNoise;
 
 function createArch(terrain, type, start) {
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(0, 0, 0)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(0, 0, 1)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(0, 0, 2)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(0, 0, 3)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(0, 0, 4)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(1, 0, 5)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(2, 0, 6)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(3, 0, 6)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(4, 0, 6)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(5, 0, 5)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(6, 0, 4)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(6, 0, 0)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(6, 0, 1)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(6, 0, 2)), type);
-  terrain.setBlock(core_1.addPos(start, core_1.createPoint(6, 0, 3)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(0, 0, 0)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(0, 0, 1)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(0, 0, 2)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(0, 0, 3)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(0, 0, 4)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(1, 0, 5)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(2, 0, 6)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(3, 0, 6)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(4, 0, 6)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(5, 0, 5)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(6, 0, 4)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(6, 0, 0)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(6, 0, 1)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(6, 0, 2)), type);
+  terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(6, 0, 3)), type);
 }
 
 exports.createArch = createArch;
@@ -42664,7 +42482,7 @@ function createTower(type, height) {
         , 4];
         return [4
         /*yield*/
-        , [core_1.createPoint(0, 0, z), type]];
+        , [point_1.createPoint(0, 0, z), type]];
 
       case 2:
         _a.sent();
@@ -42689,7 +42507,7 @@ exports.createTower = createTower;
 
 function createBar(terrain, type, start) {
   for (var x = 0; x < 20; x++) {
-    terrain.setBlock(core_1.addPos(start, core_1.createPoint(x, 0, 0)), type);
+    terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(x, 0, 0)), type);
   }
 }
 
@@ -42698,7 +42516,7 @@ exports.createBar = createBar;
 function createGround(terrain, type, start) {
   for (var x = 0; x < config_1.CHUNK_SIZE; x++) {
     for (var y = 0; y < config_1.CHUNK_SIZE; y++) {
-      terrain.setBlock(core_1.addPos(start, core_1.createPoint(x, y, 0)), type);
+      terrain.setBlock(point_utils_1.addPos(start, point_1.createPoint(x, y, 0)), type);
     }
   }
 }
@@ -42726,7 +42544,7 @@ function createCheckers(type, type2, width, length) {
         , 5];
         return [4
         /*yield*/
-        , [core_1.createPoint(x, y, 0), (x + y) % 2 == 0 ? type : type2]];
+        , [point_1.createPoint(x, y, 0), (x + y) % 2 == 0 ? type : type2]];
 
       case 3:
         _a.sent();
@@ -42754,7 +42572,7 @@ function createCheckers(type, type2, width, length) {
 }
 
 exports.createCheckers = createCheckers;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","../config":"src/config.ts","../../vendor/noisejs/perlin.js":"vendor/noisejs/perlin.js"}],"src/block/block-type.ts":[function(require,module,exports) {
+},{"../config":"src/config.ts","../../vendor/noisejs/perlin.js":"vendor/noisejs/perlin.js","../position/point":"src/position/point.ts","../position/point-utils":"src/position/point-utils.ts"}],"src/block/block-type.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -42881,9 +42699,9 @@ var __generator = this && this.__generator || function (thisArg, body) {
 
 exports.__esModule = true;
 
-var core_1 = require("@blocks/core");
-
 var block_type_1 = require("./block-type");
+
+var point_1 = require("../position/point");
 
 function createBlockRepository(maxX, maxY, maxZ) {
   return Array(maxX).fill(null).map(function () {
@@ -42939,7 +42757,7 @@ function iterateBlocks(collection) {
         if (!(z < collection[x][y].length)) return [3
         /*break*/
         , 6];
-        p = core_1.createPoint(x, y, z);
+        p = point_1.createPoint(x, y, z);
         return [4
         /*yield*/
         , [p, getBlock(p, collection)]];
@@ -42976,7 +42794,7 @@ function iterateBlocks(collection) {
 }
 
 exports.iterateBlocks = iterateBlocks;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","./block-type":"src/block/block-type.ts"}],"src/block/block.ts":[function(require,module,exports) {
+},{"./block-type":"src/block/block-type.ts","../position/point":"src/position/point.ts"}],"src/block/block.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -43006,39 +42824,39 @@ exports.createBlock = createBlock;
 
 exports.__esModule = true;
 
-var core_1 = require("@blocks/core");
+var point_1 = require("../position/point");
+
+var point_utils_1 = require("../position/point-utils");
 
 var config_1 = require("../config");
 
 function convertWorldIndexToChunkIndex(worldIndex) {
-  return core_1.floorPos(core_1.createPoint(worldIndex.x / config_1.CHUNK_SIZE, worldIndex.y / config_1.CHUNK_SIZE, worldIndex.z / config_1.CHUNK_SIZE));
+  return point_utils_1.floorPos(point_1.createPoint(worldIndex.x / config_1.CHUNK_SIZE, worldIndex.y / config_1.CHUNK_SIZE, worldIndex.z / config_1.CHUNK_SIZE));
 }
 
 exports.convertWorldIndexToChunkIndex = convertWorldIndexToChunkIndex;
 
 function convertPositionToChunkIndex(position) {
-  return core_1.floorPos(core_1.createPoint(position.x / (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), position.y / (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), position.z / (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE)));
+  return point_utils_1.floorPos(point_1.createPoint(position.x / (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), position.y / (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), position.z / (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE)));
 }
 
 exports.convertPositionToChunkIndex = convertPositionToChunkIndex;
 
 function convertPositionToWorldIndex(position) {
-  return core_1.floorPos(core_1.createPoint(position.x / config_1.BLOCK_SIZE, position.y / config_1.BLOCK_SIZE, position.z / config_1.BLOCK_SIZE));
+  return point_utils_1.floorPos(point_1.createPoint(position.x / config_1.BLOCK_SIZE, position.y / config_1.BLOCK_SIZE, position.z / config_1.BLOCK_SIZE));
 }
 
 exports.convertPositionToWorldIndex = convertPositionToWorldIndex;
 
 function convertWorldIndexToLocalIndex(worldIndex) {
-  return core_1.createPoint(worldIndex.x % config_1.CHUNK_SIZE, worldIndex.y % config_1.CHUNK_SIZE, worldIndex.z % config_1.CHUNK_SIZE);
+  return point_1.createPoint(worldIndex.x % config_1.CHUNK_SIZE, worldIndex.y % config_1.CHUNK_SIZE, worldIndex.z % config_1.CHUNK_SIZE);
 }
 
 exports.convertWorldIndexToLocalIndex = convertWorldIndexToLocalIndex;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","../config":"src/config.ts"}],"src/chunk/chunk-utils.ts":[function(require,module,exports) {
+},{"../position/point":"src/position/point.ts","../position/point-utils":"src/position/point-utils.ts","../config":"src/config.ts"}],"src/chunk/chunk-utils.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
-
-var core_1 = require("@blocks/core");
 
 var config_1 = require("../config");
 
@@ -43050,8 +42868,12 @@ var block_type_1 = require("../block/block-type");
 
 var index_utils_1 = require("../terrain/index-utils");
 
+var point_1 = require("../position/point");
+
+var point_utils_1 = require("../position/point-utils");
+
 function isPositionWithinChunk(localIndex, chunkIndex) {
-  return core_1.isWithin(localIndex, core_1.minusPos(index_utils_1.convertPositionToChunkIndex(chunkIndex), core_1.createPoint(1, 1, 1)), core_1.addPos(index_utils_1.convertPositionToChunkIndex(chunkIndex), core_1.createPoint(config_1.CHUNK_SIZE, config_1.CHUNK_SIZE, config_1.CHUNK_SIZE)));
+  return point_utils_1.isWithin(localIndex, point_utils_1.minusPos(index_utils_1.convertPositionToChunkIndex(chunkIndex), point_1.createPoint(1, 1, 1)), point_utils_1.addPos(index_utils_1.convertPositionToChunkIndex(chunkIndex), point_1.createPoint(config_1.CHUNK_SIZE, config_1.CHUNK_SIZE, config_1.CHUNK_SIZE)));
 }
 
 exports.isPositionWithinChunk = isPositionWithinChunk;
@@ -43061,7 +42883,7 @@ function isPosVisibleWithinChunk(localIndex, chunk) {
     var blockType = block_repository_1.getBlock(localIndex, chunk.blocks);
 
     if (!blockType || block_1.isBlockTransparent(blockType)) {
-      return isPosVisibleWithinChunk(core_1.addPos(localIndex, core_1.createPoint(0, 1, 1)), chunk);
+      return isPosVisibleWithinChunk(point_utils_1.addPos(localIndex, point_1.createPoint(0, 1, 1)), chunk);
     } else {
       return false;
     }
@@ -43079,7 +42901,7 @@ function calculateVisibleBlocksIndexes(chunk) {
   }).reduce(function (localIndexes, _a) {
     var localIndex = _a[0],
         blockType = _a[1];
-    var nextIndexInChunk = core_1.addPos(localIndex, core_1.createPoint(0, 1, 1));
+    var nextIndexInChunk = point_utils_1.addPos(localIndex, point_1.createPoint(0, 1, 1));
 
     if (isPosVisibleWithinChunk(nextIndexInChunk, chunk)) {
       localIndexes.push(localIndex);
@@ -43092,11 +42914,11 @@ function calculateVisibleBlocksIndexes(chunk) {
 exports.calculateVisibleBlocksIndexes = calculateVisibleBlocksIndexes;
 
 function getChunkId(chunkIndex) {
-  return "chunk-" + core_1.positionId(chunkIndex);
+  return "chunk-" + point_utils_1.positionId(chunkIndex);
 }
 
 exports.getChunkId = getChunkId;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","../config":"src/config.ts","../block/block-repository":"src/block/block-repository.ts","../block/block":"src/block/block.ts","../block/block-type":"src/block/block-type.ts","../terrain/index-utils":"src/terrain/index-utils.ts"}],"src/chunk/chunk-repository.ts":[function(require,module,exports) {
+},{"../config":"src/config.ts","../block/block-repository":"src/block/block-repository.ts","../block/block":"src/block/block.ts","../block/block-type":"src/block/block-type.ts","../terrain/index-utils":"src/terrain/index-utils.ts","../position/point":"src/position/point.ts","../position/point-utils":"src/position/point-utils.ts"}],"src/chunk/chunk-repository.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -43141,7 +42963,61 @@ function getDrawPosition(position) {
 }
 
 exports.getDrawPosition = getDrawPosition;
-},{"../config":"src/config.ts"}],"src/chunk/chunk.ts":[function(require,module,exports) {
+},{"../config":"src/config.ts"}],"src/calc/sort.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+var point_utils_1 = require("../position/point-utils");
+
+function sortZYXAsc(a, b) {
+  if (point_utils_1.getZ(a) < point_utils_1.getZ(b)) return -1;
+  if (point_utils_1.getZ(a) > point_utils_1.getZ(b)) return 1;
+  if (point_utils_1.getY(a) < point_utils_1.getY(b)) return -1;
+  if (point_utils_1.getY(a) > point_utils_1.getY(b)) return 1;
+  if (point_utils_1.getX(a) < point_utils_1.getX(b)) return -1;
+  if (point_utils_1.getX(a) > point_utils_1.getX(b)) return 1;
+  return 0;
+}
+
+exports.sortZYXAsc = sortZYXAsc;
+
+function sortYZXAsc(a, b) {
+  if (point_utils_1.getY(a) < point_utils_1.getY(b)) return -1;
+  if (point_utils_1.getY(a) > point_utils_1.getY(b)) return 1;
+  if (point_utils_1.getZ(a) < point_utils_1.getZ(b)) return -1;
+  if (point_utils_1.getZ(a) > point_utils_1.getZ(b)) return 1;
+  if (point_utils_1.getX(a) < point_utils_1.getX(b)) return -1;
+  if (point_utils_1.getX(a) > point_utils_1.getX(b)) return 1;
+  return 0;
+}
+
+exports.sortYZXAsc = sortYZXAsc;
+},{"../position/point-utils":"src/position/point-utils.ts"}],"src/calc/calc.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+var point_1 = require("../position/point");
+
+function divideBy(divisor, point) {
+  return point_1.createPoint(point.x / divisor, point.y / divisor, point.z / divisor);
+}
+
+exports.divideBy = divideBy;
+
+function add(addition, point) {
+  return point_1.createPoint(point.x + addition, point.y + addition, point.z + addition);
+}
+
+exports.add = add;
+
+function multiply(multiplication, point) {
+  return point_1.createPoint(point.x * multiplication, point.y * multiplication, point.z * multiplication);
+}
+
+exports.multiply = multiply;
+},{"../position/point":"src/position/point.ts"}],"src/chunk/chunk.ts":[function(require,module,exports) {
 "use strict";
 
 var __importStar = this && this.__importStar || function (mod) {
@@ -43156,8 +43032,6 @@ exports.__esModule = true;
 
 var PIXI = __importStar(require("pixi.js"));
 
-var core_1 = require("@blocks/core");
-
 var block_repository_1 = require("../block/block-repository");
 
 var block_type_1 = require("../block/block-type");
@@ -43168,19 +43042,9 @@ var config_1 = require("../config");
 
 var game_object_utils_1 = require("../utils/game-object-utils");
 
-var index_utils_1 = require("../terrain/index-utils");
+var sort_1 = require("../calc/sort");
 
-function createBlockGetter(chunk, terrain) {
-  return function (localIndex) {
-    var chunkIndex = index_utils_1.convertPositionToChunkIndex(chunk.position);
-
-    if (chunk_utils_1.isPositionWithinChunk(localIndex, chunkIndex)) {
-      return block_repository_1.getBlock(localIndex, chunk.blocks);
-    }
-
-    return null;
-  };
-}
+var calc_1 = require("../calc/calc");
 
 function updateChunk(scene, chunk) {
   if (!chunk.hasChanged) {
@@ -43197,7 +43061,7 @@ function updateChunk(scene, chunk) {
   //     .map(([point, blockType]: [Point3D, BlockType]) => point);
 
   blocksToRender.sort(function (idA, idB) {
-    return core_1.sortZYXAsc(idA, idB);
+    return sort_1.sortZYXAsc(idA, idB);
   });
   var blockLayers = []; // Clear that shit.
 
@@ -43208,7 +43072,7 @@ function updateChunk(scene, chunk) {
   });
   blocksToRender.forEach(function (localIndex) {
     var blockType = block_repository_1.getBlock(localIndex, chunk.blocks);
-    var blockPosition = core_1.multiply(config_1.BLOCK_SIZE, localIndex);
+    var blockPosition = calc_1.multiply(config_1.BLOCK_SIZE, localIndex);
 
     var _a = game_object_utils_1.getDrawPosition(chunk.position),
         drawX = _a[0],
@@ -43278,16 +43142,12 @@ function createChunk(id, position) {
 }
 
 exports.createChunk = createChunk;
-},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","@blocks/core":"node_modules/@blocks/core/lib/index.js","../block/block-repository":"src/block/block-repository.ts","../block/block-type":"src/block/block-type.ts","./chunk-utils":"src/chunk/chunk-utils.ts","../config":"src/config.ts","../utils/game-object-utils":"src/utils/game-object-utils.ts","../terrain/index-utils":"src/terrain/index-utils.ts"}],"src/terrain/terrain.ts":[function(require,module,exports) {
+},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","../block/block-repository":"src/block/block-repository.ts","../block/block-type":"src/block/block-type.ts","./chunk-utils":"src/chunk/chunk-utils.ts","../config":"src/config.ts","../utils/game-object-utils":"src/utils/game-object-utils.ts","../calc/sort":"src/calc/sort.ts","../calc/calc":"src/calc/calc.ts"}],"src/terrain/terrain.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
 
 var chunk_repository_1 = require("../chunk/chunk-repository");
-
-var core_1 = require("@blocks/core");
-
-var core_2 = require("@blocks/core");
 
 var chunk_1 = require("../chunk/chunk");
 
@@ -43295,7 +43155,13 @@ var config_1 = require("../config");
 
 var block_repository_1 = require("../block/block-repository");
 
+var point_1 = require("../position/point");
+
+var point_utils_1 = require("../position/point-utils");
+
 var index_utils_1 = require("./index-utils");
+
+var calc_1 = require("../calc/calc");
 
 function updateTerrain(scene, terrain) {
   console.log('Nothing to do fml', terrain, scene);
@@ -43310,12 +43176,12 @@ exports.updateTerrain = updateTerrain;
 
 function createBlockSetter(chunks, gameObjects) {
   return function (blockIndex, type) {
-    if (core_2.isIntegerPoint3D(blockIndex)) {
+    if (point_utils_1.isIntegerPoint3D(blockIndex)) {
       var chunkIndex = index_utils_1.convertWorldIndexToChunkIndex(blockIndex);
       var chunk = chunk_repository_1.getChunk(chunkIndex, chunks); // Create chunk if not exist
 
       if (!chunk) {
-        chunk = chunk_1.createChunk("chunk-" + chunkIndex.x + "." + chunkIndex.y + "." + chunkIndex.z, core_1.multiply(config_1.CHUNK_SIZE * config_1.BLOCK_SIZE, chunkIndex));
+        chunk = chunk_1.createChunk("chunk-" + chunkIndex.x + "." + chunkIndex.y + "." + chunkIndex.z, calc_1.multiply(config_1.CHUNK_SIZE * config_1.BLOCK_SIZE, chunkIndex));
         chunk_repository_1.setChunk(chunk, chunks); // Register the new chunk
 
         gameObjects.add(chunk);
@@ -43333,7 +43199,7 @@ exports.createBlockSetter = createBlockSetter;
 
 function createBlockGetter(chunks) {
   return function (blockIndex) {
-    if (core_2.isIntegerPoint3D(blockIndex)) {
+    if (point_utils_1.isIntegerPoint3D(blockIndex)) {
       var chunkIndex = index_utils_1.convertWorldIndexToChunkIndex(blockIndex);
       var chunk = chunk_repository_1.getChunk(chunkIndex, chunks);
 
@@ -43354,7 +43220,7 @@ function createTerrain(id, gameObjects) {
   var chunks = chunk_repository_1.createChunkRepository();
   return {
     id: id,
-    position: core_1.createPoint(),
+    position: point_1.createPoint(),
     chunks: chunks,
     components: [updateTerrain.name],
     setBlock: createBlockSetter(chunks, gameObjects),
@@ -43363,7 +43229,7 @@ function createTerrain(id, gameObjects) {
 }
 
 exports.createTerrain = createTerrain;
-},{"../chunk/chunk-repository":"src/chunk/chunk-repository.ts","@blocks/core":"node_modules/@blocks/core/lib/index.js","../chunk/chunk":"src/chunk/chunk.ts","../config":"src/config.ts","../block/block-repository":"src/block/block-repository.ts","./index-utils":"src/terrain/index-utils.ts"}],"src/color/color.ts":[function(require,module,exports) {
+},{"../chunk/chunk-repository":"src/chunk/chunk-repository.ts","../chunk/chunk":"src/chunk/chunk.ts","../config":"src/config.ts","../block/block-repository":"src/block/block-repository.ts","../position/point":"src/position/point.ts","../position/point-utils":"src/position/point-utils.ts","./index-utils":"src/terrain/index-utils.ts","../calc/calc":"src/calc/calc.ts"}],"src/color/color.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -43465,13 +43331,17 @@ exports.__esModule = true;
 
 var PIXI = __importStar(require("pixi.js"));
 
-var core_1 = require("@blocks/core");
-
 var game_object_utils_1 = require("../utils/game-object-utils");
 
 var circle_1 = require("../graphics/circle");
 
 var debug_position_1 = require("../components/standard/debug-position");
+
+var point_1 = require("../position/point");
+
+var calc_1 = require("../calc/calc");
+
+var point_utils_1 = require("../position/point-utils");
 
 function updatePlayer(scene, player) {
   var _a = game_object_utils_1.getDrawPosition(player.position),
@@ -43491,8 +43361,8 @@ function updatePlayer(scene, player) {
   }
 
   player.angle += player.RotateSpeed * scene.delta;
-  var offset = core_1.multiply(player.Radius, core_1.createPoint(Math.sin(player.angle), Math.cos(player.angle), 0));
-  var newPos = core_1.addPos(offset, player.center);
+  var offset = calc_1.multiply(player.Radius, point_1.createPoint(Math.sin(player.angle), Math.cos(player.angle), 0));
+  var newPos = point_utils_1.addPos(offset, player.center);
   player.position.x = newPos.x;
   player.position.y = newPos.y;
   player.view.x = drawX;
@@ -43516,7 +43386,7 @@ function createPlayer(id, position) {
 }
 
 exports.createPlayer = createPlayer;
-},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","@blocks/core":"node_modules/@blocks/core/lib/index.js","../utils/game-object-utils":"src/utils/game-object-utils.ts","../graphics/circle":"src/graphics/circle.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts"}],"node_modules/penner/penner.js":[function(require,module,exports) {
+},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","../utils/game-object-utils":"src/utils/game-object-utils.ts","../graphics/circle":"src/graphics/circle.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts","../position/point":"src/position/point.ts","../calc/calc":"src/calc/calc.ts","../position/point-utils":"src/position/point-utils.ts"}],"node_modules/penner/penner.js":[function(require,module,exports) {
 var define;
 
 /*
@@ -48045,7 +47915,7 @@ var Ammo = require('ammo.js');
 
 var config_1 = require("../config");
 
-var core_1 = require("@blocks/core"); // https://github.com/kripken/ammo.js/blob/master/examples/hello_world.js
+var point_1 = require("../position/point"); // https://github.com/kripken/ammo.js/blob/master/examples/hello_world.js
 // physics
 
 
@@ -48088,14 +47958,14 @@ var updatePhysics = function () {
       body.body.getMotionState().getWorldTransform(body.transform);
 
       if (body.gameObject) {
-        body.gameObject.position = core_1.createPoint(body.transform.getOrigin().x(), body.transform.getOrigin().z(), body.transform.getOrigin().y());
+        body.gameObject.position = point_1.createPoint(body.transform.getOrigin().x(), body.transform.getOrigin().z(), body.transform.getOrigin().y());
       }
     }
   });
 };
 
 exports["default"] = updatePhysics;
-},{"ammo.js":"node_modules/ammo.js/ammo.js","../config":"src/config.ts","@blocks/core":"node_modules/@blocks/core/lib/index.js"}],"src/components/standard/ping-pong.ts":[function(require,module,exports) {
+},{"ammo.js":"node_modules/ammo.js/ammo.js","../config":"src/config.ts","../position/point":"src/position/point.ts"}],"src/components/standard/ping-pong.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -48211,7 +48081,114 @@ function () {
 }();
 
 exports.AssetRepository = AssetRepository;
-},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js"}],"src/scene/game-scene.ts":[function(require,module,exports) {
+},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js"}],"src/game-object/game-object-repository.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+var GameObjectRepository =
+/** @class */
+function () {
+  function GameObjectRepository() {
+    this.gameObjects = {};
+    this.activeGameObjects = new Set();
+  }
+
+  GameObjectRepository.prototype.getById = function (id) {
+    if (this.has(id)) {
+      return this.gameObjects[id];
+    }
+
+    return null;
+  };
+
+  GameObjectRepository.prototype.add = function (gameObject) {
+    this.gameObjects[gameObject.id] = gameObject;
+  };
+
+  GameObjectRepository.prototype.has = function (id) {
+    return this.gameObjects.hasOwnProperty(id);
+  };
+
+  GameObjectRepository.prototype.activate = function (id) {
+    this.activeGameObjects.add(id);
+  };
+
+  GameObjectRepository.prototype.deactivate = function (id) {
+    return this.activeGameObjects["delete"](id);
+  };
+
+  GameObjectRepository.prototype.isActive = function (id) {
+    return this.activeGameObjects.has(id);
+  };
+
+  GameObjectRepository.prototype.getActive = function () {
+    var _this = this;
+
+    return Array.from(this.activeGameObjects).map(function (id) {
+      return _this.gameObjects[id];
+    });
+  };
+
+  return GameObjectRepository;
+}();
+
+exports.GameObjectRepository = GameObjectRepository;
+},{}],"src/game-component/game-component-repository.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+var GameComponentRepository =
+/** @class */
+function () {
+  function GameComponentRepository() {
+    this.gameComponents = {};
+  }
+
+  GameComponentRepository.prototype.getById = function (id) {
+    if (this.has(id)) {
+      return this.gameComponents[id];
+    }
+
+    return null;
+  };
+
+  GameComponentRepository.prototype.provide = function (gameComponent) {
+    this.gameComponents[gameComponent.name] = gameComponent;
+  };
+
+  GameComponentRepository.prototype.has = function (name) {
+    return this.gameComponents.hasOwnProperty(name);
+  };
+
+  return GameComponentRepository;
+}();
+
+exports.GameComponentRepository = GameComponentRepository;
+},{}],"src/scene/scene.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+var game_object_repository_1 = require("../game-object/game-object-repository");
+
+var game_component_repository_1 = require("../game-component/game-component-repository");
+
+var Scene =
+/** @class */
+function () {
+  function Scene() {
+    this.delta = 0;
+    this.gameComponents = new game_component_repository_1.GameComponentRepository();
+    this.gameObjects = new game_object_repository_1.GameObjectRepository();
+  }
+
+  return Scene;
+}();
+
+exports.Scene = Scene;
+},{"../game-object/game-object-repository":"src/game-object/game-object-repository.ts","../game-component/game-component-repository":"src/game-component/game-component-repository.ts"}],"src/scene/game-scene.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -48383,8 +48360,6 @@ var __importDefault = this && this.__importDefault || function (mod) {
 
 exports.__esModule = true;
 
-var core_1 = require("@blocks/core");
-
 var terrain_utils_1 = require("../terrain/terrain-utils");
 
 var block_type_1 = require("../block/block-type");
@@ -48416,6 +48391,14 @@ var ping_pong_1 = require("../components/standard/ping-pong");
 var ball_physics_1 = require("../ball/components/ball-physics");
 
 var asset_repository_1 = require("../assets/asset-repository");
+
+var scene_1 = require("./scene");
+
+var point_1 = require("../position/point");
+
+var point_utils_1 = require("../position/point-utils");
+
+var sort_1 = require("../calc/sort");
 
 var GameScene =
 /** @class */
@@ -48458,7 +48441,7 @@ function (_super) {
     _this.gameComponents.provide(ball_physics_1.ballPhysics); // player
 
 
-    _this.gameObjects.add(player_1.createPlayer('zoink', core_1.createPoint(75, 0, 10)));
+    _this.gameObjects.add(player_1.createPlayer('zoink', point_1.createPoint(75, 0, 10)));
 
     _this.gameObjects.activate('zoink'); // Balls
 
@@ -48466,7 +48449,7 @@ function (_super) {
     for (var i = 0; i < 5; i++) {
       var boink = i % 2 === 0;
 
-      _this.gameObjects.add(ball_1.createBall('balls' + i, core_1.addPos(core_1.createPoint(50, 75, 0), core_1.createPoint(config_1.BLOCK_SIZE + (boink ? 1 : -1), config_1.BLOCK_SIZE + (boink ? -1 : 1), config_1.BLOCK_SIZE + config_1.BLOCK_SIZE * i + config_1.BLOCK_SIZE)), [ball_1.updateBall, ball_physics_1.ballPhysics, debug_position_1.debugPosition]));
+      _this.gameObjects.add(ball_1.createBall('balls' + i, point_utils_1.addPos(point_1.createPoint(50, 75, 0), point_1.createPoint(config_1.BLOCK_SIZE + (boink ? 1 : -1), config_1.BLOCK_SIZE + (boink ? -1 : 1), config_1.BLOCK_SIZE + config_1.BLOCK_SIZE * i + config_1.BLOCK_SIZE)), [ball_1.updateBall, ball_physics_1.ballPhysics, debug_position_1.debugPosition]));
 
       _this.gameObjects.activate('balls' + i);
     } // terrain
@@ -48492,19 +48475,19 @@ function (_super) {
     Array.from(terrain_utils_1.createCheckers(block_type_1.BlockType.ROCK, block_type_1.BlockType.ROCK, config_1.CHUNK_SIZE, config_1.CHUNK_SIZE)).forEach(function (_a) {
       var pos = _a[0],
           type = _a[1];
-      return void _this.terrain.setBlock(core_1.addPos(pos, core_1.createPoint(startX, startY)), type);
+      return void _this.terrain.setBlock(point_utils_1.addPos(pos, point_1.createPoint(startX, startY)), type);
     });
     Array.from(terrain_utils_1.createTower(block_type_1.BlockType.GRASS, 20)).forEach(function (_a) {
       var pos = _a[0],
           type = _a[1];
 
       for (var x = startX; x < startX + config_1.CHUNK_SIZE; x = x + 2) {
-        void _this.terrain.setBlock(core_1.addPos(core_1.createPoint(startX, startY), core_1.addPos(core_1.createPoint(x, x, 0), pos)), type);
+        void _this.terrain.setBlock(point_utils_1.addPos(point_1.createPoint(startX, startY), point_utils_1.addPos(point_1.createPoint(x, x, 0), pos)), type);
       }
     });
     var y = 2;
     var id = "ball-z-index-test-" + y;
-    this.gameObjects.add(ball_1.createBall(id, core_1.createPoint(0, y * (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), config_1.BLOCK_SIZE * 1), [ping_pong_1.horizontalMovement, ball_1.updateBall, debug_position_1.debugPosition]));
+    this.gameObjects.add(ball_1.createBall(id, point_1.createPoint(0, y * (config_1.BLOCK_SIZE * config_1.CHUNK_SIZE), config_1.BLOCK_SIZE * 1), [ping_pong_1.horizontalMovement, ball_1.updateBall, debug_position_1.debugPosition]));
     this.gameObjects.activate(id);
   };
 
@@ -48525,10 +48508,10 @@ function (_super) {
             Array.from(terrain_utils_1.createTower(block_type_1.BlockType.ROCK, 20)).forEach(function (_a) {
               var pos = _a[0],
                   type = _a[1];
-              void _this.terrain.setBlock(core_1.addPos(core_1.createPoint(20, 18, 1), pos), type);
-              void _this.terrain.setBlock(core_1.addPos(core_1.createPoint(17, 15, 1), pos), type);
+              void _this.terrain.setBlock(point_utils_1.addPos(point_1.createPoint(20, 18, 1), pos), type);
+              void _this.terrain.setBlock(point_utils_1.addPos(point_1.createPoint(17, 15, 1), pos), type);
             });
-            terrain_utils_1.createArch(this.terrain, block_type_1.BlockType.ROCK, core_1.createPoint(6, 1, 1));
+            terrain_utils_1.createArch(this.terrain, block_type_1.BlockType.ROCK, point_1.createPoint(6, 1, 1));
             Array.from(terrain_utils_1.createCheckers(block_type_1.BlockType.GRASS, block_type_1.BlockType.VOID, config_1.CHUNK_SIZE, config_1.CHUNK_SIZE)).forEach(function (_a) {
               var pos = _a[0],
                   type = _a[1];
@@ -48537,10 +48520,10 @@ function (_super) {
             Array.from(terrain_utils_1.createTerrainNoise(block_type_1.BlockType.GRASS, block_type_1.BlockType.ROCK, config_1.CHUNK_SIZE * 3, config_1.CHUNK_SIZE * 3)).forEach(function (_a) {
               var pos = _a[0],
                   type = _a[1];
-              return void _this.terrain.setBlock(core_1.addPos(pos, core_1.createPoint(config_1.CHUNK_SIZE, 0, 0)), type);
+              return void _this.terrain.setBlock(point_utils_1.addPos(pos, point_1.createPoint(config_1.CHUNK_SIZE, 0, 0)), type);
             }); // Test Line
 
-            core_1.bresenham3D(1, 0, 10, 10, 0, 20).forEach(function (p) {
+            point_utils_1.bresenham3D(1, 0, 10, 10, 0, 20).forEach(function (p) {
               return _this.terrain.setBlock(p, block_type_1.BlockType.SELECTION);
             });
             return [2
@@ -48581,15 +48564,33 @@ function (_super) {
     this.stage.children.sort(function (a, b) {
       var aZ = a.zIndex || 0;
       var bZ = b.zIndex || 0;
-      return core_1.sortZYXAsc(core_1.createPoint(a.position.x, a.position.y, aZ), core_1.createPoint(b.position.x, b.position.y, bZ));
+      return sort_1.sortZYXAsc(point_1.createPoint(a.position.x, a.position.y, aZ), point_1.createPoint(b.position.x, b.position.y, bZ));
     });
   };
 
   return GameScene;
-}(core_1.Scene);
+}(scene_1.Scene);
 
 exports.GameScene = GameScene;
-},{"@blocks/core":"node_modules/@blocks/core/lib/index.js","../terrain/terrain-utils":"src/terrain/terrain-utils.ts","../block/block-type":"src/block/block-type.ts","../terrain/terrain":"src/terrain/terrain.ts","../player/player":"src/player/player.ts","../chunk/chunk":"src/chunk/chunk.ts","../config":"src/config.ts","pixi-viewport":"node_modules/pixi-viewport/dist/viewport.js","../../assets/spritesheets/tiles-spritesheet.json":"assets/spritesheets/tiles-spritesheet.json","../../assets/spritesheets/tiles-spritesheet.png":"assets/spritesheets/tiles-spritesheet.png","../ball/ball":"src/ball/ball.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts","../physics/physics":"src/physics/physics.ts","../components/standard/ping-pong":"src/components/standard/ping-pong.ts","../ball/components/ball-physics":"src/ball/components/ball-physics.ts","../assets/asset-repository":"src/assets/asset-repository.ts"}],"src/launcher.ts":[function(require,module,exports) {
+},{"../terrain/terrain-utils":"src/terrain/terrain-utils.ts","../block/block-type":"src/block/block-type.ts","../terrain/terrain":"src/terrain/terrain.ts","../player/player":"src/player/player.ts","../chunk/chunk":"src/chunk/chunk.ts","../config":"src/config.ts","pixi-viewport":"node_modules/pixi-viewport/dist/viewport.js","../../assets/spritesheets/tiles-spritesheet.json":"assets/spritesheets/tiles-spritesheet.json","../../assets/spritesheets/tiles-spritesheet.png":"assets/spritesheets/tiles-spritesheet.png","../ball/ball":"src/ball/ball.ts","../components/standard/debug-position":"src/components/standard/debug-position.ts","../physics/physics":"src/physics/physics.ts","../components/standard/ping-pong":"src/components/standard/ping-pong.ts","../ball/components/ball-physics":"src/ball/components/ball-physics.ts","../assets/asset-repository":"src/assets/asset-repository.ts","./scene":"src/scene/scene.ts","../position/point":"src/position/point.ts","../position/point-utils":"src/position/point-utils.ts","../calc/sort":"src/calc/sort.ts"}],"src/game/game.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+
+var Game =
+/** @class */
+function () {
+  function Game() {}
+
+  Game.prototype.update = function (delta) {
+    this.scene.update(delta);
+  };
+
+  return Game;
+}();
+
+exports.Game = Game;
+},{}],"src/launcher.ts":[function(require,module,exports) {
 "use strict";
 
 var __importStar = this && this.__importStar || function (mod) {
@@ -48604,11 +48605,11 @@ exports.__esModule = true;
 
 var PIXI = __importStar(require("pixi.js"));
 
-var core_1 = require("@blocks/core");
-
 var pixi_js_1 = require("pixi.js");
 
-var game_scene_1 = require("./scene/game-scene"); // import "./wasm";
+var game_scene_1 = require("./scene/game-scene");
+
+var game_1 = require("./game/game"); // import "./wasm";
 
 
 var viewPort = {
@@ -48628,7 +48629,7 @@ function setup() {
 
 app.renderer.backgroundColor = 0xf5f5f5;
 app.loader.load(setup);
-var game = new core_1.Game();
+var game = new game_1.Game();
 game.scene = new game_scene_1.GameScene(app);
 var ball = game.scene.gameObjects.getById('ball'); // setup ticker
 
@@ -48638,7 +48639,7 @@ ticker.add(function (delta) {
   document.title = "Blocks" + " FPS:" + Math.floor(app.ticker.FPS);
 });
 ticker.start();
-},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","@blocks/core":"node_modules/@blocks/core/lib/index.js","./scene/game-scene":"src/scene/game-scene.ts"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"pixi.js":"node_modules/pixi.js/lib/pixi.es.js","./scene/game-scene":"src/scene/game-scene.ts","./game/game":"src/game/game.ts"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -48666,7 +48667,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64024" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56050" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

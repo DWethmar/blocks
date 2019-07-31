@@ -6,15 +6,22 @@ import {
     setChunk,
     createChunkRepository,
 } from '../chunk/chunk-repository';
-import { Scene, Point3D, GameObject, GameObjectRepository, multiply, createPoint } from '@blocks/core';
 import { BlockType } from '../block/block-type';
-import { isIntegerPoint3D } from '@blocks/core';
 import { createChunk } from '../chunk/chunk';
 import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
 import { setBlock, getBlock } from '../block/block-repository';
-import { convertWorldIndexToLocalIndex, convertWorldIndexToChunkIndex } from './index-utils';
+import { GameScene } from '../scene/game-scene';
+import { Point3D, createPoint } from '../position/point';
+import { GameObject } from '../game-object/game-object';
+import { GameObjectRepository } from '../game-object/game-object-repository';
+import { isIntegerPoint3D } from '../position/point-utils';
+import {
+    convertWorldIndexToChunkIndex,
+    convertWorldIndexToLocalIndex,
+} from './index-utils';
+import { multiply } from '../calc/calc';
 
-export function updateTerrain(scene: Scene, terrain: Terrain): void {
+export function updateTerrain(scene: GameScene, terrain: Terrain): void {
     console.log('Nothing to do fml', terrain, scene);
 }
 

@@ -1,5 +1,6 @@
-import { Point3D, floorPos, createPoint } from "@blocks/core";
-import { CHUNK_SIZE, BLOCK_SIZE } from "../config";
+import { Point3D, createPoint } from '../position/point';
+import { floorPos } from '../position/point-utils';
+import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
 
 export function convertWorldIndexToChunkIndex(worldIndex: Point3D): Point3D {
     return floorPos(

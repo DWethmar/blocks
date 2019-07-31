@@ -1,13 +1,13 @@
 import * as PIXI from 'pixi.js';
 
-import { Scene } from '@blocks/core';
 import { dynamicsWorld, physicsObjects } from '../../physics/physics';
 import { Ball } from '../ball';
+import { GameScene } from '../../scene/game-scene';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Ammo = require('ammo.js');
 
-export function ballPhysics(scene: Scene, ball: Ball): void {
+export function ballPhysics(scene: GameScene, ball: Ball): void {
     if (!ball.physics.trans) {
         ball.physics.trans = new Ammo.btTransform(); // taking this out of the loop below us reduces the leaking
 

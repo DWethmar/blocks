@@ -1,14 +1,15 @@
 import * as PIXI from 'pixi.js';
-
-import { Scene, GameObject, createPoint, addPos, minusPos } from '@blocks/core';
-
-import { BLOCK_SIZE, CHUNK_SIZE } from '../../config';
+import { GameObject } from '../../game-object/game-object';
+import { GameScene } from '../../scene/game-scene';
 
 const left = 0;
 const right = 100;
 const start = 'ping';
 
-export function horizontalMovement(scene: Scene, gameObject: GameObject): void {
+export function horizontalMovement(
+    scene: GameScene,
+    gameObject: GameObject,
+): void {
     if (!(gameObject as any).horizontalMovement) {
         (gameObject as any).horizontalMovement = {};
         (gameObject as any).horizontalMovement.ping = 'ping';
@@ -19,10 +20,10 @@ export function horizontalMovement(scene: Scene, gameObject: GameObject): void {
     let right = (gameObject as any).horizontalMovement.right;
 
     if (gameObject.position.x > start + left && ping === 'ping') {
-        ping = 'pong'
+        ping = 'pong';
     } else {
         if (gameObject.position.x < start && ping === 'pong') {
-            ping = 'ping'
+            ping = 'ping';
         }
     }
 

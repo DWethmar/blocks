@@ -1,8 +1,7 @@
 import * as PIXI from 'pixi.js';
-
-import { Game } from '@blocks/core';
 import { Ticker } from 'pixi.js';
 import { GameScene } from './scene/game-scene';
+import { Game } from './game/game';
 
 // import "./wasm";
 

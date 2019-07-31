@@ -1,7 +1,7 @@
 import { Chunk } from './chunk';
 import { getChunkId } from './chunk-utils';
-import { Point3D } from '@blocks/core';
 import { convertPositionToChunkIndex } from '../terrain/index-utils';
+import { Point3D } from '../position/point';
 
 export type chunkRepository = Map<string, Chunk>;
 

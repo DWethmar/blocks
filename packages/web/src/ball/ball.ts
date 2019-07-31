@@ -1,10 +1,12 @@
 import * as PIXI from 'pixi.js';
 
-import { GameObject, Point3D, Scene, GameComponent } from '@blocks/core';
 import { getDrawPosition } from '../utils/game-object-utils';
 import { createCircleGraphic } from '../graphics/circle';
 import { pink } from '../color/colors';
 import { GameScene } from '../scene/game-scene';
+import { GameObject } from '../game-object/game-object';
+import { Point3D } from '../position/point';
+import { GameComponent } from '../game-component/game-component';
 
 export interface Ball extends GameObject {
     RotateSpeed: number;

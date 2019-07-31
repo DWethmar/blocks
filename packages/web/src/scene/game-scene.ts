@@ -1,15 +1,6 @@
 import * as PIXI from 'pixi.js';
 
 import {
-    Scene,
-    sortZYXAsc,
-    bresenham3D,
-    addPos,
-    createPoint,
-    Point3D,
-} from '@blocks/core';
-
-import {
     createArch,
     createCheckers,
     createTerrainNoise,
@@ -34,6 +25,10 @@ import updatePhysics from '../physics/physics';
 import { horizontalMovement } from '../components/standard/ping-pong';
 import { ballPhysics } from '../ball/components/ball-physics';
 import { AssetRepository } from '../assets/asset-repository';
+import { Scene } from './scene';
+import { createPoint, Point3D } from '../position/point';
+import { addPos, bresenham3D } from '../position/point-utils';
+import { sortZYXAsc } from '../calc/sort';
 
 export class GameScene extends Scene {
     public stage: PIXI.Container;

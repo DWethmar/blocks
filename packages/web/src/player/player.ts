@@ -1,17 +1,13 @@
 import * as PIXI from 'pixi.js';
-import {
-    GameObject,
-    Point3D,
-    Scene,
-    multiply,
-    createPoint,
-    addPos,
-} from '@blocks/core';
 
 import { getDrawPosition } from '../utils/game-object-utils';
 import { createCircleGraphic } from '../graphics/circle';
 import { debugPosition } from '../components/standard/debug-position';
 import { GameScene } from '../scene/game-scene';
+import { GameObject } from '../game-object/game-object';
+import { Point3D, createPoint } from '../position/point';
+import { multiply } from '../calc/calc';
+import { addPos } from '../position/point-utils';
 
 export interface Player extends GameObject {
     RotateSpeed: number;
