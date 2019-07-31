@@ -13,27 +13,26 @@ export interface Ball extends GameObject {
     Radius: number;
     angle: number;
     center: Point3D;
-    view: PIXI.Container;
     physics: { [id: string]: any };
 }
 
-export function updateBall(scene: GameScene, ball: Ball): void {
-    const [drawX, drawY, zIndex] = getDrawPosition(ball.position);
+export function updateView(scene: GameScene, gameObject: GameObject): void {
+    const [drawX, drawY, zIndex] = getDrawPosition(gameObject.position);
 
-    if (!ball.view) {
-        ball.view = new PIXI.Container();
-        ball.view.name = 'Ball';
+    let view: PIXI.Container = scene.stage.getChildByName(
+        gameObject.id,
+    ) as PIXI.Container;
 
-        ball.center = Object.assign({}, ball.position);
-
-        ball.view.x = drawX;
-        ball.view.y = drawY;
-
-        ball.view.addChild(createCircleGraphic(-2.5, -2.5, 5, pink));
-        scene.stage.addChild(ball.view);
+    if (!view) {
+        view = new PIXI.Container();
+        view.name = gameObject.id;
+        view.x = drawX;
+        view.y = drawY;
+        view.addChild(createCircleGraphic(-2.5, -2.5, 5, pink));
+        scene.stage.addChild(view);
     }
-    ball.view.position.set(drawX, drawY);
-    ball.view.zIndex = zIndex;
+    view.position.set(drawX, drawY);
+    view.zIndex = zIndex;
 }
 
 export function createBall(

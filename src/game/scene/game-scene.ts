@@ -19,7 +19,7 @@ const Viewport = require('pixi-viewport');
 import data from '../../assets/spritesheets/tiles-spritesheet.json';
 import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
-import { updateBall, createBall } from '../ball/ball';
+import { updateView, createBall } from '../ball/ball';
 import { debugPosition } from '../components/standard/debug-position';
 import updatePhysics from '../physics/physics';
 import { horizontalMovement } from '../components/standard/ping-pong';
@@ -67,7 +67,7 @@ export class GameScene extends Scene {
         this.gameComponents.register(updateChunk);
         this.gameComponents.register(updateTerrain);
         this.gameComponents.register(updatePlayer);
-        this.gameComponents.register(updateBall);
+        this.gameComponents.register(updateView);
         this.gameComponents.register(debugPosition);
         this.gameComponents.register(horizontalMovement);
         this.gameComponents.register(ballPhysics);
@@ -90,7 +90,7 @@ export class GameScene extends Scene {
                             BLOCK_SIZE + BLOCK_SIZE * i + BLOCK_SIZE,
                         ),
                     ),
-                    [updateBall, ballPhysics, debugPosition],
+                    [updateView, ballPhysics, debugPosition],
                 ),
             );
             this.gameObjects.activate('ball-' + i);
@@ -149,7 +149,7 @@ export class GameScene extends Scene {
                         createPoint(x * BLOCK_SIZE, x * BLOCK_SIZE, BLOCK_SIZE), // within chunk
                         createPoint(0, -BLOCK_SIZE, 0),
                     ),
-                    [horizontalMovement, updateBall],
+                    [horizontalMovement, updateView],
                 ),
             );
             this.gameObjects.activate(id);
