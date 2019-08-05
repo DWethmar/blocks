@@ -1,102 +1,131 @@
 import * as PIXI from 'pixi.js';
 
-import {
-    chunkRepository,
-    getChunk,
-    setChunk,
-    createChunkRepository,
-} from '../chunk/chunk-repository';
 import { BlockType } from '../block/block-type';
-import { createChunk } from '../chunk/chunk';
 import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
-import { setBlock, getBlock } from '../block/block-repository';
-import { GameScene } from '../scene/game-scene';
+import {
+    setBlock,
+    getBlock,
+    createBlockRepository,
+} from '../block/block-repository';
 import { Point3D, createPoint } from '../position/point';
-import { GameObject } from '../game-object/game-object';
-import { GameObjectRepository } from '../game-object/game-object-repository';
+import { Engine } from '../engine/engine';
 import { isIntegerPoint3D } from '../position/point-utils';
 import {
     convertWorldIndexToChunkIndex,
     convertWorldIndexToLocalIndex,
 } from './index-utils';
+import { ChunkComponent } from '../components/chunk';
+import { Components } from '../components/components';
+import { TerrainComponent } from '../components/terrain';
+import { getChunkId as createChunkPosId } from '../chunk/chunk-utils';
+import { Component } from '../components/component';
 import { multiply } from '../calc/calc';
-
-export function updateTerrain(scene: GameScene, terrain: Terrain): void {
-    console.log('Nothing to do fml', terrain, scene);
-}
 
 export type blockSetter = (blockIndex: Point3D, type: BlockType) => boolean;
 export type blockGetter = (blockIndex: Point3D) => BlockType;
 
-export interface Terrain extends GameObject {
-    chunks: chunkRepository;
-    setBlock: blockSetter;
-    getBlock: blockGetter;
-}
-
-/**
- *
- * @param chunks is collection of chunks.
- * @param gameObjects is the repository that is used to create new chunks.
- */
 export function createBlockSetter(
-    chunks: chunkRepository,
-    gameObjects: GameObjectRepository,
+    terrainGameObjectId: string,
+    engine: Engine,
 ): blockSetter {
-    return function(blockIndex, type): boolean {
+    const terrain = engine.getComponent<TerrainComponent>(
+        terrainGameObjectId,
+        Components.TERRAIN,
+    );
+
+    return function(blockIndex: Point3D, type: BlockType): boolean {
         if (isIntegerPoint3D(blockIndex)) {
             const chunkIndex = convertWorldIndexToChunkIndex(blockIndex);
-            let chunk = getChunk(chunkIndex, chunks);
-            // Create chunk if not exist
-            if (!chunk) {
-                chunk = createChunk(
-                    `chunk-${chunkIndex.x}.${chunkIndex.y}.${chunkIndex.z}`,
-                    multiply(CHUNK_SIZE * BLOCK_SIZE, chunkIndex),
-                );
-                setChunk(chunk, chunks);
 
-                // Register the new chunk
-                gameObjects.add(chunk);
-                gameObjects.activate(chunk.id);
+            let chunkComponent: Component<ChunkComponent> = null;
+            const chunkPosId = createChunkPosId(chunkIndex);
+
+            if (terrain.state.chunks.hasOwnProperty(chunkPosId)) {
+                const chunkId = terrain.state.chunks[chunkPosId];
+                chunkComponent = engine.getComponent<ChunkComponent>(
+                    chunkId,
+                    Components.CHUNK,
+                );
             }
+
+            // Create chunk if not exist
+            if (!chunkComponent) {
+                // Register the new chunk
+                const chunkId = engine.createGameObject(
+                    multiply(BLOCK_SIZE * CHUNK_SIZE, chunkIndex),
+                );
+                chunkComponent = engine.addComponent<ChunkComponent>(
+                    chunkId,
+                    Components.CHUNK,
+                    {
+                        blocks: createBlockRepository(
+                            CHUNK_SIZE,
+                            CHUNK_SIZE,
+                            CHUNK_SIZE,
+                        ),
+                        terrainId: terrainGameObjectId,
+                        hasChanged: true,
+                    },
+                );
+                engine.activateGameObject(chunkId);
+                terrain.state.chunks[chunkPosId] = chunkId;
+            }
+
             setBlock(
                 convertWorldIndexToLocalIndex(blockIndex),
-                chunk.blocks,
+                chunkComponent.state.blocks,
                 type,
             );
+
+            engine.updateComponent(chunkComponent.id, chunkComponent.state);
         }
         return true;
     };
 }
 
-export function createBlockGetter(chunks: chunkRepository): blockGetter {
+export function createBlockGetter(
+    terrainGameObjectId: string,
+    engine: Engine,
+): blockGetter {
+    const terrain = engine.getComponent<TerrainComponent>(
+        terrainGameObjectId,
+        Components.TERRAIN,
+    );
+
     return function(blockIndex): BlockType {
         if (isIntegerPoint3D(blockIndex)) {
             const chunkIndex = convertWorldIndexToChunkIndex(blockIndex);
-            let chunk = getChunk(chunkIndex, chunks);
+            let chunk: Component<ChunkComponent> = null;
+            const chunkPosId = createChunkPosId(chunkIndex);
+
+            if (terrain.state.chunks.hasOwnProperty(chunkPosId)) {
+                const chunkId = terrain.state.chunks[chunkPosId];
+                chunk = engine.getComponent<ChunkComponent>(
+                    chunkId,
+                    Components.CHUNK,
+                );
+            }
+
             if (!chunk) {
                 return null;
             }
             return getBlock(
                 convertWorldIndexToLocalIndex(blockIndex),
-                chunk.blocks,
+                chunk.state.blocks,
             );
         }
         return null;
     };
 }
 
-export function createTerrain(
-    id: string,
-    gameObjects: GameObjectRepository,
-): Terrain {
-    const chunks = createChunkRepository();
-    return {
-        id: id,
-        position: createPoint(),
-        chunks: chunks,
-        components: [updateTerrain.name],
-        setBlock: createBlockSetter(chunks, gameObjects),
-        getBlock: createBlockGetter(chunks),
-    };
-}
+// export function createTerrain(id: string, gameObjects: Engine): Terrain {
+//     const chunks = createChunkRepository();
+//     return {
+//         id: id,
+//         position: createPoint(),
+//         chunks: chunks,
+//         components: [updateTerrain.name],
+//         setBlock: createBlockSetter(chunks, gameObjects),
+//         getBlock: createBlockGetter(chunks),
+//     };
+// }

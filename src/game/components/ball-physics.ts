@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 
 import { dynamicsWorld, physicsObjects } from '../../physics/physics';
-import { Ball } from '../ball';
+import { Ball } from '../view';
 import { GameScene } from '../../scene/game-scene';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

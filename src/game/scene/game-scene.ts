@@ -7,10 +7,7 @@ import {
     createTower,
 } from '../terrain/terrain-utils';
 import { BlockType } from '../block/block-type';
-import { Terrain, updateTerrain, createTerrain } from '../terrain/terrain';
-import { createPlayer, updatePlayer } from '../player/player';
-import { updateChunk } from '../chunk/chunk';
-import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
+import { createBlockSetter } from '../terrain/terrain';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Viewport = require('pixi-viewport');
@@ -19,21 +16,24 @@ const Viewport = require('pixi-viewport');
 import data from '../../assets/spritesheets/tiles-spritesheet.json';
 import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
-import { updateView, createBall } from '../ball/ball';
-import { debugPosition } from '../components/standard/debug-position';
 import updatePhysics from '../physics/physics';
-import { horizontalMovement } from '../components/standard/ping-pong';
-import { ballPhysics } from '../ball/components/ball-physics';
 import { AssetRepository } from '../assets/asset-repository';
 import { Scene } from './scene';
 import { createPoint, Point3D } from '../position/point';
-import { addPos, bresenham3D } from '../position/point-utils';
+import { addPos } from '../position/point-utils';
 import { sortZYXAsc } from '../calc/sort';
+import { ViewSystem } from '../engine/view-system';
+import { Components } from '../components/components';
+import { TerrainComponent } from '../components/terrain';
+import { ViewComponent } from '../components/view';
+import { TerrainSystem } from '../engine/terrain-system';
+import { ChunkSystem } from '../engine/chunk-system';
+import { CHUNK_SIZE } from '../config';
 
 export class GameScene extends Scene {
     public stage: PIXI.Container;
 
-    public terrain: Terrain;
+    public terrainId: string;
 
     public assets: AssetRepository;
 
@@ -64,116 +64,53 @@ export class GameScene extends Scene {
             })
             .decelerate();
 
-        this.gameComponents.register(updateChunk);
-        this.gameComponents.register(updateTerrain);
-        this.gameComponents.register(updatePlayer);
-        this.gameComponents.register(updateView);
-        this.gameComponents.register(debugPosition);
-        this.gameComponents.register(horizontalMovement);
-        this.gameComponents.register(ballPhysics);
+        this.engine.addSystem(new ViewSystem(this.stage));
+        this.engine.addSystem(new TerrainSystem());
+        this.engine.addSystem(new ChunkSystem(this.stage, this.assets));
 
         // player
-        this.gameObjects.add(createPlayer('zoink', createPoint(75, 0, 10)));
-        this.gameObjects.activate('zoink');
-
-        // Balls
-        for (let i = 0; i < 5; i++) {
-            const boink = i % 2 === 0;
-            this.gameObjects.add(
-                createBall(
-                    'ball-' + i,
-                    addPos(
-                        createPoint(50, 75, 0),
-                        createPoint(
-                            BLOCK_SIZE + (boink ? 1 : -1),
-                            BLOCK_SIZE + (boink ? -1 : 1),
-                            BLOCK_SIZE + BLOCK_SIZE * i + BLOCK_SIZE,
-                        ),
-                    ),
-                    [updateView, ballPhysics, debugPosition],
-                ),
-            );
-            this.gameObjects.activate('ball-' + i);
-        }
+        // Pos
+        const playerId = this.engine.createGameObject();
+        const position = this.engine.getComponent(
+            playerId,
+            Components.POSITION,
+        );
+        this.engine.updateComponent(position.id, createPoint(75, 0, 10));
+        // View
+        this.engine.addComponent<ViewComponent>(playerId, Components.VIEW, {
+            name: 'ball',
+        });
 
         // terrain
-        this.terrain = createTerrain('terrain', this.gameObjects);
-        this.gameObjects.add(this.terrain);
-
-        this.init();
-        this.zIndexTest();
-
-        app.stage.addChild(this.stage);
-    }
-
-    private zIndexTest(): void {
-        const startX = 0;
-        const startY = CHUNK_SIZE * 2;
-
-        Array.from(
-            createCheckers(
-                BlockType.ROCK,
-                BlockType.ROCK,
-                CHUNK_SIZE,
-                CHUNK_SIZE,
-            ),
-        ).forEach(
-            ([pos, type]: [Point3D, BlockType]) =>
-                void this.terrain.setBlock(
-                    addPos(pos, createPoint(startX, startY)),
-                    type,
-                ),
-        );
-
-        Array.from(createTower(BlockType.GRASS, 20)).forEach(
-            ([pos, type]: [Point3D, BlockType]): void => {
-                for (let x = startX; x < startX + CHUNK_SIZE; x = x + 2) {
-                    this.terrain.setBlock(
-                        addPos(
-                            createPoint(startX, startY),
-                            addPos(createPoint(x, x, 0), pos),
-                        ),
-                        type,
-                    );
-                }
+        this.terrainId = this.engine.createGameObject();
+        this.engine.addComponent<TerrainComponent>(
+            this.terrainId,
+            Components.TERRAIN,
+            {
+                chunks: {},
+                blockQueue: [],
             },
         );
 
-        for (let x = startX; x < startX + CHUNK_SIZE; x = x + 2) {
-            const id = `ball-z-index-test-${x}`;
-            this.gameObjects.add(
-                createBall(
-                    id,
-                    addPos(
-                        createPoint(startX * BLOCK_SIZE, startY * BLOCK_SIZE), // chunk x y z
-                        createPoint(x * BLOCK_SIZE, x * BLOCK_SIZE, BLOCK_SIZE), // within chunk
-                        createPoint(0, -BLOCK_SIZE, 0),
-                    ),
-                    [horizontalMovement, updateView],
-                ),
-            );
-            this.gameObjects.activate(id);
-        }
+        this.init();
+        app.stage.addChild(this.stage);
     }
 
     private async init(): Promise<void> {
         await this.assets.loadSpriteSheet(data, image);
 
-        // Create positions of a tower and copy it 2 times.
+        const blockSetter = createBlockSetter(this.terrainId, this.engine);
+        // const blockGetter = createBlockGetter(terrain.state.chunks);
+
         Array.from(createTower(BlockType.ROCK, 20)).forEach(
             ([pos, type]: [Point3D, BlockType]): void => {
-                void this.terrain.setBlock(
-                    addPos(createPoint(20, 18, 1), pos),
-                    type,
-                );
-                void this.terrain.setBlock(
-                    addPos(createPoint(17, 15, 1), pos),
-                    type,
-                );
+                void blockSetter(addPos(createPoint(20, 18, 1), pos), type);
             },
         );
 
-        createArch(this.terrain, BlockType.ROCK, createPoint(6, 1, 1));
+        Array.from(createArch(BlockType.ROCK, createPoint(6, 1, 1))).forEach(
+            ([pos, type]: [Point3D, BlockType]) => void blockSetter(pos, type),
+        );
 
         Array.from(
             createCheckers(
@@ -183,8 +120,7 @@ export class GameScene extends Scene {
                 CHUNK_SIZE,
             ),
         ).forEach(
-            ([pos, type]: [Point3D, BlockType]) =>
-                void this.terrain.setBlock(pos, type),
+            ([pos, type]: [Point3D, BlockType]) => void blockSetter(pos, type),
         );
 
         Array.from(
@@ -196,16 +132,27 @@ export class GameScene extends Scene {
             ),
         ).forEach(
             ([pos, type]: [Point3D, BlockType]) =>
-                void this.terrain.setBlock(
+                void blockSetter(
                     addPos(pos, createPoint(CHUNK_SIZE, 0, 0)),
                     type,
                 ),
         );
 
-        // Test Line
-        bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
-            this.terrain.setBlock(p, BlockType.SELECTION),
-        );
+        // // Test Line
+        // bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
+        //     this.terrain.setBlock(p, BlockType.SELECTION),
+        // );
+
+        // // Remove some blocks
+        // Array.from(
+        //     iterateSelection(
+        //         createPoint(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE),
+        //         createPoint(CHUNK_SIZE * 2, CHUNK_SIZE * 2, 0),
+        //     ),
+        // ).forEach(p => {
+        //     console.log('banaan');
+        //     this.terrain.setBlock(p, BlockType.AIR);
+        // });
     }
 
     public update(delta: number): void {
@@ -213,20 +160,7 @@ export class GameScene extends Scene {
 
         updatePhysics();
 
-        for (const gameObject of this.gameObjects.getActive()) {
-            gameObject.components
-                .reduce((components, component) => {
-                    if (this.gameComponents.has(component)) {
-                        components.push(this.gameComponents.getById(component));
-                    } else {
-                        throw Error(
-                            `Component ${component} does not exists on ${gameObject.id}`,
-                        );
-                    }
-                    return components;
-                }, [])
-                .forEach(component => component(this, gameObject));
-        }
+        this.engine.update(delta);
 
         // Do own sorting
         this.stage.children.sort(

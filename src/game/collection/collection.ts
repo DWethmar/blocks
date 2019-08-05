@@ -5,11 +5,10 @@ export type collection3d<T> = T[][][];
 export function createCollection3D<T>(size: number): collection3d<T> {
     return Array(size)
         .fill(null)
-        .map(
-            (): T[][] =>
-                Array(size)
-                    .fill(null)
-                    .map((): T[] => Array(size).fill(null)),
+        .map((): T[][] =>
+            Array(size)
+                .fill(null)
+                .map((): T[] => Array(size).fill(null)),
         );
 }
 
@@ -36,7 +35,9 @@ export function setPointInCollection3D<T>(
     return true;
 }
 
-export function* createCollection3DIterator<T>(collection: collection3d<T>) {
+export function* createCollection3DIterator<T>(
+    collection: collection3d<T>,
+): Iterable<T> {
     for (let x = 0; x < collection.length; x++) {
         for (let y = 0; y < collection[0].length; y++) {
             for (let z = 0; z < collection[0][0].length; z++) {

@@ -29,28 +29,25 @@ export function* createTerrainNoise(
     }
 }
 
-export function createArch(
-    terrain: Terrain,
+export function* createArch(
     type: BlockType,
     start: Point3D,
-): void {
-    terrain.setBlock(addPos(start, createPoint(0, 0, 0)), type);
-    terrain.setBlock(addPos(start, createPoint(0, 0, 1)), type);
-    terrain.setBlock(addPos(start, createPoint(0, 0, 2)), type);
-    terrain.setBlock(addPos(start, createPoint(0, 0, 3)), type);
-
-    terrain.setBlock(addPos(start, createPoint(0, 0, 4)), type);
-    terrain.setBlock(addPos(start, createPoint(1, 0, 5)), type);
-    terrain.setBlock(addPos(start, createPoint(2, 0, 6)), type);
-    terrain.setBlock(addPos(start, createPoint(3, 0, 6)), type);
-    terrain.setBlock(addPos(start, createPoint(4, 0, 6)), type);
-    terrain.setBlock(addPos(start, createPoint(5, 0, 5)), type);
-    terrain.setBlock(addPos(start, createPoint(6, 0, 4)), type);
-
-    terrain.setBlock(addPos(start, createPoint(6, 0, 0)), type);
-    terrain.setBlock(addPos(start, createPoint(6, 0, 1)), type);
-    terrain.setBlock(addPos(start, createPoint(6, 0, 2)), type);
-    terrain.setBlock(addPos(start, createPoint(6, 0, 3)), type);
+): Iterable<[Point3D, BlockType]> {
+    yield [addPos(start, createPoint(0, 0, 0)), type];
+    yield [addPos(start, createPoint(0, 0, 1)), type];
+    yield [addPos(start, createPoint(0, 0, 2)), type];
+    yield [addPos(start, createPoint(0, 0, 3)), type];
+    yield [addPos(start, createPoint(0, 0, 4)), type];
+    yield [addPos(start, createPoint(1, 0, 5)), type];
+    yield [addPos(start, createPoint(2, 0, 6)), type];
+    yield [addPos(start, createPoint(3, 0, 6)), type];
+    yield [addPos(start, createPoint(4, 0, 6)), type];
+    yield [addPos(start, createPoint(5, 0, 5)), type];
+    yield [addPos(start, createPoint(6, 0, 4)), type];
+    yield [addPos(start, createPoint(6, 0, 0)), type];
+    yield [addPos(start, createPoint(6, 0, 1)), type];
+    yield [addPos(start, createPoint(6, 0, 2)), type];
+    yield [addPos(start, createPoint(6, 0, 3)), type];
 }
 
 export function* createTower(

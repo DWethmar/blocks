@@ -4,7 +4,7 @@
     "description": "",
     "main": "src/game/launcher.ts",
     "scripts": {
-        "start": "parcel index.html --out-dir ./dist --cache-dir ./.cache",
+        "start": "parcel index.html --out-dir ./dist --no-cache",
         "build": "parcel build index.html --out-dir ./dist --cache-dir ./.cache"
     },
     "author": "",
@@ -31,12 +31,14 @@
         "typescript": "^3.4.5"
     },
     "dependencies": {
+        "@types/uuid": "^3.4.5",
         "ammo.js": "0.0.10",
         "lodash": "^4.17.11",
         "pixi-cull": "0.5.0",
         "pixi-viewport": "^3.23.2",
         "pixi.js": "^5.0.3",
-        "rxjs": "6.3.3"
+        "rxjs": "6.3.3",
+        "uuid": "^3.3.2"
     },
     "browserslist": [
         "last 1 chrome versions"

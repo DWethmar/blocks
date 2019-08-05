@@ -1,4 +1,5 @@
 import { Point3D, createPoint } from './point';
+import { create } from 'domain';
 
 export const getX = (a: Point3D): number => a.x;
 export const getY = (a: Point3D): number => a.y;
@@ -41,11 +42,41 @@ export function floorPos(point: Point3D): Point3D {
 }
 
 export function isEqual(a: Point3D, b: Point3D): boolean {
-    return getX(a) === getX(b) && getY(a) === getY(b) && getZ(a) === getZ(b);
+    return a.x === b.x && a.y === b.y && a.z === b.z;
 }
 
 export function positionId(c: Point3D): string {
     return `${c.x}.${c.y}.${c.z}`;
+}
+
+export function* iterateSelection(a: Point3D, b: Point3D): Iterable<Point3D> {
+    const aa: Point3D = { ...a };
+    const bb: Point3D = { ...b };
+
+    while (!isEqual(aa, bb)) {
+        if (aa.x < bb.x) {
+            aa.x++;
+        }
+        if (aa.x > bb.x) {
+            aa.x--;
+        }
+
+        if (aa.y < bb.y) {
+            aa.y++;
+        }
+        if (aa.y > bb.y) {
+            aa.y--;
+        }
+
+        if (aa.z < bb.z) {
+            aa.z++;
+        }
+        if (aa.z > bb.z) {
+            aa.z--;
+        }
+
+        yield aa;
+    }
 }
 
 // https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/

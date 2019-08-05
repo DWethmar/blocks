@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { GameObject } from '../../game-object/game-object';
+import { GameObject } from '../../engine/game-object';
 import { GameScene } from '../../scene/game-scene';
 import { Point3D, createPoint } from '../../position/point';
 import { addPos } from '../../position/point-utils';
