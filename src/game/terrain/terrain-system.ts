@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js';
 
-import { Engine } from './engine';
-import { System } from './system';
+import { Engine } from '../engine/engine';
+import { System } from '../engine/system';
 import { Components } from '../components/components';
 import { Component } from '../components/component';
-import { TerrainComponent } from '../components/terrain';
+import { TerrainComponent } from './terrain-component';
 
 export class TerrainSystem extends System {
     public constructor() {

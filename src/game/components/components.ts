@@ -4,4 +4,5 @@ export enum Components {
     VIEW = 'view',
     TERRAIN = 'terrain',
     CHUNK = 'chunk',
+    BALL_PHYSICS = 'ball_physics',
 }

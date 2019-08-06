@@ -14,10 +14,10 @@ import {
     convertWorldIndexToChunkIndex,
     convertWorldIndexToLocalIndex,
 } from './index-utils';
-import { ChunkComponent } from '../components/chunk';
+import { ChunkComponent } from '../chunk/chunk-component';
 import { Components } from '../components/components';
-import { TerrainComponent } from '../components/terrain';
-import { getChunkId as createChunkPosId } from '../chunk/chunk-utils';
+import { TerrainComponent } from './terrain-component';
+import { getChunkId as createChunkPosId } from '../utils/chunk-utils';
 import { Component } from '../components/component';
 import { multiply } from '../calc/calc';
 
@@ -117,15 +117,3 @@ export function createBlockGetter(
         return null;
     };
 }
-
-// export function createTerrain(id: string, gameObjects: Engine): Terrain {
-//     const chunks = createChunkRepository();
-//     return {
-//         id: id,
-//         position: createPoint(),
-//         chunks: chunks,
-//         components: [updateTerrain.name],
-//         setBlock: createBlockSetter(chunks, gameObjects),
-//         getBlock: createBlockGetter(chunks),
-//     };
-// }

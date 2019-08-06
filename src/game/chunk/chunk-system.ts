@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js';
 
-import { Engine } from './engine';
-import { System } from './system';
+import { Engine } from '../engine/engine';
+import { System } from '../engine/system';
 import { Components } from '../components/components';
 import { Component } from '../components/component';
-import { ChunkComponent } from '../components/chunk';
+import { ChunkComponent } from './chunk-component';
 import { Point3D, createPoint } from '../position/point';
 import { isWithin, minusPos, addPos } from '../position/point-utils';
 import {
@@ -19,10 +19,10 @@ import {
 } from '../block/block-repository';
 import { BlockType } from '../block/block-type';
 import { sortZYXAsc } from '../calc/sort';
-import { isBlockTransparent } from '../block/block';
 import { AssetRepository } from '../assets/asset-repository';
 import { multiply } from '../calc/calc';
 import { getDrawPosition } from '../utils/game-object-utils';
+import { isBlockTransparent } from '../block/block-utils';
 
 export function isPositionWithinChunk(
     localIndex: Point3D,

@@ -1,16 +1,16 @@
 import * as PIXI from 'pixi.js';
 
-import { Engine } from './engine';
-import { System } from './system';
+import { Engine } from '../engine/engine';
+import { System } from '../engine/system';
 import { Components } from '../components/components';
-import { ViewComponent } from '../components/view';
+import { GraphicComponent } from './graphic-component';
 import { Component } from '../components/component';
 import { getDrawPosition } from '../utils/game-object-utils';
 import { Point3D } from '../position/point';
-import { createCircleGraphic } from '../graphics/circle';
+import { createCircleGraphic } from './circle';
 import { pink } from '../color/colors';
 
-export class ViewSystem extends System {
+export class GraphicSystem extends System {
     private readonly stage: PIXI.Container;
 
     public constructor(stage: PIXI.Container) {
@@ -21,7 +21,7 @@ export class ViewSystem extends System {
     public update(engine: Engine, delta: number): void {
         engine
             .getAllComponents(Components.VIEW)
-            .forEach((c: Component<ViewComponent>) => {
+            .forEach((c: Component<GraphicComponent>) => {
                 const position = engine.getComponent<Point3D>(
                     c.gameObjectId,
                     Components.POSITION,

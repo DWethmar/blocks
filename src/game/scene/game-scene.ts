@@ -16,28 +16,25 @@ const Viewport = require('pixi-viewport');
 import data from '../../assets/spritesheets/tiles-spritesheet.json';
 import image from '../../assets/spritesheets/tiles-spritesheet.png';
 
-import updatePhysics from '../physics/physics';
 import { AssetRepository } from '../assets/asset-repository';
 import { Scene } from './scene';
 import { createPoint, Point3D } from '../position/point';
-import { addPos } from '../position/point-utils';
+import { addPos, bresenham3D } from '../position/point-utils';
 import { sortZYXAsc } from '../calc/sort';
-import { ViewSystem } from '../engine/view-system';
 import { Components } from '../components/components';
-import { TerrainComponent } from '../components/terrain';
-import { ViewComponent } from '../components/view';
-import { TerrainSystem } from '../engine/terrain-system';
-import { ChunkSystem } from '../engine/chunk-system';
+import { TerrainComponent } from '../terrain/terrain-component';
+import { GraphicComponent } from '../graphic/graphic-component';
+import { TerrainSystem } from '../terrain/terrain-system';
 import { CHUNK_SIZE } from '../config';
+import { BallPhysics } from '../physics/ball-physics';
+import { PhysicsSystem } from '../physics/physics-system';
+import { GraphicSystem } from '../graphic/graphic-system';
+import { ChunkSystem } from '../chunk/chunk-system';
 
 export class GameScene extends Scene {
     public stage: PIXI.Container;
-
     public terrainId: string;
-
     public assets: AssetRepository;
-
-    // public stage: Viewport;
 
     public constructor(app: PIXI.Application) {
         super();
@@ -64,9 +61,10 @@ export class GameScene extends Scene {
             })
             .decelerate();
 
-        this.engine.addSystem(new ViewSystem(this.stage));
+        this.engine.addSystem(new GraphicSystem(this.stage));
         this.engine.addSystem(new TerrainSystem());
         this.engine.addSystem(new ChunkSystem(this.stage, this.assets));
+        this.engine.addSystem(new PhysicsSystem());
 
         // player
         // Pos
@@ -77,7 +75,7 @@ export class GameScene extends Scene {
         );
         this.engine.updateComponent(position.id, createPoint(75, 0, 10));
         // View
-        this.engine.addComponent<ViewComponent>(playerId, Components.VIEW, {
+        this.engine.addComponent<GraphicComponent>(playerId, Components.VIEW, {
             name: 'ball',
         });
 
@@ -91,6 +89,20 @@ export class GameScene extends Scene {
                 blockQueue: [],
             },
         );
+
+        // BALLLLL
+        const ballId = this.engine.createGameObject();
+        const ballPosition = this.engine.getComponent(
+            playerId,
+            Components.POSITION,
+        );
+        this.engine.updateComponent(ballPosition.id, createPoint(100, 10, 100));
+        this.engine.addComponent<GraphicComponent>(ballId, Components.VIEW, {
+            name: 'ball',
+        });
+        this.engine.addComponent<BallPhysics>(ballId, Components.BALL_PHYSICS, {
+            initialized: false,
+        });
 
         this.init();
         app.stage.addChild(this.stage);
@@ -138,10 +150,10 @@ export class GameScene extends Scene {
                 ),
         );
 
-        // // Test Line
-        // bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
-        //     this.terrain.setBlock(p, BlockType.SELECTION),
-        // );
+        // Test Line
+        bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
+            blockSetter(p, BlockType.SELECTION),
+        );
 
         // // Remove some blocks
         // Array.from(
@@ -157,9 +169,6 @@ export class GameScene extends Scene {
 
     public update(delta: number): void {
         this.delta = delta;
-
-        updatePhysics();
-
         this.engine.update(delta);
 
         // Do own sorting
