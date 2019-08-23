@@ -5,4 +5,5 @@ export enum Components {
     TERRAIN = 'terrain',
     CHUNK = 'chunk',
     BALL_PHYSICS = 'ball_physics',
+    DEBUG_LABEL = 'DEBUG_LABEL',
 }

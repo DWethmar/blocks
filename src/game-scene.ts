@@ -7,7 +7,6 @@ import {
     createTower,
 } from './game/behavior/terrain/terrain-utils';
 import { BlockType } from './game/behavior/block/block-type';
-import { createBlockSetter } from './game/behavior/terrain/terrain';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Viewport = require('pixi-viewport');
@@ -22,7 +21,10 @@ import { createPoint, Point3D } from './game/position/point';
 import { addPos, bresenham3D } from './game/position/point-utils';
 import { sortZYXAsc } from './game/calc/sort';
 import { Components } from './game/components/components';
-import { TerrainComponent, BlockQueueItem } from './game/behavior/terrain/terrain-component';
+import {
+    TerrainComponent,
+    BlockQueueItem,
+} from './game/behavior/terrain/terrain-component';
 import { GraphicComponent } from './game/graphic/graphic-component';
 import { TerrainSystem } from './game/behavior/terrain/terrain-system';
 import { CHUNK_SIZE } from './game/config';
@@ -30,6 +32,8 @@ import { BallPhysics } from './game/physics/ball-physics';
 import { PhysicsSystem } from './game/physics/physics-system';
 import { GraphicSystem } from './game/graphic/graphic-system';
 import { ChunkSystem } from './game/behavior/chunk/chunk-system';
+import { DebugLabelComponent } from './game/behavior/debug-label/debug-label-component';
+import { DebugLabelSystem } from './game/behavior/debug-label/debug-label-system';
 
 export class GameScene extends Scene {
     public stage: PIXI.Container;
@@ -65,6 +69,7 @@ export class GameScene extends Scene {
         this.engine.addSystem(new TerrainSystem());
         this.engine.addSystem(new ChunkSystem(this.stage, this.assets));
         this.engine.addSystem(new PhysicsSystem());
+        this.engine.addSystem(new DebugLabelSystem(this.stage));
 
         // player
         // Pos
@@ -78,6 +83,13 @@ export class GameScene extends Scene {
         this.engine.addComponent<GraphicComponent>(playerId, Components.VIEW, {
             name: 'ball',
         });
+        this.engine.addComponent<DebugLabelComponent>(
+            playerId,
+            Components.DEBUG_LABEL,
+            {
+                offset: createPoint(10, 10, 0),
+            },
+        );
 
         // terrain
         this.terrainId = this.engine.createGameObject();
@@ -125,16 +137,17 @@ export class GameScene extends Scene {
             ([pos, type]: [Point3D, BlockType]): void => {
                 blockQueue.push({
                     blockWorldIndex: addPos(createPoint(20, 18, 1), pos),
-                    type: type
+                    type: type,
                 });
             },
         );
 
         Array.from(createArch(BlockType.ROCK, createPoint(6, 1, 1))).forEach(
-            ([pos, type]: [Point3D, BlockType]) => blockQueue.push({
-                blockWorldIndex: pos,
-                type: type
-            }),
+            ([pos, type]: [Point3D, BlockType]) =>
+                blockQueue.push({
+                    blockWorldIndex: pos,
+                    type: type,
+                }),
         );
 
         Array.from(
@@ -144,11 +157,11 @@ export class GameScene extends Scene {
                 CHUNK_SIZE,
                 CHUNK_SIZE,
             ),
-        ).forEach(
-            ([pos, type]: [Point3D, BlockType]) => blockQueue.push({
+        ).forEach(([pos, type]: [Point3D, BlockType]) =>
+            blockQueue.push({
                 blockWorldIndex: pos,
-                type: type
-            })
+                type: type,
+            }),
         );
 
         Array.from(
@@ -158,22 +171,24 @@ export class GameScene extends Scene {
                 CHUNK_SIZE * 3,
                 CHUNK_SIZE * 3,
             ),
-        ).forEach(
-            ([pos, type]: [Point3D, BlockType]) =>
-                blockQueue.push({
-                    blockWorldIndex: addPos(pos, createPoint(CHUNK_SIZE, 0, 0)),
-                    type: type
-                }),
+        ).forEach(([pos, type]: [Point3D, BlockType]) =>
+            blockQueue.push({
+                blockWorldIndex: addPos(pos, createPoint(CHUNK_SIZE, 0, 0)),
+                type: type,
+            }),
         );
         // Test Line
         bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
             blockQueue.push({
                 blockWorldIndex: p,
-                type: BlockType.SELECTION
+                type: BlockType.SELECTION,
             }),
         );
         terrainComponent.state.blockQueue = blockQueue;
-        this.engine.updateComponent(terrainComponent.id, terrainComponent.state);
+        this.engine.updateComponent(
+            terrainComponent.id,
+            terrainComponent.state,
+        );
     }
 
     public update(delta: number): void {

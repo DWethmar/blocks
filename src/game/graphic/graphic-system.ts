@@ -37,8 +37,8 @@ export class GraphicSystem extends System {
                     if (!view) {
                         view = new PIXI.Container();
                         view.name = c.id;
-                        view.x = drawX;
-                        view.y = drawY;
+                        view.x = drawX * delta;
+                        view.y = drawY * delta;
 
                         // TODO split up somewhere else.
                         switch (c.state.name) {
