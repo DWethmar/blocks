@@ -73,7 +73,7 @@ export class GameScene extends Scene {
 
         // player
         // Pos
-        const playerId = this.engine.createGameObject();
+        const playerId = this.engine.createGameObject('player');
         const position = this.engine.getComponent(
             playerId,
             Components.POSITION,

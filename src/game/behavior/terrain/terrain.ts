@@ -51,7 +51,13 @@ export function createBlockSetter(
             // Create chunk if not exist
             if (!chunkComponent) {
                 // Register the new chunk
-                const chunkId = engine.createGameObject(
+                const chunkId = engine.createGameObject('chunk');
+                const position = engine.getComponent(
+                    chunkId,
+                    Components.POSITION,
+                );
+                engine.updateComponent(
+                    position.id,
                     multiply(BLOCK_SIZE * CHUNK_SIZE, chunkIndex),
                 );
                 chunkComponent = engine.addComponent<ChunkComponent>(

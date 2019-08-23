@@ -1,3 +1,6 @@
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { switchMap, map, take, takeUntil } from 'rxjs/operators';
+
 import { GameObject } from './game-object';
 import { System } from './system';
 import { Component } from '../components/component';
@@ -6,48 +9,92 @@ import { Components } from '../components/components';
 import { v1 as uuidv1 } from 'uuid';
 import { Point3D, createPoint } from '../position/point';
 
+export interface GameState {
+    gameObjects: { [id: string]: GameObject };
+    components: { [id: string]: Component<unknown> };
+    activeGameObjects: Set<string>;
+    groupedComponents: {
+        [componentType: string]: string[]; // componentType -> componentId
+    };
+}
+
 /**
  * https://github.com/nova-engine/ecs
  * http://ripplega.me/development/ecs-ez/
  */
 export class Engine {
+    // Old state stuff
     private gameObjects: { [id: string]: GameObject };
     private components: { [id: string]: Component<unknown> };
-
     private activeGameObjects: Set<string>;
-    private systems: System[];
-
     private groupedComponents: {
         [componentType: string]: string[]; // componentType -> componentId
     };
 
+    public destroyed: Subject<void> = new Subject();
+
+    // New state
+    public state: BehaviorSubject<GameState>;
+    public addGameObject: Subject<GameObject>;
+
+    private systems: System[];
     private ids = 0;
 
     public constructor() {
         this.gameObjects = {};
         this.components = {};
         this.activeGameObjects = new Set<string>();
-        this.systems = [];
         this.groupedComponents = {};
+
+        this.systems = [];
+
+        // Test state stuff
+        this.state = new BehaviorSubject({
+            gameObjects: {},
+            components: {},
+            activeGameObjects: new Set<string>(),
+            groupedComponents: {},
+        });
+
+        // Add gameobject
+        this.addGameObject = new Subject<GameObject>();
+        this.addGameObject
+            .pipe(
+                takeUntil(this.destroyed),
+                switchMap(gameObject =>
+                    this.state.pipe(
+                        take(1),
+                        map(state => {
+                            state.gameObjects[gameObject.id] = gameObject;
+                            return Object.assign({}, state);
+                        }),
+                    ),
+                ),
+            )
+            .subscribe(state => {
+                console.log(state);
+                this.state.next(state);
+            });
     }
 
     public update(delta: number): void {
         this.systems.forEach(s => s.update(this, delta));
     }
 
-    public createGameObject(position?: Point3D, name?: string): string {
+    public createGameObject(name?: string): string {
         this.ids++;
         const id = this.ids.toString();
-        this.gameObjects[id] = {
+        const gameObject = {
             id: id,
             name: name || `go-${id}`,
             components: {},
         };
-        this.addComponent<Point3D>(
-            id,
-            Components.POSITION,
-            position || createPoint(),
-        );
+        this.gameObjects[id] = gameObject;
+        this.addComponent<Point3D>(id, Components.POSITION, createPoint());
+
+        //test
+        this.addGameObject.next(gameObject);
+
         return id;
     }
 
@@ -73,16 +120,16 @@ export class Engine {
         );
     }
 
-    // private getGameObject(id: string): GameObject | null {
-    //     if (this.gameObjectExists(id)) {
-    //         return this.gameObjects[id];
-    //     }
-    //     return null;
-    // }
-
     // Component
-    public addComponent<T>(gameObjectID: string, type: string, state: T): Component<T> {
-        if (this.gameObjectExists(gameObjectID) && !this.hasComponent(gameObjectID, type)) {
+    public addComponent<T>(
+        gameObjectID: string,
+        type: string,
+        state: T,
+    ): Component<T> {
+        if (
+            this.gameObjectExists(gameObjectID) &&
+            !this.hasComponent(gameObjectID, type)
+        ) {
             const componentId = uuidv1();
             const component: Component<T> = {
                 id: componentId,
@@ -134,6 +181,7 @@ export class Engine {
 
     // system.
     public addSystem(system: System): void {
+        system.onAttach(this);
         this.systems.push(system);
     }
 }
