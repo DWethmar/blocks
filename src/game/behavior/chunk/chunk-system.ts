@@ -1,27 +1,27 @@
 import * as PIXI from 'pixi.js';
 
-import { Engine } from '../engine/engine';
-import { System } from '../engine/system';
-import { Components } from '../components/components';
-import { Component } from '../components/component';
+import { Engine } from '../../engine/engine';
+import { System } from '../../engine/system';
+import { Components } from '../../components/components';
+import { Component } from '../../components/component';
 import { ChunkComponent } from './chunk-component';
-import { Point3D, createPoint } from '../position/point';
-import { isWithin, minusPos, addPos } from '../position/point-utils';
+import { Point3D, createPoint } from '../../position/point';
+import { isWithin, minusPos, addPos } from '../../position/point-utils';
 import {
     convertPositionToChunkIndex,
     convertWorldIndexToChunkIndex,
-} from '../terrain/index-utils';
-import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
+} from '../../utils/index-utils';
+import { CHUNK_SIZE, BLOCK_SIZE } from '../../config';
 import {
     blockRepository,
     iterateBlocks,
     getBlock,
 } from '../block/block-repository';
 import { BlockType } from '../block/block-type';
-import { sortZYXAsc } from '../calc/sort';
-import { AssetRepository } from '../assets/asset-repository';
-import { multiply } from '../calc/calc';
-import { getDrawPosition } from '../utils/game-object-utils';
+import { sortZYXAsc } from '../../calc/sort';
+import { AssetRepository } from '../../assets/asset-repository';
+import { multiply } from '../../calc/calc';
+import { getDrawPosition } from '../../utils/game-object-utils';
 import { isBlockTransparent } from '../block/block-utils';
 
 export function isPositionWithinChunk(

@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 
 import { getDrawPosition } from '../../utils/game-object-utils';
-import { GameScene } from '../../scene/game-scene';
+import { GameScene } from '../../../game-scene';
 import { GameObject } from '../../engine/game-object';
 
 export function debugPosition(scene: GameScene, gameObject: GameObject): void {

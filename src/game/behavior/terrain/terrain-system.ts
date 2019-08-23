@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
 
-import { Engine } from '../engine/engine';
-import { System } from '../engine/system';
-import { Components } from '../components/components';
-import { Component } from '../components/component';
+import { Engine } from '../../engine/engine';
+import { System } from '../../engine/system';
+import { Components } from '../../components/components';
+import { Component } from '../../components/component';
 import { TerrainComponent } from './terrain-component';
 
 export class TerrainSystem extends System {

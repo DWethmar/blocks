@@ -5,31 +5,31 @@ import {
     createCheckers,
     createTerrainNoise,
     createTower,
-} from '../terrain/terrain-utils';
-import { BlockType } from '../block/block-type';
-import { createBlockSetter } from '../terrain/terrain';
+} from './game/behavior/terrain/terrain-utils';
+import { BlockType } from './game/behavior/block/block-type';
+import { createBlockSetter } from './game/behavior/terrain/terrain';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Viewport = require('pixi-viewport');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-import data from '../../assets/spritesheets/tiles-spritesheet.json';
-import image from '../../assets/spritesheets/tiles-spritesheet.png';
+import data from './assets/spritesheets/tiles-spritesheet.json';
+import image from './assets/spritesheets/tiles-spritesheet.png';
 
-import { AssetRepository } from '../assets/asset-repository';
-import { Scene } from './scene';
-import { createPoint, Point3D } from '../position/point';
-import { addPos, bresenham3D } from '../position/point-utils';
-import { sortZYXAsc } from '../calc/sort';
-import { Components } from '../components/components';
-import { TerrainComponent } from '../terrain/terrain-component';
-import { GraphicComponent } from '../graphic/graphic-component';
-import { TerrainSystem } from '../terrain/terrain-system';
-import { CHUNK_SIZE } from '../config';
-import { BallPhysics } from '../physics/ball-physics';
-import { PhysicsSystem } from '../physics/physics-system';
-import { GraphicSystem } from '../graphic/graphic-system';
-import { ChunkSystem } from '../chunk/chunk-system';
+import { AssetRepository } from './game/assets/asset-repository';
+import { Scene } from './game/scene/scene';
+import { createPoint, Point3D } from './game/position/point';
+import { addPos, bresenham3D } from './game/position/point-utils';
+import { sortZYXAsc } from './game/calc/sort';
+import { Components } from './game/components/components';
+import { TerrainComponent } from './game/behavior/terrain/terrain-component';
+import { GraphicComponent } from './game/graphic/graphic-component';
+import { TerrainSystem } from './game/behavior/terrain/terrain-system';
+import { CHUNK_SIZE } from './game/config';
+import { BallPhysics } from './game/physics/ball-physics';
+import { PhysicsSystem } from './game/physics/physics-system';
+import { GraphicSystem } from './game/graphic/graphic-system';
+import { ChunkSystem } from './game/behavior/chunk/chunk-system';
 
 export class GameScene extends Scene {
     public stage: PIXI.Container;

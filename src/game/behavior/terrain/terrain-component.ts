@@ -1,5 +1,5 @@
 import { BlockType } from '../block/block-type';
-import { Point3D } from '../position/point';
+import { Point3D } from '../../position/point';
 
 export interface TerrainComponent {
     chunks: {

@@ -1,22 +1,26 @@
 {
-	"eslint.autoFixOnSave": true,
-	"eslint.validate": [
-		"javascript",
-		{
-			"language": "typescript",
-			"autoFix": true
-		},
-	],
-	"editor.formatOnSave": true,
-	"[javascript]": {
-		"editor.formatOnSave": false,
-	},
-	"[typescript]": {
-		"editor.formatOnSave": false,
-	},
-	"cSpell.words": [
-		"spritesheets"
-	],
-	"editor.formatOnPaste": true,
-	"editor.formatOnType": true,
+    "eslint.autoFixOnSave": true,
+    "eslint.validate": [
+        "javascript",
+        {
+            "language": "typescript",
+            "autoFix": true
+        },
+    ],
+    "editor.formatOnSave": true,
+    "[javascript]": {
+        "editor.formatOnSave": false,
+    },
+    "[typescript]": {
+        "editor.formatOnSave": false,
+    },
+    "cSpell.words": [
+        "behaviour",
+        "spritesheets"
+    ],
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "[handlebars]": {
+        "editor.formatOnSave": false
+    },
 }

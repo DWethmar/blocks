@@ -1,5 +1,5 @@
 import { BlockType } from './block-type';
-import { Point3D, createPoint } from '../position/point';
+import { Point3D, createPoint } from '../../position/point';
 
 export type blockRepository = BlockType[][][];
 
@@ -10,11 +10,10 @@ export function createBlockRepository(
 ): blockRepository {
     return Array(maxX)
         .fill(null)
-        .map(
-            (): BlockType[][] =>
-                Array(maxY)
-                    .fill(null)
-                    .map((): BlockType[] => Array(maxZ).fill(BlockType.AIR)),
+        .map((): BlockType[][] =>
+            Array(maxY)
+                .fill(null)
+                .map((): BlockType[] => Array(maxZ).fill(BlockType.AIR)),
         );
 }
 

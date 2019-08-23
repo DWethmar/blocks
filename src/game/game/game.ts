@@ -1,4 +1,4 @@
-import { GameScene } from '../scene/game-scene';
+import { GameScene } from '../../game-scene';
 
 export class Game {
     public scene: GameScene;

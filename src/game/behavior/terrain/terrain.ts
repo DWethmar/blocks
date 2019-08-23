@@ -1,25 +1,25 @@
 import * as PIXI from 'pixi.js';
 
 import { BlockType } from '../block/block-type';
-import { CHUNK_SIZE, BLOCK_SIZE } from '../config';
+import { CHUNK_SIZE, BLOCK_SIZE } from '../../config';
 import {
     setBlock,
     getBlock,
     createBlockRepository,
 } from '../block/block-repository';
-import { Point3D, createPoint } from '../position/point';
-import { Engine } from '../engine/engine';
-import { isIntegerPoint3D } from '../position/point-utils';
+import { Point3D } from '../../position/point';
+import { Engine } from '../../engine/engine';
+import { isIntegerPoint3D } from '../../position/point-utils';
 import {
     convertWorldIndexToChunkIndex,
     convertWorldIndexToLocalIndex,
-} from './index-utils';
+} from '../../utils/index-utils';
 import { ChunkComponent } from '../chunk/chunk-component';
-import { Components } from '../components/components';
+import { Components } from '../../components/components';
 import { TerrainComponent } from './terrain-component';
-import { getChunkId as createChunkPosId } from '../utils/chunk-utils';
-import { Component } from '../components/component';
-import { multiply } from '../calc/calc';
+import { getChunkId as createChunkPosId } from '../chunk/chunk-utils';
+import { Component } from '../../components/component';
+import { multiply } from '../../calc/calc';
 
 export type blockSetter = (blockIndex: Point3D, type: BlockType) => boolean;
 export type blockGetter = (blockIndex: Point3D) => BlockType;

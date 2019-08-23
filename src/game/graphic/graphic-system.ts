@@ -1,14 +1,13 @@
 import * as PIXI from 'pixi.js';
-
-import { Engine } from '../engine/engine';
 import { System } from '../engine/system';
+import { Engine } from '../engine/engine';
 import { Components } from '../components/components';
-import { GraphicComponent } from './graphic-component';
-import { Component } from '../components/component';
-import { getDrawPosition } from '../utils/game-object-utils';
-import { Point3D } from '../position/point';
 import { createCircleGraphic } from './circle';
 import { pink } from '../color/colors';
+import { getDrawPosition } from '../utils/game-object-utils';
+import { Point3D } from '../position/point';
+import { GraphicComponent } from './graphic-component';
+import { Component } from '../components/component';
 
 export class GraphicSystem extends System {
     private readonly stage: PIXI.Container;
