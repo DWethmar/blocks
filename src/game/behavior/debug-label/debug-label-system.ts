@@ -7,6 +7,7 @@ import { Component } from '../../components/component';
 import { DebugLabelComponent } from './debug-label-component';
 import { Point3D } from '../../position/point';
 import { getDrawPosition } from '../../utils/game-object-utils';
+import { addPos } from '../../position/point-utils';
 
 export class DebugLabelSystem extends System {
     private readonly stage: PIXI.Container;
@@ -51,7 +52,9 @@ export class DebugLabelSystem extends System {
                 view.name = viewName;
                 this.stage.addChild(view);
             }
-            const [drawX, drawY] = getDrawPosition(position.state);
+            const [drawX, drawY] = getDrawPosition(
+                addPos(position.state, c.state.offset),
+            );
 
             view.position.set(drawX, drawY);
             view.zIndex = position.state.z + 999999;
