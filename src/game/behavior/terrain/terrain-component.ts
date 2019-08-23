@@ -5,8 +5,10 @@ export interface TerrainComponent {
     chunks: {
         [chunkPosition: string]: string; // chunkPosId -> chunk gameobjectid
     };
-    blockQueue: {
-        blockWorldIndex: Point3D;
-        type: BlockType;
-    }[];
+    blockQueue: BlockQueueItem[];
+}
+
+export interface BlockQueueItem {
+    blockWorldIndex: Point3D;
+    type: BlockType;
 }

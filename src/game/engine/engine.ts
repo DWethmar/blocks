@@ -81,18 +81,18 @@ export class Engine {
     // }
 
     // Component
-    public addComponent<T>(id: string, type: string, state: T): Component<T> {
-        if (this.gameObjectExists(id) && !this.hasComponent(id, type)) {
+    public addComponent<T>(gameObjectID: string, type: string, state: T): Component<T> {
+        if (this.gameObjectExists(gameObjectID) && !this.hasComponent(gameObjectID, type)) {
             const componentId = uuidv1();
             const component: Component<T> = {
                 id: componentId,
                 type: type,
-                gameObjectId: id,
+                gameObjectId: gameObjectID,
                 dirty: false,
                 state: state,
             };
             this.components[componentId] = component;
-            this.gameObjects[id].components[type] = componentId;
+            this.gameObjects[gameObjectID].components[type] = componentId;
 
             // Add relation from component to gameObject
             if (!this.groupedComponents.hasOwnProperty(type)) {

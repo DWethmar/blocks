@@ -5,6 +5,7 @@ import { System } from '../../engine/system';
 import { Components } from '../../components/components';
 import { Component } from '../../components/component';
 import { TerrainComponent } from './terrain-component';
+import { createBlockSetter } from './terrain';
 
 export class TerrainSystem extends System {
     public constructor() {
@@ -22,5 +23,11 @@ export class TerrainSystem extends System {
     public updateTerrain(
         engine: Engine,
         terrain: Component<TerrainComponent>,
-    ): void {}
+    ): void {
+        const blockSetter = createBlockSetter(terrain.gameObjectId, engine)
+
+        terrain.state.blockQueue.forEach(q => void blockSetter(q.blockWorldIndex, q.type));
+        terrain.state.blockQueue = [];
+        engine.updateComponent(terrain.id, terrain.state);
+    }
 }

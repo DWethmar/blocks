@@ -22,7 +22,7 @@ import { createPoint, Point3D } from './game/position/point';
 import { addPos, bresenham3D } from './game/position/point-utils';
 import { sortZYXAsc } from './game/calc/sort';
 import { Components } from './game/components/components';
-import { TerrainComponent } from './game/behavior/terrain/terrain-component';
+import { TerrainComponent, BlockQueueItem } from './game/behavior/terrain/terrain-component';
 import { GraphicComponent } from './game/graphic/graphic-component';
 import { TerrainSystem } from './game/behavior/terrain/terrain-system';
 import { CHUNK_SIZE } from './game/config';
@@ -43,8 +43,8 @@ export class GameScene extends Scene {
         this.stage = new Viewport({
             screenWidth: window.innerWidth,
             screenHeight: window.innerHeight,
-            worldWidth: 1000,
-            worldHeight: 1000,
+            worldWidth: 500,
+            worldHeight: 500,
             interaction: app.renderer.plugins.interaction, // the interaction module is important for wheel() to work properly when renderer.view is placed or scaled
         });
         this.stage.sortableChildren = false; // we are going to do our own sorting.
@@ -111,17 +111,30 @@ export class GameScene extends Scene {
     private async init(): Promise<void> {
         await this.assets.loadSpriteSheet(data, image);
 
-        const blockSetter = createBlockSetter(this.terrainId, this.engine);
+        const blockQueue: BlockQueueItem[] = [];
+
+        const terrainComponent = this.engine.getComponent<TerrainComponent>(
+            this.terrainId,
+            Components.TERRAIN,
+        );
+
+        // const blockSetter = createBlockSetter(this.terrainId, this.engine);
         // const blockGetter = createBlockGetter(terrain.state.chunks);
 
         Array.from(createTower(BlockType.ROCK, 20)).forEach(
             ([pos, type]: [Point3D, BlockType]): void => {
-                void blockSetter(addPos(createPoint(20, 18, 1), pos), type);
+                blockQueue.push({
+                    blockWorldIndex: addPos(createPoint(20, 18, 1), pos),
+                    type: type
+                });
             },
         );
 
         Array.from(createArch(BlockType.ROCK, createPoint(6, 1, 1))).forEach(
-            ([pos, type]: [Point3D, BlockType]) => void blockSetter(pos, type),
+            ([pos, type]: [Point3D, BlockType]) => blockQueue.push({
+                blockWorldIndex: pos,
+                type: type
+            }),
         );
 
         Array.from(
@@ -132,7 +145,10 @@ export class GameScene extends Scene {
                 CHUNK_SIZE,
             ),
         ).forEach(
-            ([pos, type]: [Point3D, BlockType]) => void blockSetter(pos, type),
+            ([pos, type]: [Point3D, BlockType]) => blockQueue.push({
+                blockWorldIndex: pos,
+                type: type
+            })
         );
 
         Array.from(
@@ -144,27 +160,20 @@ export class GameScene extends Scene {
             ),
         ).forEach(
             ([pos, type]: [Point3D, BlockType]) =>
-                void blockSetter(
-                    addPos(pos, createPoint(CHUNK_SIZE, 0, 0)),
-                    type,
-                ),
+                blockQueue.push({
+                    blockWorldIndex: addPos(pos, createPoint(CHUNK_SIZE, 0, 0)),
+                    type: type
+                }),
         );
-
         // Test Line
         bresenham3D(1, 0, 10, 10, 0, 20).forEach(p =>
-            blockSetter(p, BlockType.SELECTION),
+            blockQueue.push({
+                blockWorldIndex: p,
+                type: BlockType.SELECTION
+            }),
         );
-
-        // // Remove some blocks
-        // Array.from(
-        //     iterateSelection(
-        //         createPoint(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE),
-        //         createPoint(CHUNK_SIZE * 2, CHUNK_SIZE * 2, 0),
-        //     ),
-        // ).forEach(p => {
-        //     console.log('banaan');
-        //     this.terrain.setBlock(p, BlockType.AIR);
-        // });
+        terrainComponent.state.blockQueue = blockQueue;
+        this.engine.updateComponent(terrainComponent.id, terrainComponent.state);
     }
 
     public update(delta: number): void {
